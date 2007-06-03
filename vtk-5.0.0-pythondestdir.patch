@@ -1,0 +1,11 @@
+--- VTK/Wrapping/Python/CMakeLists.txt~	2005-08-25 21:31:14.000000000 +0200
++++ VTK/Wrapping/Python/CMakeLists.txt	2006-05-27 13:32:40.000000000 +0200
+@@ -299,7 +299,7 @@
+     # Create default python setup arguments if they are not set.
+     IF(DEFINED VTK_PYTHON_SETUP_ARGS)
+     ELSE(DEFINED VTK_PYTHON_SETUP_ARGS)
+-      SET(VTK_PYTHON_SETUP_ARGS "--prefix=\"${DOLLAR}{CMAKE_INSTALL_PREFIX}\""
++      SET(VTK_PYTHON_SETUP_ARGS "--root=\"${DOLLAR}{CMAKE_INSTALL_PREFIX}\" -O1"
+         CACHE STRING "Arguments passed to \"python setup.py install ...\" during installation.")
+       MARK_AS_ADVANCED(VTK_PYTHON_SETUP_ARGS)
+     ENDIF(DEFINED VTK_PYTHON_SETUP_ARGS)
