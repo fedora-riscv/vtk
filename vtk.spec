@@ -7,7 +7,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 5.0.3
-Release: 18%{?dist}
+Release: 18.1%{?dist}
 License: BSD-like
 Group: System Environment/Libraries
 Source: http://www.vtk.org/files/release/5.0/%{name}-%{version}.tar.gz
@@ -181,7 +181,7 @@ eval $cmake_command
 # -DVTK_USE_X:BOOL=ON \
 # -DOPENGL_INCLUDE_DIR:PATH=/usr/include/GL \
 
-make %{?_smp_mflags}
+make
 
 %install
 rm -rf %{buildroot}
