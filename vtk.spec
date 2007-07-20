@@ -1,13 +1,13 @@
 %bcond_without OSMesa
 %bcond_with qt4
-%bcond_without java
+%bcond_with java
 
 %{!?python_sitearch:%global python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
 
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 5.0.3
-Release: 18.1%{?dist}
+Release: 18.2%{?dist}
 License: BSD-like
 Group: System Environment/Libraries
 Source: http://www.vtk.org/files/release/5.0/%{name}-%{version}.tar.gz
