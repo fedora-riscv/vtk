@@ -7,7 +7,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 5.0.3
-Release: 18.2%{?dist}
+Release: 20%{?dist}
 License: BSD-like
 Group: System Environment/Libraries
 Source: http://www.vtk.org/files/release/5.0/%{name}-%{version}.tar.gz
@@ -364,6 +364,9 @@ rm -rf %{buildroot}
 %{_libdir}/vtk-examples-5.0
 
 %changelog
+* Tue Aug 28 2007 Fedora Release Engineering <rel-eng at fedoraproject dot org> - 5.0.3-20
+- Rebuild for selinux ppc32 issue.
+
 * Mon May 28 2007 Axel Thimm <Axel.Thimm@ATrpms.net> - 5.0.3-18
 - Move headers to %%{_includedir}/vtk.
 - Remove executable bit from sources.
