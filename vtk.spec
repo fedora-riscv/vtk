@@ -6,8 +6,8 @@
 
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
-Version: 5.0.3
-Release: 20%{?dist}
+Version: 5.0.4
+Release: 19%{?dist}
 License: BSD-like
 Group: System Environment/Libraries
 Source: http://www.vtk.org/files/release/5.0/%{name}-%{version}.tar.gz
@@ -27,6 +27,7 @@ BuildRequires: libtiff-devel, zlib-devel
 BuildRequires: qt-devel
 %{?with_qt4:BuildRequires: qt4-devel}
 BuildRequires: chrpath
+BuildRequires: doxygen, graphviz
 
 %description
 VTK is an open-source software system for image processing, 3D
@@ -137,6 +138,7 @@ cmake_command="cmake . \
  -DVTK_INSTALL_INCLUDE_DIR:PATH=%{_includedir}/vtk \
  -DVTK_INSTALL_LIB_DIR:PATH=%{_libdir} \
  -DVTK_DATA_ROOT:PATH=%{_datadir}/vtkdata-%{version} \
+ -DTK_INTERNAL_PATH:PATH=/usr/include/tk-private/generic \
 %if %{with OSMesa}
  -DVTK_OPENGL_HAS_OSMESA:BOOL=ON \
 %endif
@@ -334,7 +336,8 @@ rm -rf %{buildroot}
 
 %files python
 %defattr(-,root,root,-)
-%{python_sitearch}/vtk
+#%{python_sitearch}/vtk
+%{python_sitearch}/*
 %{_libdir}/*PythonD.so.*
 %{_bindir}/vtkpython
 %{_bindir}/vtkWrapPython
@@ -364,8 +367,8 @@ rm -rf %{buildroot}
 %{_libdir}/vtk-examples-5.0
 
 %changelog
-* Tue Aug 28 2007 Fedora Release Engineering <rel-eng at fedoraproject dot org> - 5.0.3-20
-- Rebuild for selinux ppc32 issue.
+* Sat Feb 23 2008 Axel Thimm <Axel.Thimm@ATrpms.net> - 5.0.4-19
+- Update to 5.0.4.
 
 * Mon May 28 2007 Axel Thimm <Axel.Thimm@ATrpms.net> - 5.0.3-18
 - Move headers to %%{_includedir}/vtk.
