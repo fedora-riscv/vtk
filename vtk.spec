@@ -7,7 +7,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 5.0.4
-Release: 19%{?dist}
+Release: 20%{?dist}
 License: BSD-like
 Group: System Environment/Libraries
 Source: http://www.vtk.org/files/release/5.0/%{name}-%{version}.tar.gz
@@ -24,7 +24,7 @@ BuildRequires: tk-devel, tcl-devel
 BuildRequires: python-devel
 BuildRequires: expat-devel, freetype-devel, libjpeg-devel, libpng-devel
 BuildRequires: libtiff-devel, zlib-devel
-BuildRequires: qt-devel
+BuildRequires: qt3-devel
 %{?with_qt4:BuildRequires: qt4-devel}
 BuildRequires: chrpath
 BuildRequires: doxygen, graphviz
@@ -367,6 +367,9 @@ rm -rf %{buildroot}
 %{_libdir}/vtk-examples-5.0
 
 %changelog
+* Sat Apr  5 2008 Axel Thimm <Axel.Thimm@ATrpms.net> - 5.0.4-20
+- Change BR to qt-devel to qt3-devel.
+
 * Sat Feb 23 2008 Axel Thimm <Axel.Thimm@ATrpms.net> - 5.0.4-19
 - Update to 5.0.4.
 
