@@ -7,11 +7,12 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 5.0.4
-Release: 20%{?dist}
+Release: 21%{?dist}
 License: BSD-like
 Group: System Environment/Libraries
 Source: http://www.vtk.org/files/release/5.0/%{name}-%{version}.tar.gz
 Patch0: vtk-5.0.0-pythondestdir.patch
+Patch1: vtk-5.0.4-gcc43.patch
 URL: http://vtk.org/
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: cmake >= 2.0.4
@@ -101,6 +102,7 @@ programming languages.
 %prep
 %setup -q -n VTK
 %patch0 -p1
+%patch1 -p1
 
 # Replace relative path ../../../VTKData with %{_datadir}/vtkdata-%{version}
 # otherwise it will break on symlinks.
@@ -367,6 +369,9 @@ rm -rf %{buildroot}
 %{_libdir}/vtk-examples-5.0
 
 %changelog
+* Sat Apr 12 2008 Axel Thimm <Axel.Thimm@ATrpms.net> - 5.0.4-21
+- Fixes for gcc 4.3 by Orion Poplawski.
+
 * Sat Apr  5 2008 Axel Thimm <Axel.Thimm@ATrpms.net> - 5.0.4-20
 - Change BR to qt-devel to qt3-devel.
 
