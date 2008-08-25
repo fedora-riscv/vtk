@@ -1,17 +1,21 @@
 %bcond_without OSMesa
 %bcond_with qt4
-%bcond_with java
+%bcond_without java
 
 %{!?python_sitearch:%global python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
 
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 5.0.4
-Release: 19%{?dist}
-License: BSD-like
+Release: 23%{?dist}
+# This is a variant BSD license, a cross between BSD and ZLIB.
+# For all intents, it has the same rights and restrictions as BSD.
+# http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
+License: BSD
 Group: System Environment/Libraries
 Source: http://www.vtk.org/files/release/5.0/%{name}-%{version}.tar.gz
 Patch0: vtk-5.0.0-pythondestdir.patch
+Patch1: vtk-5.0.4-gcc43.patch
 URL: http://vtk.org/
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: cmake >= 2.0.4
@@ -24,7 +28,7 @@ BuildRequires: tk-devel, tcl-devel
 BuildRequires: python-devel
 BuildRequires: expat-devel, freetype-devel, libjpeg-devel, libpng-devel
 BuildRequires: libtiff-devel, zlib-devel
-BuildRequires: qt-devel
+BuildRequires: qt3-devel
 %{?with_qt4:BuildRequires: qt4-devel}
 BuildRequires: chrpath
 BuildRequires: doxygen, graphviz
@@ -101,6 +105,7 @@ programming languages.
 %prep
 %setup -q -n VTK
 %patch0 -p1
+%patch1 -p1 -b .gcc43
 
 # Replace relative path ../../../VTKData with %{_datadir}/vtkdata-%{version}
 # otherwise it will break on symlinks.
@@ -283,7 +288,7 @@ find Utilities/Upgrading -type f | xargs chmod -x
 # Add exec bits to shared libs ...
 chmod 0755 %{buildroot}%{_libdir}/vtk-5.0/CMake/*.so
 
-%check || :
+%check
 #LD_LIBARARY_PATH=`pwd`/bin ctest -V
 
 %clean
@@ -367,6 +372,19 @@ rm -rf %{buildroot}
 %{_libdir}/vtk-examples-5.0
 
 %changelog
+* Sun Aug 24 2008 Axel Thimm <Axel.Thimm@ATrpms.net> - 5.0.4-23
+- %%check || : does not work anymore.
+- enable java by default.
+
+* Wed May 21 2008 Tom "spot" Callaway <tcallawa@redhat.com> - 5.0.4-22
+- fix license tag
+
+* Sat Apr 12 2008 Axel Thimm <Axel.Thimm@ATrpms.net> - 5.0.4-21
+- Fixes for gcc 4.3 by Orion Poplawski.
+
+* Sat Apr  5 2008 Axel Thimm <Axel.Thimm@ATrpms.net> - 5.0.4-20
+- Change BR to qt-devel to qt3-devel.
+
 * Sat Feb 23 2008 Axel Thimm <Axel.Thimm@ATrpms.net> - 5.0.4-19
 - Update to 5.0.4.
 
