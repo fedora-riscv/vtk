@@ -1,13 +1,13 @@
 %bcond_without OSMesa
 %bcond_with qt4
-%bcond_with java
+%bcond_without java
 
 %{!?python_sitearch:%global python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
 
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 5.0.4
-Release: 22%{?dist}
+Release: 23%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -105,7 +105,7 @@ programming languages.
 %prep
 %setup -q -n VTK
 %patch0 -p1
-%patch1 -p1
+%patch1 -p1 -b .gcc43
 
 # Replace relative path ../../../VTKData with %{_datadir}/vtkdata-%{version}
 # otherwise it will break on symlinks.
@@ -288,7 +288,7 @@ find Utilities/Upgrading -type f | xargs chmod -x
 # Add exec bits to shared libs ...
 chmod 0755 %{buildroot}%{_libdir}/vtk-5.0/CMake/*.so
 
-%check || :
+%check
 #LD_LIBARARY_PATH=`pwd`/bin ctest -V
 
 %clean
@@ -372,6 +372,10 @@ rm -rf %{buildroot}
 %{_libdir}/vtk-examples-5.0
 
 %changelog
+* Sun Aug 24 2008 Axel Thimm <Axel.Thimm@ATrpms.net> - 5.0.4-23
+- %%check || : does not work anymore.
+- enable java by default.
+
 * Wed May 21 2008 Tom "spot" Callaway <tcallawa@redhat.com> - 5.0.4-22
 - fix license tag
 
