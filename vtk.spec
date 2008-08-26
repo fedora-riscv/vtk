@@ -7,7 +7,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 5.0.4
-Release: 23%{?dist}
+Release: 24%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -20,7 +20,7 @@ URL: http://vtk.org/
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: cmake >= 2.0.4
 BuildRequires: gcc-c++
-%{?with_java:BuildRequires: java-devel}
+%{?with_java:BuildRequires: gcc-java, libgcj-devel}
 BuildRequires: libX11-devel, libXt-devel, libXext-devel
 BuildRequires: libICE-devel, libGL-devel
 %{?with_OSMesa:BuildRequires: mesa-libOSMesa-devel}
@@ -372,6 +372,9 @@ rm -rf %{buildroot}
 %{_libdir}/vtk-examples-5.0
 
 %changelog
+* Mon Aug 25 2008 Axel Thimm <Axel.Thimm@ATrpms.net> - 5.0.4-24
+- Change java build dependencies from java-devel to gcj.
+
 * Sun Aug 24 2008 Axel Thimm <Axel.Thimm@ATrpms.net> - 5.0.4-23
 - %%check || : does not work anymore.
 - enable java by default.
