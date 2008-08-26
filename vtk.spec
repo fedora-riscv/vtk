@@ -7,7 +7,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 5.0.4
-Release: 24%{?dist}
+Release: 23.99%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -28,7 +28,7 @@ BuildRequires: tk-devel, tcl-devel
 BuildRequires: python-devel
 BuildRequires: expat-devel, freetype-devel, libjpeg-devel, libpng-devel
 BuildRequires: libtiff-devel, zlib-devel
-BuildRequires: qt3-devel
+BuildRequires: qt-devel
 %{?with_qt4:BuildRequires: qt4-devel}
 BuildRequires: chrpath
 BuildRequires: doxygen, graphviz
@@ -384,9 +384,6 @@ rm -rf %{buildroot}
 
 * Sat Apr 12 2008 Axel Thimm <Axel.Thimm@ATrpms.net> - 5.0.4-21
 - Fixes for gcc 4.3 by Orion Poplawski.
-
-* Sat Apr  5 2008 Axel Thimm <Axel.Thimm@ATrpms.net> - 5.0.4-20
-- Change BR to qt-devel to qt3-devel.
 
 * Sat Feb 23 2008 Axel Thimm <Axel.Thimm@ATrpms.net> - 5.0.4-19
 - Update to 5.0.4.
