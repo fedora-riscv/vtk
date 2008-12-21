@@ -6,16 +6,16 @@
 
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
-Version: 5.0.4
+Version: 5.2.0
 Release: 26%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
 License: BSD
 Group: System Environment/Libraries
-Source: http://www.vtk.org/files/release/5.0/%{name}-%{version}.tar.gz
-Patch0: vtk-5.0.0-pythondestdir.patch
-Patch1: vtk-5.0.4-gcc43.patch
+Source: http://www.vtk.org/files/release/5.2/%{name}-%{version}.tar.gz
+Patch0: vtk-5.2.0-pythondestdir.patch
+Patch1: vtk-5.2.0-gcc43.patch
 URL: http://vtk.org/
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: cmake >= 2.0.4
@@ -104,7 +104,7 @@ programming languages.
 
 %prep
 %setup -q -n VTK
-%patch0 -p1
+%patch0 -p1 -b .pythondestdir
 %patch1 -p1 -b .gcc43
 
 # Replace relative path ../../../VTKData with %{_datadir}/vtkdata-%{version}
@@ -116,9 +116,9 @@ grep -rl '\.\./\.\./\.\./\.\./VTKData' . | xargs \
 find . -name \*.c -or -name \*.cxx -or -name \*.h | xargs chmod -x
 
 # Save an unbuilt copy of the Example's sources for %doc
-mkdir vtk-examples-5.0
-cp -a Examples vtk-examples-5.0
-find vtk-examples-5.0 -type f | xargs chmod -R a-x
+mkdir vtk-examples-5.2
+cp -a Examples vtk-examples-5.2
+find vtk-examples-5.2 -type f | xargs chmod -R a-x
 
 %build
 export CFLAGS="%{optflags} -D_UNICODE"
@@ -139,9 +139,10 @@ cmake_command="cmake . \
  -DBUILD_EXAMPLES:BOOL=ON \
  -DBUILD_TESTING:BOOL=ON \
  -DCMAKE_INSTALL_PREFIX:PATH=$tmpinstall \
+ -DDESIRED_QT_VERSION:STRING=3 \
  -DVTK_INSTALL_BIN_DIR:PATH=%{_bindir} \
  -DVTK_INSTALL_INCLUDE_DIR:PATH=%{_includedir}/vtk \
- -DVTK_INSTALL_LIB_DIR:PATH=%{_libdir} \
+ -DVTK_INSTALL_LIB_DIR:PATH=%{_libdir}/vtk-5.2 \
  -DVTK_DATA_ROOT:PATH=%{_datadir}/vtkdata-%{version} \
  -DTK_INTERNAL_PATH:PATH=/usr/include/tk-private/generic \
 %if %{with OSMesa}
@@ -205,13 +206,10 @@ fi
 ls %{buildroot}%{_libdir}/*.so.* \
   | grep -Ev '(Java|QVTK|PythonD|TCL)' | sed -e's,^%{buildroot},,' > libs.list
 
-mkdir -p %{buildroot}%{_libdir}/vtk-examples-5.0 \
-         %{buildroot}%{_libdir}/vtk-testing-5.0
-
 # List of executable utilities
 cat > utils.list << EOF
 vtkParseOGLExt
-vtkVREncodeString
+vtkEncodeString
 EOF
 
 # List of executable examples
@@ -273,9 +271,10 @@ done
 cat libs.list utils.list > main.list
 
 # Make shared libs and scripts executable
+mv %{buildroot}%{_libdir}/vtk-5.2/lib*.so* %{buildroot}%{_libdir}/
 chmod a+x %{buildroot}%{_libdir}/lib*.so.*
-chmod a+x %{buildroot}%{_libdir}/vtk-5.0/doxygen/*.pl
-chmod a+x %{buildroot}%{_libdir}/vtk-5.0/testing/*.{py,tcl}
+chmod a+x %{buildroot}%{_libdir}/vtk-5.2/doxygen/*.pl
+chmod a+x %{buildroot}%{_libdir}/vtk-5.2/testing/*.{py,tcl}
 
 # Remove exec bit from non-scripts and %%doc
 for file in `find %{buildroot} -type f -perm 0755 \
@@ -286,7 +285,7 @@ done
 find Utilities/Upgrading -type f | xargs chmod -x
 
 # Add exec bits to shared libs ...
-chmod 0755 %{buildroot}%{_libdir}/vtk-5.0/CMake/*.so
+chmod 0755 %{buildroot}%{_libdir}/vtk-5.2/CMake/*.so
 
 %check
 #LD_LIBARARY_PATH=`pwd`/bin ctest -V
@@ -323,12 +322,12 @@ rm -rf %{buildroot}
 %files devel
 %defattr(-,root,root,-)
 %doc Utilities/Upgrading
-%{_libdir}/vtk-5.0/doxygen
+%{_libdir}/vtk-5.2/doxygen
 %{_includedir}/vtk
 %{_libdir}/*.so
-%{_libdir}/vtk-5.0/CMake
-%{_libdir}/vtk-5.0/*.cmake
-%{_libdir}/vtk-5.0/hints
+%{_libdir}/vtk-5.2/CMake
+%{_libdir}/vtk-5.2/*.cmake
+%{_libdir}/vtk-5.2/hints
 
 %files tcl
 %defattr(-,root,root,-)
@@ -336,8 +335,8 @@ rm -rf %{buildroot}
 %{_bindir}/vtk
 %{_bindir}/vtkWrapTcl
 %{_bindir}/vtkWrapTclInit
-%{_libdir}/vtk-5.0/pkgIndex.tcl
-%{_libdir}/vtk-5.0/tcl
+%{_libdir}/vtk-5.2/pkgIndex.tcl
+%{_libdir}/vtk-5.2/tcl
 
 %files python
 %defattr(-,root,root,-)
@@ -363,17 +362,15 @@ rm -rf %{buildroot}
 
 %files testing -f testing.list
 %defattr(-,root,root,-)
-%{_libdir}/vtk-5.0/testing
-%{_libdir}/vtk-testing-5.0
+%{_libdir}/vtk-5.2/testing
 
 %files examples -f examples.list
 %defattr(-,root,root,-)
-%doc vtk-examples-5.0/Examples
-%{_libdir}/vtk-examples-5.0
+%doc vtk-examples-5.2/Examples
 
 %changelog
-* Sat Nov 29 2008 Ignacio Vazquez-Abrams <ivazqueznet+rpm@gmail.com> - 5.0.4-26
-- Rebuild for Python 2.6
+* Sun Oct  5 2008 Axel Thimm <Axel.Thimm@ATrpms.net> - 5.2.0-26
+- Update to 5.2.0.
 
 * Wed Oct 1 2008 Orion Poplawski <orion@cora.nwra.com> - 5.0.2-25
 - Fix patch fuzz
