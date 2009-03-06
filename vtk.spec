@@ -7,7 +7,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 5.2.0
-Release: 27%{?dist}
+Release: 28%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -285,7 +285,7 @@ done
 find Utilities/Upgrading -type f | xargs chmod -x
 
 # Add exec bits to shared libs ...
-chmod 0755 %{buildroot}%{_libdir}/vtk-5.2/CMake/*.so
+#chmod 0755 %{buildroot}%{_libdir}/vtk-5.2/CMake/*.so
 
 %check
 #LD_LIBARARY_PATH=`pwd`/bin ctest -V
@@ -369,6 +369,10 @@ rm -rf %{buildroot}
 %doc vtk-examples-5.2/Examples
 
 %changelog
+* Fri Mar 06 2009 Jesse Keating <jkeating@redhat.com> - 5.2.0-28
+- Remove chmod on examples .so files, none are built.  This needs
+  more attention.
+
 * Wed Feb 25 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 5.2.0-27
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_11_Mass_Rebuild
 
