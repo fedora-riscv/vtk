@@ -7,7 +7,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 5.2.1
-Release: 1%{?dist}
+Release: 2%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -138,11 +138,11 @@ pushd build
  -DBUILD_EXAMPLES:BOOL=ON \
  -DBUILD_TESTING:BOOL=ON \
  -DDESIRED_QT_VERSION:STRING=3 \
- -DVTK_INSTALL_BIN_DIR:PATH=bin \
- -DVTK_INSTALL_DOC_DIR:PATH=share/vtk-5.2/doc \
- -DVTK_INSTALL_INCLUDE_DIR:PATH=include/vtk \
- -DVTK_INSTALL_LIB_DIR:PATH=%{_lib}/vtk-5.2 \
- -DVTK_DATA_ROOT:PATH=share/vtkdata-%{version} \
+ -DVTK_INSTALL_BIN_DIR:PATH=/bin \
+ -DVTK_INSTALL_DOC_DIR:PATH=/share/vtk-5.2/doc \
+ -DVTK_INSTALL_INCLUDE_DIR:PATH=/include/vtk \
+ -DVTK_INSTALL_LIB_DIR:PATH=/%{_lib}/vtk-5.2 \
+ -DVTK_DATA_ROOT:PATH=%{_datadir}/vtkdata-%{version} \
  -DTK_INTERNAL_PATH:PATH=/usr/include/tk-private/generic \
 %if %{with OSMesa}
  -DVTK_OPENGL_HAS_OSMESA:BOOL=ON \
@@ -373,6 +373,9 @@ rm -rf %{buildroot}
 %doc vtk-examples-5.2/Examples
 
 %changelog
+* Sat Apr 25 2009 Milos Jakubicek <xjakub@fi.muni.cz> - 5.2.1-2
+- Do not forget slash in cmake paths (resolves BZ#490879).
+
 * Thu Mar 12 2009 Orion Poplawski <orion@cora.nwra.com> - 5.2.1-1
 - Update to 5.2.1
 - Update pythondestdir patch to use RPM_BUILD_ROOT
