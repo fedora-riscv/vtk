@@ -1,20 +1,20 @@
 %bcond_without OSMesa
-%bcond_with qt4
+%bcond_without qt4
 %bcond_without java
 
 %{!?python_sitearch:%global python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
 
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
-Version: 5.2.1
-Release: 2%{?dist}
+Version: 5.4.2
+Release: 30%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
 License: BSD
 Group: System Environment/Libraries
-Source: http://www.vtk.org/files/release/5.2/%{name}-%{version}.tar.gz
-Patch0: vtk-5.2.1-pythondestdir.patch
+Source: http://www.vtk.org/files/release/5.4/%{name}-%{version}.tar.gz
+Patch0: vtk-5.2.0-pythondestdir.patch
 Patch1: vtk-5.2.0-gcc43.patch
 URL: http://vtk.org/
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
@@ -28,7 +28,7 @@ BuildRequires: tk-devel, tcl-devel
 BuildRequires: python-devel
 BuildRequires: expat-devel, freetype-devel, libjpeg-devel, libpng-devel
 BuildRequires: libtiff-devel, zlib-devel
-BuildRequires: qt3-devel
+%{!?with_qt4:BuildRequires: qt3-devel}
 %{?with_qt4:BuildRequires: qt4-devel}
 BuildRequires: chrpath
 BuildRequires: doxygen, graphviz
@@ -113,11 +113,11 @@ grep -rl '\.\./\.\./\.\./\.\./VTKData' . | xargs \
   perl -pi -e's,\.\./\.\./\.\./\.\./VTKData,%{_datadir}/vtkdata-%{version},g'
 
 # Save an unbuilt copy of the Example's sources for %doc
-mkdir vtk-examples-5.2
-cp -a Examples vtk-examples-5.2
+mkdir vtk-examples-5.4
+cp -a Examples vtk-examples-5.4
 # Don't ship Win32 examples
-rm -rf vtk-examples-5.2/Examples/GUI/Win32
-find vtk-examples-5.2 -type f | xargs chmod -R a-x
+rm -rf vtk-examples-5.4/Examples/GUI/Win32
+find vtk-examples-5.4 -type f | xargs chmod -R a-x
 
 %build
 export CFLAGS="%{optflags} -D_UNICODE"
@@ -128,20 +128,45 @@ export JAVA_HOME=/usr/lib/jvm/java
 %if %{with qt4}
 unset QTINC QTLIB QTPATH_LRELEASE QMAKESPEC
 export QTDIR=%{_libdir}/qt4
+qt_prefix=`pkg-config --variable=exec_prefix QtCore` || :
+if [ "$qt_prefix" = "" ]; then
+  qt_prefix=`ls -d %{_libdir}/qt4* 2>/dev/null | tail -n 1`
+fi
+
+if ! echo ${PATH} | /bin/grep -q $qt_prefix/bin ; then
+   PATH=$qt_prefix/bin:${PATH}
+fi
+%else
+qt_prefix=`/usr/bin/pkg-config --variable=prefix qt-mt` || :
+if [ "$qt_prefix" = "" ]; then
+  qt_prefix=`ls -d %{_libdir}/qt-* 2>/dev/null | tail -n 1`
+fi
+
+if ! echo ${PATH} | /bin/grep -q $qt_prefix/bin ; then
+   PATH=$qt_prefix/bin:${PATH}
+fi
+
+if [ -n "$qt_prefix" -a -z "$QTDIR" ] ; then
+        QTDIR="$qt_prefix"
+        QTINC="$qt_prefix/include"
+        QTLIB="$qt_prefix/lib"
+fi
+
+export QTDIR QTINC QTLIB PATH
 %endif
 
-mkdir build
-pushd build
-%cmake .. \
+# Not every subbuild respects build != install
+tmpinstall=`pwd`/tmpinstall
+
+cmake_command="cmake . \
  -DBUILD_SHARED_LIBS:BOOL=ON \
  -DBUILD_DOCUMENTATION:BOOL=ON \
  -DBUILD_EXAMPLES:BOOL=ON \
  -DBUILD_TESTING:BOOL=ON \
- -DDESIRED_QT_VERSION:STRING=3 \
- -DVTK_INSTALL_BIN_DIR:PATH=/bin \
- -DVTK_INSTALL_DOC_DIR:PATH=/share/vtk-5.2/doc \
- -DVTK_INSTALL_INCLUDE_DIR:PATH=/include/vtk \
- -DVTK_INSTALL_LIB_DIR:PATH=/%{_lib}/vtk-5.2 \
+ -DCMAKE_INSTALL_PREFIX:PATH=$tmpinstall \
+ -DVTK_INSTALL_BIN_DIR:PATH=%{_bindir} \
+ -DVTK_INSTALL_INCLUDE_DIR:PATH=%{_includedir}/vtk \
+ -DVTK_INSTALL_LIB_DIR:PATH=%{_libdir}/vtk-5.4 \
  -DVTK_DATA_ROOT:PATH=%{_datadir}/vtkdata-%{version} \
  -DTK_INTERNAL_PATH:PATH=/usr/include/tk-private/generic \
 %if %{with OSMesa}
@@ -170,10 +195,15 @@ pushd build
 %if %{with qt4}
  -DDESIRED_QT_VERSION=4 \
  -DQT_MOC_EXECUTABLE=%{_libdir}/qt4/bin/moc \
- -DVTK_INSTALL_QT_DIR=`qmake-qt4 -query QT_INSTALL_PREFIX | sed s,/usr,,`/plugins/designer \
+ -DVTK_INSTALL_QT_DIR=`qmake-qt4 -query QT_INSTALL_PREFIX`/plugins/designer \
 %else
- -DVTK_INSTALL_QT_DIR=`qmake -query QT_INSTALL_PREFIX | sed s,/usr,,`/plugins/designer \
+ -DDESIRED_QT_VERSION:STRING=3 \
+ -DVTK_INSTALL_QT_DIR=`qmake -query QT_INSTALL_PREFIX`/plugins/designer \
 %endif
+"
+# Second cmake is neccessary for vtk
+eval $cmake_command
+eval $cmake_command
 
 # Commented old flags in case we'd like to reactive some of them
 # -DVTK_USE_DISPLAY:BOOL=OFF \ # This prevents building of graphics tests
@@ -185,7 +215,6 @@ pushd build
 # -DOPENGL_INCLUDE_DIR:PATH=/usr/include/GL \
 
 make
-popd
 
 # Remove executable bits from sources (some of which are generated)
 find . -name \*.c -or -name \*.cxx -or -name \*.h -or -name \*.hxx -or \
@@ -194,14 +223,9 @@ find . -name \*.c -or -name \*.cxx -or -name \*.h -or -name \*.hxx -or \
 %install
 rm -rf %{buildroot}
 mkdir -p %{buildroot}
-pushd build
-make install DESTDIR=%{buildroot}
-popd
+make install
+mv tmpinstall/* %{buildroot}/
 
-# Move shared libraries to %{_libdir}
-mv %{buildroot}%{_libdir}/vtk-5.2/lib*.so* %{buildroot}%{_libdir}/
-
-# Move python libraries to /usr/lib64 if necessary - make noarch someday?
 if [ "%{_lib}" != lib -a "`ls %{buildroot}%{_prefix}/lib/*`" != "" ]; then
   mkdir -p %{buildroot}%{_libdir}
   mv %{buildroot}%{_prefix}/lib/* %{buildroot}%{_libdir}/
@@ -213,6 +237,7 @@ ls %{buildroot}%{_libdir}/*.so.* \
 
 # List of executable utilities
 cat > utils.list << EOF
+vtkParseOGLExt
 vtkEncodeString
 EOF
 
@@ -258,25 +283,27 @@ SocketClient
 SocketServer
 EOF
 
-# Need to install examples and test programs manually now
-for file in `cat examples.list testing.list`; do
-  # Remove any remnants of rpaths (set for examples)
-  chrpath -d build/bin/$file
-  # Use install -m 0755 to fix permissions
-  install -m 0755 -p build/bin/$file %{buildroot}%{_bindir}
+# Install utils/examples/testing, too
+for filelist in utils.list examples.list testing.list; do
+  for file in `cat $filelist`; do
+    install -p bin/$file %{buildroot}%{_bindir}
+  done
+  perl -pi -e's,^,%{_bindir}/,' $filelist
 done
 
-# Add %{_bindir} to lists
-for filelist in utils.list examples.list testing.list; do
-  perl -pi -e's,^,%{_bindir}/,' $filelist
+# Remove any remnants of rpaths
+for file in `cat examples.list`; do
+  chrpath -d %{buildroot}$file
 done
 
 # Main package contains utils and core libs
 cat libs.list utils.list > main.list
 
-# Make scripts executable
-chmod a+x %{buildroot}%{_libdir}/vtk-5.2/doxygen/*.pl
-chmod a+x %{buildroot}%{_libdir}/vtk-5.2/testing/*.{py,tcl}
+# Make shared libs and scripts executable
+mv %{buildroot}%{_libdir}/vtk-5.4/lib*.so* %{buildroot}%{_libdir}/
+chmod a+x %{buildroot}%{_libdir}/lib*.so.*
+chmod a+x %{buildroot}%{_libdir}/vtk-5.4/doxygen/*.pl
+chmod a+x %{buildroot}%{_libdir}/vtk-5.4/testing/*.{py,tcl}
 
 # Remove exec bit from non-scripts and %%doc
 for file in `find %{buildroot} -type f -perm 0755 \
@@ -286,6 +313,8 @@ for file in `find %{buildroot} -type f -perm 0755 \
 done
 find Utilities/Upgrading -type f | xargs chmod -x
 
+# Add exec bits to shared libs ...
+#chmod 0755 %{buildroot}%{_libdir}/vtk-5.4/CMake/*.so
 # Set proper perms on python shared libs ...
 chmod 0755 %{buildroot}%{_libdir}/python*/site-packages/vtk/*.so
 
@@ -320,18 +349,16 @@ rm -rf %{buildroot}
 %files -f main.list
 %defattr(-,root,root,-)
 %doc --parents Copyright.txt README.html vtkLogo.jpg vtkBanner.gif Wrapping/*/README*
-%dir %{_datadir}/vtk-5.2/
-%doc %{_datadir}/vtk-5.2/doc/
 
 %files devel
 %defattr(-,root,root,-)
 %doc Utilities/Upgrading
-%{_libdir}/vtk-5.2/doxygen
+%{_libdir}/vtk-5.4/doxygen
 %{_includedir}/vtk
 %{_libdir}/*.so
-%{_libdir}/vtk-5.2/CMake
-%{_libdir}/vtk-5.2/*.cmake
-%{_libdir}/vtk-5.2/hints
+%{_libdir}/vtk-5.4/CMake
+%{_libdir}/vtk-5.4/*.cmake
+%{_libdir}/vtk-5.4/hints
 
 %files tcl
 %defattr(-,root,root,-)
@@ -339,8 +366,8 @@ rm -rf %{buildroot}
 %{_bindir}/vtk
 %{_bindir}/vtkWrapTcl
 %{_bindir}/vtkWrapTclInit
-%{_libdir}/vtk-5.2/pkgIndex.tcl
-%{_libdir}/vtk-5.2/tcl
+%{_libdir}/vtk-5.4/pkgIndex.tcl
+%{_libdir}/vtk-5.4/tcl
 
 %files python
 %defattr(-,root,root,-)
@@ -362,31 +389,26 @@ rm -rf %{buildroot}
 %files qt
 %defattr(-,root,root,-)
 %{_libdir}/libQVTK.so.*
-%{_libdir}/qt*/plugins/designer/libQVTKWidgetPlugin.so
+%{_libdir}/qt*/plugins/designer
 
 %files testing -f testing.list
 %defattr(-,root,root,-)
-%{_libdir}/vtk-5.2/testing
+%{_libdir}/vtk-5.4/testing
 
 %files examples -f examples.list
 %defattr(-,root,root,-)
-%doc vtk-examples-5.2/Examples
+%doc vtk-examples-5.4/Examples
 
 %changelog
-* Sat Apr 25 2009 Milos Jakubicek <xjakub@fi.muni.cz> - 5.2.1-2
-- Do not forget slash in cmake paths (resolves BZ#490879).
+* Sat Jun  6 2009 Axel Thimm <Axel.Thimm@ATrpms.net> - 5.4.2-30
+- Update to 5.4.2.
 
-* Thu Mar 12 2009 Orion Poplawski <orion@cora.nwra.com> - 5.2.1-1
+* Thu Mar 12 2009 Orion Poplawski <orion@cora.nwra.com> - 5.2.1-29
 - Update to 5.2.1
-- Update pythondestdir patch to use RPM_BUILD_ROOT
-- Cleanup spec file
 
 * Fri Mar 06 2009 Jesse Keating <jkeating@redhat.com> - 5.2.0-28
 - Remove chmod on examples .so files, none are built.  This needs
   more attention.
-
-* Wed Feb 25 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 5.2.0-27
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_11_Mass_Rebuild
 
 * Sun Oct  5 2008 Axel Thimm <Axel.Thimm@ATrpms.net> - 5.2.0-26
 - Update to 5.2.0.
