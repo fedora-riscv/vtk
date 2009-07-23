@@ -7,7 +7,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 5.4.2
-Release: 30%{?dist}
+Release: 33%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -194,8 +194,8 @@ cmake_command="cmake . \
  -DVTK_USE_QVTK=ON \
 %if %{with qt4}
  -DDESIRED_QT_VERSION=4 \
- -DQT_MOC_EXECUTABLE=%{_libdir}/qt4/bin/moc \
- -DVTK_INSTALL_QT_DIR=`qmake-qt4 -query QT_INSTALL_PREFIX`/plugins/designer \
+ -DQT_MOC_EXECUTABLE=`pkg-config --variable=moc_location QtCore` \
+ -DVTK_INSTALL_QT_DIR=`qmake -query QT_INSTALL_PREFIX`/plugins/designer \
 %else
  -DDESIRED_QT_VERSION:STRING=3 \
  -DVTK_INSTALL_QT_DIR=`qmake -query QT_INSTALL_PREFIX`/plugins/designer \
@@ -230,6 +230,7 @@ if [ "%{_lib}" != lib -a "`ls %{buildroot}%{_prefix}/lib/*`" != "" ]; then
   mkdir -p %{buildroot}%{_libdir}
   mv %{buildroot}%{_prefix}/lib/* %{buildroot}%{_libdir}/
 fi
+mv %{buildroot}%{_libdir}/vtk-5.4/lib*.so* %{buildroot}%{_libdir}/
 
 # Gather list of non-python/tcl libraries
 ls %{buildroot}%{_libdir}/*.so.* \
@@ -237,8 +238,8 @@ ls %{buildroot}%{_libdir}/*.so.* \
 
 # List of executable utilities
 cat > utils.list << EOF
-vtkParseOGLExt
 vtkEncodeString
+lproj
 EOF
 
 # List of executable examples
@@ -300,7 +301,6 @@ done
 cat libs.list utils.list > main.list
 
 # Make shared libs and scripts executable
-mv %{buildroot}%{_libdir}/vtk-5.4/lib*.so* %{buildroot}%{_libdir}/
 chmod a+x %{buildroot}%{_libdir}/lib*.so.*
 chmod a+x %{buildroot}%{_libdir}/vtk-5.4/doxygen/*.pl
 chmod a+x %{buildroot}%{_libdir}/vtk-5.4/testing/*.{py,tcl}
@@ -315,8 +315,10 @@ find Utilities/Upgrading -type f | xargs chmod -x
 
 # Add exec bits to shared libs ...
 #chmod 0755 %{buildroot}%{_libdir}/vtk-5.4/CMake/*.so
-# Set proper perms on python shared libs ...
 chmod 0755 %{buildroot}%{_libdir}/python*/site-packages/vtk/*.so
+
+# Verdict places the docs in the false folder
+rm -fr %{buildroot}%{_libdir}/vtk-5.4/doc
 
 %check
 #LD_LIBARARY_PATH=`pwd`/bin ctest -V
