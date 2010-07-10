@@ -6,21 +6,23 @@
 
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
-Version: 5.4.2
+Version: 5.6.0
 Release: 34%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
 License: BSD
 Group: System Environment/Libraries
-Source: http://www.vtk.org/files/release/5.4/%{name}-%{version}.tar.gz
+Source: http://www.vtk.org/files/release/5.6/%{name}-%{version}.tar.gz
 Patch0: vtk-5.2.0-pythondestdir.patch
 Patch1: vtk-5.2.0-gcc43.patch
+Patch2: vtk-5.6.0-testcxxjavaremove.patch
 URL: http://vtk.org/
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: cmake >= 2.0.4
 BuildRequires: gcc-c++
-%{?with_java:BuildRequires: gcc-java, libgcj-devel}
+#%{?with_java:BuildRequires: gcc-java, libgcj-devel, java-devel}
+%{?with_java:BuildRequires: java-devel}
 BuildRequires: libX11-devel, libXt-devel, libXext-devel
 BuildRequires: libICE-devel, libGL-devel
 %{?with_OSMesa:BuildRequires: mesa-libOSMesa-devel}
@@ -32,6 +34,10 @@ BuildRequires: libtiff-devel, zlib-devel
 %{?with_qt4:BuildRequires: qt4-devel}
 BuildRequires: chrpath
 BuildRequires: doxygen, graphviz
+BuildRequires: gnuplot
+BuildRequires: wget
+BuildRequires: %{_includedir}/Xm
+%{!?with_java:Conflicts: vtk-java}
 
 %description
 VTK is an open-source software system for image processing, 3D
@@ -43,6 +49,11 @@ volume rendering, LOD control).
 %package devel
 Summary: VTK header files for building C++ code
 Requires: vtk = %{version}-%{release}
+%{?with_OSMesa:Requires: mesa-libOSMesa-devel}
+Requires: expat-devel, libjpeg-devel, libpng-devel
+Requires: libtiff-devel
+%{!?with_qt4:Requires: qt3-devel}
+%{?with_qt4:Requires: qt4-devel}
 Group: Development/Libraries
 
 %description devel 
@@ -106,6 +117,7 @@ programming languages.
 %setup -q -n VTK
 %patch0 -p1 -b .pythondestdir
 %patch1 -p1 -b .gcc43
+%patch2 -p1 -b .testcxxjava
 
 # Replace relative path ../../../VTKData with %{_datadir}/vtkdata-%{version}
 # otherwise it will break on symlinks.
@@ -113,11 +125,11 @@ grep -rl '\.\./\.\./\.\./\.\./VTKData' . | xargs \
   perl -pi -e's,\.\./\.\./\.\./\.\./VTKData,%{_datadir}/vtkdata-%{version},g'
 
 # Save an unbuilt copy of the Example's sources for %doc
-mkdir vtk-examples-5.4
-cp -a Examples vtk-examples-5.4
+mkdir vtk-examples-5.6
+cp -a Examples vtk-examples-5.6
 # Don't ship Win32 examples
-rm -rf vtk-examples-5.4/Examples/GUI/Win32
-find vtk-examples-5.4 -type f | xargs chmod -R a-x
+rm -rf vtk-examples-5.6/Examples/GUI/Win32
+find vtk-examples-5.6 -type f | xargs chmod -R a-x
 
 %build
 export CFLAGS="%{optflags} -D_UNICODE"
@@ -166,7 +178,7 @@ cmake_command="cmake . \
  -DCMAKE_INSTALL_PREFIX:PATH=$tmpinstall \
  -DVTK_INSTALL_BIN_DIR:PATH=%{_bindir} \
  -DVTK_INSTALL_INCLUDE_DIR:PATH=%{_includedir}/vtk \
- -DVTK_INSTALL_LIB_DIR:PATH=%{_libdir}/vtk-5.4 \
+ -DVTK_INSTALL_LIB_DIR:PATH=%{_libdir}/vtk-5.6 \
  -DVTK_DATA_ROOT:PATH=%{_datadir}/vtkdata-%{version} \
  -DTK_INTERNAL_PATH:PATH=/usr/include/tk-private/generic \
 %if %{with OSMesa}
@@ -230,7 +242,7 @@ if [ "%{_lib}" != lib -a "`ls %{buildroot}%{_prefix}/lib/*`" != "" ]; then
   mkdir -p %{buildroot}%{_libdir}
   mv %{buildroot}%{_prefix}/lib/* %{buildroot}%{_libdir}/
 fi
-mv %{buildroot}%{_libdir}/vtk-5.4/lib*.so* %{buildroot}%{_libdir}/
+mv %{buildroot}%{_libdir}/vtk-5.6/lib*.so* %{buildroot}%{_libdir}/
 
 # Gather list of non-python/tcl libraries
 ls %{buildroot}%{_libdir}/*.so.* \
@@ -302,8 +314,8 @@ cat libs.list utils.list > main.list
 
 # Make shared libs and scripts executable
 chmod a+x %{buildroot}%{_libdir}/lib*.so.*
-chmod a+x %{buildroot}%{_libdir}/vtk-5.4/doxygen/*.pl
-chmod a+x %{buildroot}%{_libdir}/vtk-5.4/testing/*.{py,tcl}
+chmod a+x %{buildroot}%{_libdir}/vtk-5.6/doxygen/*.pl
+chmod a+x %{buildroot}%{_libdir}/vtk-5.6/testing/*.{py,tcl}
 
 # Remove exec bit from non-scripts and %%doc
 for file in `find %{buildroot} -type f -perm 0755 \
@@ -314,11 +326,11 @@ done
 find Utilities/Upgrading -type f | xargs chmod -x
 
 # Add exec bits to shared libs ...
-#chmod 0755 %{buildroot}%{_libdir}/vtk-5.4/CMake/*.so
+#chmod 0755 %{buildroot}%{_libdir}/vtk-5.6/CMake/*.so
 chmod 0755 %{buildroot}%{_libdir}/python*/site-packages/vtk/*.so
 
 # Verdict places the docs in the false folder
-rm -fr %{buildroot}%{_libdir}/vtk-5.4/doc
+rm -fr %{buildroot}%{_libdir}/vtk-5.6/doc
 
 %check
 #LD_LIBARARY_PATH=`pwd`/bin ctest -V
@@ -355,12 +367,12 @@ rm -rf %{buildroot}
 %files devel
 %defattr(-,root,root,-)
 %doc Utilities/Upgrading
-%{_libdir}/vtk-5.4/doxygen
+%{_libdir}/vtk-5.6/doxygen
 %{_includedir}/vtk
 %{_libdir}/*.so
-%{_libdir}/vtk-5.4/CMake
-%{_libdir}/vtk-5.4/*.cmake
-%{_libdir}/vtk-5.4/hints
+%{_libdir}/vtk-5.6/CMake
+%{_libdir}/vtk-5.6/*.cmake
+%{_libdir}/vtk-5.6/hints
 
 %files tcl
 %defattr(-,root,root,-)
@@ -368,8 +380,8 @@ rm -rf %{buildroot}
 %{_bindir}/vtk
 %{_bindir}/vtkWrapTcl
 %{_bindir}/vtkWrapTclInit
-%{_libdir}/vtk-5.4/pkgIndex.tcl
-%{_libdir}/vtk-5.4/tcl
+%{_libdir}/vtk-5.6/pkgIndex.tcl
+%{_libdir}/vtk-5.6/tcl
 
 %files python
 %defattr(-,root,root,-)
@@ -384,26 +396,27 @@ rm -rf %{buildroot}
 %files java
 %defattr(-,root,root,-)
 %{_libdir}/*Java.so.*
+%{_libdir}/vtk-5.6/java
 %{_bindir}/vtkParseJava
 %{_bindir}/vtkWrapJava
 %endif
 
 %files qt
 %defattr(-,root,root,-)
-%{_libdir}/libQVTK.so.*
-%{_libdir}/qt*/plugins/designer
+#%{_libdir}/libQVTK.so.*
+#%{_libdir}/qt*/plugins/designer
 
 %files testing -f testing.list
 %defattr(-,root,root,-)
-%{_libdir}/vtk-5.4/testing
+%{_libdir}/vtk-5.6/testing
 
 %files examples -f examples.list
 %defattr(-,root,root,-)
-%doc vtk-examples-5.4/Examples
+%doc vtk-examples-5.6/Examples
 
 %changelog
-* Sun Jul 26 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 5.4.2-34
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_12_Mass_Rebuild
+* Mon Jul  5 2010 Axel Thimm <Axel.Thimm@ATrpms.net> - 5.6.0-34
+- Update to 5.6.0.
 
 * Sat Jun  6 2009 Axel Thimm <Axel.Thimm@ATrpms.net> - 5.4.2-30
 - Update to 5.4.2.
