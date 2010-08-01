@@ -1,0 +1,20 @@
+--- VTK/Graphics/Testing/Cxx/CMakeLists.txt.testcxxjava	2010-03-31 18:44:26.000000000 +0200
++++ VTK/Graphics/Testing/Cxx/CMakeLists.txt	2010-07-10 11:29:39.943549435 +0200
+@@ -107,17 +107,3 @@
+   ENDFOREACH (test) 
+ ENDIF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
+ 
+-IF (VTK_WRAP_JAVA)
+-   ADD_EXECUTABLE(TestJavaProgrammableFilter TestJavaProgrammableFilter.cxx)
+-   ADD_TEST(TestJavaProgrammableFilter
+-     ${CXX_TEST_PATH}/TestJavaProgrammableFilter
+-     -j ${LIBRARY_OUTPUT_PATH}/vtk.jar
+-     -cp ${LIBRARY_OUTPUT_PATH}/vtk.jar
+-     -class vtk/SampleAlgorithm
+-      )
+-  TARGET_LINK_LIBRARIES(TestJavaProgrammableFilter
+-    vtkGraphicsJava
+-    ${JAVA_AWT_LIBRARY}
+-    ${JAVA_JVM_LIBRARY}
+-    )
+-ENDIF (VTK_WRAP_JAVA)

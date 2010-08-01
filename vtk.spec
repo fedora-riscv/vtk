@@ -7,7 +7,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 5.6.0
-Release: 35%{?dist}
+Release: 36%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -17,6 +17,10 @@ Source: http://www.vtk.org/files/release/5.6/%{name}-%{version}.tar.gz
 Patch0: vtk-5.2.0-pythondestdir.patch
 Patch1: vtk-5.2.0-gcc43.patch
 Patch2: vtk-5.6.0-testcxxjavaremove.patch
+
+# Python 2.7 compatibility: not yet sent upstream:
+Patch3: vtk-5.6.0-python27.patch
+
 URL: http://vtk.org/
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: cmake >= 2.0.4
@@ -118,6 +122,7 @@ programming languages.
 %patch0 -p1 -b .pythondestdir
 %patch1 -p1 -b .gcc43
 %patch2 -p1 -b .testcxxjava
+%patch3 -p1 -b .python27
 
 # Replace relative path ../../../VTKData with %{_datadir}/vtkdata-%{version}
 # otherwise it will break on symlinks.
@@ -415,6 +420,9 @@ rm -rf %{buildroot}
 %doc vtk-examples-5.6/Examples
 
 %changelog
+* Sat Jul 31 2010 David Malcolm <dmalcolm@redhat.com> - 5.6.0-36
+- add python 2.7 compat patch
+
 * Thu Jul 22 2010 David Malcolm <dmalcolm@redhat.com> - 5.6.0-35
 - Rebuilt for https://fedoraproject.org/wiki/Features/Python_2.7/MassRebuild
 
