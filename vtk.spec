@@ -1,13 +1,12 @@
 %bcond_without OSMesa
-%bcond_without qt4
 %bcond_without java
 
 %{!?python_sitearch:%global python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
 
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
-Version: 5.6.0
-Release: 37%{?dist}
+Version: 5.6.1
+Release: 1%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -34,8 +33,7 @@ BuildRequires: tk-devel, tcl-devel
 BuildRequires: python-devel
 BuildRequires: expat-devel, freetype-devel, libjpeg-devel, libpng-devel
 BuildRequires: libtiff-devel, zlib-devel
-%{!?with_qt4:BuildRequires: qt3-devel}
-%{?with_qt4:BuildRequires: qt4-devel}
+BuildRequires: qt4-devel
 BuildRequires: chrpath
 BuildRequires: doxygen, graphviz
 BuildRequires: gnuplot
@@ -56,8 +54,7 @@ Requires: vtk = %{version}-%{release}
 %{?with_OSMesa:Requires: mesa-libOSMesa-devel}
 Requires: expat-devel, libjpeg-devel, libpng-devel
 Requires: libtiff-devel
-%{!?with_qt4:Requires: qt3-devel}
-%{?with_qt4:Requires: qt4-devel}
+Requires: qt4-devel
 Group: Development/Libraries
 
 %description devel 
@@ -142,35 +139,6 @@ export CXXFLAGS="%{optflags} -D_UNICODE"
 %if %{with java}
 export JAVA_HOME=/usr/lib/jvm/java
 %endif
-%if %{with qt4}
-unset QTINC QTLIB QTPATH_LRELEASE QMAKESPEC
-export QTDIR=%{_libdir}/qt4
-qt_prefix=`pkg-config --variable=exec_prefix QtCore` || :
-if [ "$qt_prefix" = "" ]; then
-  qt_prefix=`ls -d %{_libdir}/qt4* 2>/dev/null | tail -n 1`
-fi
-
-if ! echo ${PATH} | /bin/grep -q $qt_prefix/bin ; then
-   PATH=$qt_prefix/bin:${PATH}
-fi
-%else
-qt_prefix=`/usr/bin/pkg-config --variable=prefix qt-mt` || :
-if [ "$qt_prefix" = "" ]; then
-  qt_prefix=`ls -d %{_libdir}/qt-* 2>/dev/null | tail -n 1`
-fi
-
-if ! echo ${PATH} | /bin/grep -q $qt_prefix/bin ; then
-   PATH=$qt_prefix/bin:${PATH}
-fi
-
-if [ -n "$qt_prefix" -a -z "$QTDIR" ] ; then
-        QTDIR="$qt_prefix"
-        QTINC="$qt_prefix/include"
-        QTLIB="$qt_prefix/lib"
-fi
-
-export QTDIR QTINC QTLIB PATH
-%endif
 
 # Not every subbuild respects build != install
 tmpinstall=`pwd`/tmpinstall
@@ -209,14 +177,8 @@ cmake_command="cmake . \
  -DVTK_USE_SYSTEM_TIFF=ON \
  -DVTK_USE_SYSTEM_ZLIB=ON \
  -DVTK_USE_QVTK=ON \
-%if %{with qt4}
- -DDESIRED_QT_VERSION=4 \
- -DQT_MOC_EXECUTABLE=`pkg-config --variable=moc_location QtCore` \
- -DVTK_INSTALL_QT_DIR=`qmake -query QT_INSTALL_PREFIX`/plugins/designer \
-%else
- -DDESIRED_QT_VERSION:STRING=3 \
- -DVTK_INSTALL_QT_DIR=`qmake -query QT_INSTALL_PREFIX`/plugins/designer \
-%endif
+ -DVTK_USE_QT=ON \
+ -DVTK_INSTALL_QT_DIR=`qmake-qt4 -query QT_INSTALL_PREFIX`/plugins/designer \
 "
 # Second cmake is neccessary for vtk
 eval $cmake_command
@@ -408,8 +370,8 @@ rm -rf %{buildroot}
 
 %files qt
 %defattr(-,root,root,-)
-#%{_libdir}/libQVTK.so.*
-#%{_libdir}/qt*/plugins/designer
+%{_libdir}/libQVTK.so.*
+%{_libdir}/qt*/plugins/designer
 
 %files testing -f testing.list
 %defattr(-,root,root,-)
@@ -420,6 +382,10 @@ rm -rf %{buildroot}
 %doc vtk-examples-5.6/Examples
 
 %changelog
+* Mon Dec 7 2010 Orion Poplawski <orion@cora.nwra.com> - 5.6.1-1
+- Update to 5.6.1
+- Enable qt4 support, drop qt3 support
+
 * Wed Oct 20 2010 Adam Jackson <ajax@redhat.com> 5.6.0-37
 - Rebuild for new libOSMesa soname
 
