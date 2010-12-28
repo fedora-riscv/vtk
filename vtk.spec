@@ -5,7 +5,7 @@
 
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
-Version: 5.6.1
+Version: 5.6.0
 Release: 1%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
@@ -382,8 +382,7 @@ rm -rf %{buildroot}
 %doc vtk-examples-5.6/Examples
 
 %changelog
-* Mon Dec 7 2010 Orion Poplawski <orion@cora.nwra.com> - 5.6.1-1
-- Update to 5.6.1
+* Tue Dec 28 2010 Orion Poplawski <orion@cora.nwra.com> - 5.6.0-38
 - Enable qt4 support, drop qt3 support
 
 * Wed Oct 20 2010 Adam Jackson <ajax@redhat.com> 5.6.0-37
