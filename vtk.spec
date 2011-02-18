@@ -6,7 +6,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 5.6.1
-Release: 2%{?dist}
+Release: 3%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -16,13 +16,20 @@ Source: http://www.vtk.org/files/release/5.6/%{name}-%{version}.tar.gz
 Patch0: vtk-5.2.0-pythondestdir.patch
 Patch1: vtk-5.2.0-gcc43.patch
 Patch2: vtk-5.6.0-testcxxjavaremove.patch
-
 # Python 2.7 compatibility: not yet sent upstream:
 Patch3: vtk-5.6.0-python27.patch
+# Add needed includes for gcc 4.6
+# http://public.kitware.com/Bug/view.php?id=11824
+Patch4: vtk-5.6.1-gcc46.patch
+# Use system libraries
+# http://public.kitware.com/Bug/view.php?id=11823
+Patch5: vtk-5.6.1-system.patch
+# Upstream patch to add soversions to libCosmo and libVPIC
+Patch6: vtk-5.6.1-soversion.patch
 
 URL: http://vtk.org/
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
-BuildRequires: cmake >= 2.0.4
+BuildRequires: cmake
 BuildRequires: gcc-c++
 #%{?with_java:BuildRequires: gcc-java, libgcj-devel, java-devel}
 %{?with_java:BuildRequires: java-devel}
@@ -32,7 +39,9 @@ BuildRequires: libICE-devel, libGL-devel
 BuildRequires: tk-devel, tcl-devel
 BuildRequires: python-devel
 BuildRequires: expat-devel, freetype-devel, libjpeg-devel, libpng-devel
+BuildRequires: gl2ps-devel
 BuildRequires: libtiff-devel, zlib-devel
+BuildRequires: libxml2-devel
 BuildRequires: qt4-devel
 BuildRequires: chrpath
 BuildRequires: doxygen, graphviz
@@ -120,6 +129,9 @@ programming languages.
 %patch1 -p1 -b .gcc43
 %patch2 -p1 -b .testcxxjava
 %patch3 -p1 -b .python27
+%patch4 -p1 -b .gcc46
+%patch5 -p1 -b .system
+%patch6 -p1 -b .soversion
 
 # Replace relative path ../../../VTKData with %{_datadir}/vtkdata-%{version}
 # otherwise it will break on symlinks.
@@ -140,19 +152,14 @@ export CXXFLAGS="%{optflags} -D_UNICODE"
 export JAVA_HOME=/usr/lib/jvm/java
 %endif
 
-# Not every subbuild respects build != install
-tmpinstall=`pwd`/tmpinstall
-
-cmake_command="cmake . \
- -DBUILD_SHARED_LIBS:BOOL=ON \
+mkdir build
+pushd build
+%{cmake} .. \
  -DBUILD_DOCUMENTATION:BOOL=ON \
  -DBUILD_EXAMPLES:BOOL=ON \
  -DBUILD_TESTING:BOOL=ON \
- -DCMAKE_INSTALL_PREFIX:PATH=$tmpinstall \
- -DVTK_INSTALL_BIN_DIR:PATH=%{_bindir} \
- -DVTK_INSTALL_INCLUDE_DIR:PATH=%{_includedir}/vtk \
- -DVTK_INSTALL_LIB_DIR:PATH=%{_libdir}/vtk-5.6 \
- -DVTK_DATA_ROOT:PATH=%{_datadir}/vtkdata-%{version} \
+ -DVTK_INSTALL_INCLUDE_DIR:PATH=include/vtk \
+ -DVTK_INSTALL_QT_DIR=/%{_lib}/qt4/plugins/designer \
  -DTK_INTERNAL_PATH:PATH=/usr/include/tk-private/generic \
 %if %{with OSMesa}
  -DVTK_OPENGL_HAS_OSMESA:BOOL=ON \
@@ -170,19 +177,10 @@ cmake_command="cmake . \
  -DVTK_USE_GL2PS:BOOL=ON \
  -DVTK_USE_GUISUPPORT:BOOL=ON \
  -DVTK_USE_PARALLEL:BOOL=ON \
- -DVTK_USE_SYSTEM_EXPAT=ON \
- -DVTK_USE_SYSTEM_FREETYPE=ON \
- -DVTK_USE_SYSTEM_JPEG=ON \
- -DVTK_USE_SYSTEM_PNG=ON \
- -DVTK_USE_SYSTEM_TIFF=ON \
- -DVTK_USE_SYSTEM_ZLIB=ON \
+ -DVTK_USE_SYSTEM_LIBRARIES=ON \
+ -DVTK_USE_SYSTEM_LIBPROJ4=OFF \
  -DVTK_USE_QVTK=ON \
- -DVTK_USE_QT=ON \
- -DVTK_INSTALL_QT_DIR=`qmake-qt4 -query QT_INSTALL_PREFIX`/plugins/designer \
-"
-# Second cmake is neccessary for vtk
-eval $cmake_command
-eval $cmake_command
+ -DVTK_USE_QT=ON
 
 # Commented old flags in case we'd like to reactive some of them
 # -DVTK_USE_DISPLAY:BOOL=OFF \ # This prevents building of graphics tests
@@ -193,7 +191,8 @@ eval $cmake_command
 # -DVTK_USE_X:BOOL=ON \
 # -DOPENGL_INCLUDE_DIR:PATH=/usr/include/GL \
 
-make
+# Got intermittent build error with -j
+make #%{?_smp_mflags}
 
 # Remove executable bits from sources (some of which are generated)
 find . -name \*.c -or -name \*.cxx -or -name \*.h -or -name \*.hxx -or \
@@ -202,8 +201,8 @@ find . -name \*.c -or -name \*.cxx -or -name \*.h -or -name \*.hxx -or \
 %install
 rm -rf %{buildroot}
 mkdir -p %{buildroot}
-make install
-mv tmpinstall/* %{buildroot}/
+pushd build
+make install DESTDIR=%{buildroot}
 
 if [ "%{_lib}" != lib -a "`ls %{buildroot}%{_prefix}/lib/*`" != "" ]; then
   mkdir -p %{buildroot}%{_libdir}
@@ -278,6 +277,7 @@ done
 
 # Main package contains utils and core libs
 cat libs.list utils.list > main.list
+popd
 
 # Make shared libs and scripts executable
 chmod a+x %{buildroot}%{_libdir}/lib*.so.*
@@ -327,7 +327,7 @@ rm -rf %{buildroot}
 
 %postun qt -p /sbin/ldconfig
 
-%files -f main.list
+%files -f build/main.list
 %defattr(-,root,root,-)
 %doc --parents Copyright.txt README.html vtkLogo.jpg vtkBanner.gif Wrapping/*/README*
 
@@ -371,17 +371,25 @@ rm -rf %{buildroot}
 %files qt
 %defattr(-,root,root,-)
 %{_libdir}/libQVTK.so.*
-%{_libdir}/qt*/plugins/designer
+%{_libdir}/qt4/plugins/designer
 
-%files testing -f testing.list
+%files testing -f build/testing.list
 %defattr(-,root,root,-)
 %{_libdir}/vtk-5.6/testing
 
-%files examples -f examples.list
+%files examples -f build/examples.list
 %defattr(-,root,root,-)
 %doc vtk-examples-5.6/Examples
 
 %changelog
+* Fri Feb 18 2011 Orion Poplawski <orion@cora.nwra.com> - 5.6.1-3
+- Add patch to support gcc 4.6
+- Add patch to make using system libraries easier
+- Update pythondestdir patch to use --prefix and --root
+- Use system gl2ps and libxml2
+- Use standard cmake build macro, out of tree builds
+- Add patch from upstream to add sonames to libCosmo and libVPIC (bug #622840)
+
 * Mon Feb 07 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 5.6.1-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
 
