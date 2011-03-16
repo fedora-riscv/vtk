@@ -6,7 +6,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 5.6.1
-Release: 4%{?dist}
+Release: 5%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -158,8 +158,8 @@ pushd build
  -DBUILD_DOCUMENTATION:BOOL=ON \
  -DBUILD_EXAMPLES:BOOL=ON \
  -DBUILD_TESTING:BOOL=ON \
- -DVTK_INSTALL_INCLUDE_DIR:PATH=include/vtk \
- -DVTK_INSTALL_LIB_DIR:PATH=%{_lib}/vtk-5.6 \
+ -DVTK_INSTALL_INCLUDE_DIR:PATH=/include/vtk \
+ -DVTK_INSTALL_LIB_DIR:PATH=/%{_lib}/vtk-5.6 \
  -DVTK_INSTALL_QT_DIR=/%{_lib}/qt4/plugins/designer \
  -DTK_INTERNAL_PATH:PATH=/usr/include/tk-private/generic \
 %if %{with OSMesa}
@@ -383,6 +383,10 @@ rm -rf %{buildroot}
 %doc vtk-examples-5.6/Examples
 
 %changelog
+* Wed Mar 16 2011 Marek Kasik <mkasik@redhat.com> - 5.6.1-5
+- Add backslashes to VTK_INSTALL_LIB_DIR and
+- VTK_INSTALL_INCLUDE_DIR (#687895)
+
 * Tue Mar 15 2011 Orion Poplawski <orion@cora.nwra.com> - 5.6.1-4
 - Set VTK_INSTALL_LIB_DIR, fix bug 687895
 
