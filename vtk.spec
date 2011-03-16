@@ -6,7 +6,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 5.6.1
-Release: 5%{?dist}
+Release: 6%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -46,6 +46,10 @@ BuildRequires: qt4-devel
 BuildRequires: chrpath
 BuildRequires: doxygen, graphviz
 BuildRequires: gnuplot
+BuildRequires: boost-devel
+BuildRequires: libtheora-devel
+BuildRequires: mysql-devel
+BuildRequires: postgresql-devel
 BuildRequires: wget
 BuildRequires: %{_includedir}/Xm
 %{!?with_java:Conflicts: vtk-java}
@@ -175,22 +179,26 @@ pushd build
  -DVTK_WRAP_JAVA:BOOL=OFF \
 %endif
  -DVTK_WRAP_TCL:BOOL=ON \
+ -DVTK_USE_BOOST:BOOL=ON \
  -DVTK_USE_GL2PS:BOOL=ON \
  -DVTK_USE_GUISUPPORT:BOOL=ON \
+ -DVTK_USE_MYSQL=ON \
+ -DVTK_USE_OGGTHEORA_ENCODER=ON \
  -DVTK_USE_PARALLEL:BOOL=ON \
+ -DVTK_USE_POSTGRES=ON \
  -DVTK_USE_SYSTEM_LIBRARIES=ON \
  -DVTK_USE_SYSTEM_LIBPROJ4=OFF \
  -DVTK_USE_QVTK=ON \
- -DVTK_USE_QT=ON
+ -DVTK_USE_QT=ON \
+ -DVTK_USE_TEXT_ANALYSIS=ON
 
+# Not working, see http://public.kitware.com/Bug/view.php?id=11978
+# -DVTK_USE_ODBC=ON \
+# Not working, see http://public.kitware.com/Bug/view.php?id=10779
+# -DVTK_USE_GNU_R:BOOL=ON \
 # Commented old flags in case we'd like to reactive some of them
 # -DVTK_USE_DISPLAY:BOOL=OFF \ # This prevents building of graphics tests
-# -DVTK_USE_HYBRID:BOOL=ON \
-# -DVTK_USE_PATENTED:BOOL=ON \
-# -DVTK_USE_RENDERING:BOOL=ON \
-# -DVTK_USE_MPI:BOOL=OFF \
-# -DVTK_USE_X:BOOL=ON \
-# -DOPENGL_INCLUDE_DIR:PATH=/usr/include/GL \
+# -DVTK_USE_MPI:BOOL=ON \
 
 # Got intermittent build error with -j
 make #%{?_smp_mflags}
@@ -383,6 +391,10 @@ rm -rf %{buildroot}
 %doc vtk-examples-5.6/Examples
 
 %changelog
+* Wed Mar 16 2011 Orion Poplawski <orion@cora.nwra.com> - 5.6.1-6
+- Turn on boost, mysql, postgres, ogg theora, and text analysis support,
+  bug 688275.
+
 * Wed Mar 16 2011 Marek Kasik <mkasik@redhat.com> - 5.6.1-5
 - Add backslashes to VTK_INSTALL_LIB_DIR and
 - VTK_INSTALL_INCLUDE_DIR (#687895)
