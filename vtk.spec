@@ -6,7 +6,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 5.6.1
-Release: 6%{?dist}
+Release: 7%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -65,8 +65,13 @@ volume rendering, LOD control).
 Summary: VTK header files for building C++ code
 Requires: vtk = %{version}-%{release}
 %{?with_OSMesa:Requires: mesa-libOSMesa-devel}
+Requires: gl2ps-devel
 Requires: expat-devel, libjpeg-devel, libpng-devel
+Requires: libogg-devel
+Requires: libtheora-devel
 Requires: libtiff-devel
+Requires: postgresql-devel
+Requires: mysql-devel
 Requires: qt4-devel
 Group: Development/Libraries
 
@@ -391,6 +396,9 @@ rm -rf %{buildroot}
 %doc vtk-examples-5.6/Examples
 
 %changelog
+* Thu Mar 17 2011 Orion Poplawski <orion@cora.nwra.com> - 5.6.1-7
+- Add needed requires to vtk-devel
+
 * Wed Mar 16 2011 Orion Poplawski <orion@cora.nwra.com> - 5.6.1-6
 - Turn on boost, mysql, postgres, ogg theora, and text analysis support,
   bug 688275.
