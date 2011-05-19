@@ -1,0 +1,23 @@
+diff -up VTK/Common/vtkPythonUtil.cxx.gcc46 VTK/Common/vtkPythonUtil.cxx
+--- VTK/Common/vtkPythonUtil.cxx.gcc46	2010-09-27 14:40:01.000000000 -0600
++++ VTK/Common/vtkPythonUtil.cxx	2011-02-08 11:15:39.596308982 -0700
+@@ -31,6 +31,8 @@
+ #include <vtkstd/map>
+ #include <vtkstd/string>
+ 
++#include <cstddef>
++
+ // Silent warning like
+ // "dereferencing type-punned pointer will break strict-aliasing rules"
+ // it happens because this kind of expression: (long *)&ptr
+diff -up VTK/Utilities/vtkmetaio/metaUtils.cxx.gcc46 VTK/Utilities/vtkmetaio/metaUtils.cxx
+--- VTK/Utilities/vtkmetaio/metaUtils.cxx.gcc46	2010-09-27 14:40:10.000000000 -0600
++++ VTK/Utilities/vtkmetaio/metaUtils.cxx	2011-02-08 10:43:25.265499011 -0700
+@@ -34,6 +34,7 @@
+ #include <arpa/inet.h>
+ #endif
+ 
++#include <stddef.h>
+ #include <stdlib.h>
+ #include <string.h>
+ #include <string>
