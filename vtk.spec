@@ -6,7 +6,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 5.6.1
-Release: 9%{?dist}
+Release: 10%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -43,6 +43,7 @@ BuildRequires: gl2ps-devel
 BuildRequires: libtiff-devel, zlib-devel
 BuildRequires: libxml2-devel
 BuildRequires: qt4-devel
+BuildRequires: qtwebkit-devel
 BuildRequires: chrpath
 BuildRequires: doxygen, graphviz
 BuildRequires: gnuplot
@@ -396,6 +397,9 @@ rm -rf %{buildroot}
 %doc vtk-examples-5.6/Examples
 
 %changelog
+* Thu Jun 23 2011 Orion Poplawski <orion@cora.nwra.com> - 5.6.1-10
+- Add BR qtwebkit-devel, fixes FTBS bug 715770
+
 * Thu May 19 2011 Orion Poplawski <orion@cora.nwra.com> - 5.6.1-9
 - Update soversion patch to add soversion to libvtkNetCDF.so
 
