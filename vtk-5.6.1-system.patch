@@ -24,16 +24,3 @@ diff -up VTK/CMake/vtkThirdParty.cmake.system VTK/CMake/vtkThirdParty.cmake
    MARK_AS_ADVANCED(VTK_USE_SYSTEM_${upper})
    IF(VTK_USE_SYSTEM_${upper})
      IF(EXISTS ${CMAKE_ROOT}/Modules/Find${upper}.cmake)
-diff -up VTK/Rendering/CMakeLists.txt.system VTK/Rendering/CMakeLists.txt
---- VTK/Rendering/CMakeLists.txt.system	2010-09-27 14:40:06.000000000 -0600
-+++ VTK/Rendering/CMakeLists.txt	2011-02-08 14:11:47.379633170 -0700
-@@ -202,7 +202,8 @@ ENDIF (NOT VTK_LEGACY_REMOVE)
- 
- IF(VTK_USE_GL2PS)
-   SET(Kit_SRCS ${Kit_SRCS} vtkGL2PSExporter.cxx)
--   
-+  OPTION(VTK_USE_SYSTEM_GL2PS "Use the system's gl2ps library." ${VTK_USE_SYSTEM_LIBRARIES})
-+  MARK_AS_ADVANCED(VTK_USE_SYSTEM_GL2PS)
-   IF(VTK_USE_SYSTEM_GL2PS)
-   ELSE(VTK_USE_SYSTEM_GL2PS)
-     SET(Kit_GL2PS_SRCS ${VTK_SOURCE_DIR}/Utilities/vtkgl2ps/gl2ps.c)

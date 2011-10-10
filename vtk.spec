@@ -1,31 +1,23 @@
-%bcond_without OSMesa
+# Disable OSMesa builds for now - see Bug 744434
+%bcond_with OSMesa
 %bcond_without java
 
 %{!?python_sitearch:%global python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
 
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
-Version: 5.6.1
-Release: 10%{?dist}
+Version: 5.8.0
+Release: 1%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
 License: BSD
 Group: System Environment/Libraries
-Source: http://www.vtk.org/files/release/5.6/%{name}-%{version}.tar.gz
-Patch0: vtk-5.2.0-pythondestdir.patch
+Source: http://www.vtk.org/files/release/5.8/%{name}-%{version}.tar.gz
 Patch1: vtk-5.2.0-gcc43.patch
-Patch2: vtk-5.6.0-testcxxjavaremove.patch
-# Python 2.7 compatibility: not yet sent upstream:
-Patch3: vtk-5.6.0-python27.patch
-# Add needed includes for gcc 4.6
-# http://public.kitware.com/Bug/view.php?id=11824
-Patch4: vtk-5.6.1-gcc46.patch
 # Use system libraries
 # http://public.kitware.com/Bug/view.php?id=11823
 Patch5: vtk-5.6.1-system.patch
-# Upstream patch to add soversions to libCosmo and libVPIC
-Patch6: vtk-5.6.1-soversion.patch
 
 URL: http://vtk.org/
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
@@ -48,6 +40,7 @@ BuildRequires: chrpath
 BuildRequires: doxygen, graphviz
 BuildRequires: gnuplot
 BuildRequires: boost-devel
+BuildRequires: hdf5-devel
 BuildRequires: libtheora-devel
 BuildRequires: mysql-devel
 BuildRequires: postgresql-devel
@@ -135,13 +128,8 @@ programming languages.
 
 %prep
 %setup -q -n VTK
-%patch0 -p1 -b .pythondestdir
 %patch1 -p1 -b .gcc43
-%patch2 -p1 -b .testcxxjava
-%patch3 -p1 -b .python27
-%patch4 -p1 -b .gcc46
 %patch5 -p1 -b .system
-%patch6 -p1 -b .soversion
 
 # Replace relative path ../../../VTKData with %{_datadir}/vtkdata-%{version}
 # otherwise it will break on symlinks.
@@ -149,11 +137,11 @@ grep -rl '\.\./\.\./\.\./\.\./VTKData' . | xargs \
   perl -pi -e's,\.\./\.\./\.\./\.\./VTKData,%{_datadir}/vtkdata-%{version},g'
 
 # Save an unbuilt copy of the Example's sources for %doc
-mkdir vtk-examples-5.6
-cp -a Examples vtk-examples-5.6
+mkdir vtk-examples
+cp -a Examples vtk-examples
 # Don't ship Win32 examples
-rm -rf vtk-examples-5.6/Examples/GUI/Win32
-find vtk-examples-5.6 -type f | xargs chmod -R a-x
+rm -rf vtk-examples/Examples/GUI/Win32
+find vtk-examples -type f | xargs chmod -R a-x
 
 %build
 export CFLAGS="%{optflags} -D_UNICODE"
@@ -169,12 +157,13 @@ pushd build
  -DBUILD_EXAMPLES:BOOL=ON \
  -DBUILD_TESTING:BOOL=ON \
  -DVTK_INSTALL_INCLUDE_DIR:PATH=/include/vtk \
- -DVTK_INSTALL_LIB_DIR:PATH=/%{_lib}/vtk-5.6 \
+ -DVTK_INSTALL_LIB_DIR:PATH=/%{_lib}/vtk \
  -DVTK_INSTALL_QT_DIR=/%{_lib}/qt4/plugins/designer \
  -DTK_INTERNAL_PATH:PATH=/usr/include/tk-private/generic \
 %if %{with OSMesa}
  -DVTK_OPENGL_HAS_OSMESA:BOOL=ON \
 %endif
+ -DVTK_PYTHON_SETUP_ARGS="--prefix=/usr --root=%{buildroot}" \
  -DVTK_WRAP_PYTHON:BOOL=ON \
 %if %{with java}
  -DVTK_WRAP_JAVA:BOOL=ON \
@@ -223,7 +212,7 @@ if [ "%{_lib}" != lib -a "`ls %{buildroot}%{_prefix}/lib/*`" != "" ]; then
   mkdir -p %{buildroot}%{_libdir}
   mv %{buildroot}%{_prefix}/lib/* %{buildroot}%{_libdir}/
 fi
-mv %{buildroot}%{_libdir}/vtk-5.6/lib*.so* %{buildroot}%{_libdir}/
+mv %{buildroot}%{_libdir}/vtk/lib*.so* %{buildroot}%{_libdir}/
 
 # Gather list of non-python/tcl libraries
 ls %{buildroot}%{_libdir}/*.so.* \
@@ -286,7 +275,7 @@ for filelist in utils.list examples.list testing.list; do
 done
 
 # Remove any remnants of rpaths
-for file in `cat examples.list`; do
+for file in `cat utils.list examples.list testing.list`; do
   chrpath -d %{buildroot}$file
 done
 
@@ -296,8 +285,8 @@ popd
 
 # Make shared libs and scripts executable
 chmod a+x %{buildroot}%{_libdir}/lib*.so.*
-chmod a+x %{buildroot}%{_libdir}/vtk-5.6/doxygen/*.pl
-chmod a+x %{buildroot}%{_libdir}/vtk-5.6/testing/*.{py,tcl}
+chmod a+x %{buildroot}%{_libdir}/vtk/doxygen/*.pl
+chmod a+x %{buildroot}%{_libdir}/vtk/testing/*.{py,tcl}
 
 # Remove exec bit from non-scripts and %%doc
 for file in `find %{buildroot} -type f -perm 0755 \
@@ -308,11 +297,10 @@ done
 find Utilities/Upgrading -type f | xargs chmod -x
 
 # Add exec bits to shared libs ...
-#chmod 0755 %{buildroot}%{_libdir}/vtk-5.6/CMake/*.so
 chmod 0755 %{buildroot}%{_libdir}/python*/site-packages/vtk/*.so
 
 # Verdict places the docs in the false folder
-rm -fr %{buildroot}%{_libdir}/vtk-5.6/doc
+rm -fr %{buildroot}%{_libdir}/vtk/doc
 
 %check
 #LD_LIBARARY_PATH=`pwd`/bin ctest -V
@@ -349,12 +337,13 @@ rm -rf %{buildroot}
 %files devel
 %defattr(-,root,root,-)
 %doc Utilities/Upgrading
-%{_libdir}/vtk-5.6/doxygen
+%{_bindir}/vtkWrapHierarchy
+%{_libdir}/vtk/doxygen
 %{_includedir}/vtk
 %{_libdir}/*.so
-%{_libdir}/vtk-5.6/CMake
-%{_libdir}/vtk-5.6/*.cmake
-%{_libdir}/vtk-5.6/hints
+%{_libdir}/vtk/CMake
+%{_libdir}/vtk/*.cmake
+%{_libdir}/vtk/hints
 
 %files tcl
 %defattr(-,root,root,-)
@@ -362,8 +351,8 @@ rm -rf %{buildroot}
 %{_bindir}/vtk
 %{_bindir}/vtkWrapTcl
 %{_bindir}/vtkWrapTclInit
-%{_libdir}/vtk-5.6/pkgIndex.tcl
-%{_libdir}/vtk-5.6/tcl
+%{_libdir}/vtk/pkgIndex.tcl
+%{_libdir}/vtk/tcl
 
 %files python
 %defattr(-,root,root,-)
@@ -378,7 +367,7 @@ rm -rf %{buildroot}
 %files java
 %defattr(-,root,root,-)
 %{_libdir}/*Java.so.*
-%{_libdir}/vtk-5.6/java
+%{_libdir}/vtk/java
 %{_bindir}/vtkParseJava
 %{_bindir}/vtkWrapJava
 %endif
@@ -390,13 +379,21 @@ rm -rf %{buildroot}
 
 %files testing -f build/testing.list
 %defattr(-,root,root,-)
-%{_libdir}/vtk-5.6/testing
+%{_libdir}/vtk/testing
 
 %files examples -f build/examples.list
 %defattr(-,root,root,-)
-%doc vtk-examples-5.6/Examples
+%doc vtk-examples/Examples
 
 %changelog
+* Fri Oct 7 2011 Orion Poplawski <orion@cora.nwra.com> - 5.8.0-1
+- Update to 5.8.0
+- Drop version from directory names
+- Use VTK_PYTHON_SETUP_ARGS instead of patch to set python install dir
+- Drop several patches fixed upstream
+- Remove rpaths from all hand installed binaries (Bug 744437)
+- Don't link against OSMesa (Bug 744434)
+
 * Thu Jun 23 2011 Orion Poplawski <orion@cora.nwra.com> - 5.6.1-10
 - Add BR qtwebkit-devel, fixes FTBS bug 715770
 
