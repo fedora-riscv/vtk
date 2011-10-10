@@ -1,4 +1,5 @@
-%bcond_without OSMesa
+# Disable OSMesa builds for now - see Bug 744434
+%bcond_with OSMesa
 %bcond_without java
 
 %{!?python_sitearch:%global python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
@@ -6,7 +7,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 5.6.1
-Release: 10%{?dist}
+Release: 11%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -286,7 +287,7 @@ for filelist in utils.list examples.list testing.list; do
 done
 
 # Remove any remnants of rpaths
-for file in `cat examples.list`; do
+for file in `cat utils.list examples.list testing.list`; do
   chrpath -d %{buildroot}$file
 done
 
@@ -397,6 +398,10 @@ rm -rf %{buildroot}
 %doc vtk-examples-5.6/Examples
 
 %changelog
+* Mon Oct 10 2011 Orion Poplawski <orion@cora.nwra.com> - 5.6.1-11
+- Remove rpaths from all hand installed binaries (Bug 744437)
+- Don't link against OSMesa (Bug 744434)
+
 * Thu Jun 23 2011 Orion Poplawski <orion@cora.nwra.com> - 5.6.1-10
 - Add BR qtwebkit-devel, fixes FTBS bug 715770
 
