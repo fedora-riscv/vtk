@@ -7,7 +7,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 5.8.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -212,10 +212,13 @@ if [ "%{_lib}" != lib -a "`ls %{buildroot}%{_prefix}/lib/*`" != "" ]; then
   mkdir -p %{buildroot}%{_libdir}
   mv %{buildroot}%{_prefix}/lib/* %{buildroot}%{_libdir}/
 fi
-mv %{buildroot}%{_libdir}/vtk/lib*.so* %{buildroot}%{_libdir}/
+
+# ld config
+mkdir -p %{buildroot}%{_sysconfdir}/ld.so.conf.d
+echo %{_libdir}/vtk > %{buildroot}%{_sysconfdir}/ld.so.conf.d/vtk-%{_arch}.conf
 
 # Gather list of non-python/tcl libraries
-ls %{buildroot}%{_libdir}/*.so.* \
+ls %{buildroot}%{_libdir}/vtk/*.so.* \
   | grep -Ev '(Java|QVTK|PythonD|TCL)' | sed -e's,^%{buildroot},,' > libs.list
 
 # List of executable utilities
@@ -283,8 +286,7 @@ done
 cat libs.list utils.list > main.list
 popd
 
-# Make shared libs and scripts executable
-chmod a+x %{buildroot}%{_libdir}/lib*.so.*
+# Make scripts executable
 chmod a+x %{buildroot}%{_libdir}/vtk/doxygen/*.pl
 chmod a+x %{buildroot}%{_libdir}/vtk/testing/*.{py,tcl}
 
@@ -333,6 +335,7 @@ rm -rf %{buildroot}
 %files -f build/main.list
 %defattr(-,root,root,-)
 %doc --parents Copyright.txt README.html vtkLogo.jpg vtkBanner.gif Wrapping/*/README*
+%config(noreplace) %{_sysconfdir}/ld.so.conf.d/vtk-%{_arch}.conf
 
 %files devel
 %defattr(-,root,root,-)
@@ -340,14 +343,14 @@ rm -rf %{buildroot}
 %{_bindir}/vtkWrapHierarchy
 %{_libdir}/vtk/doxygen
 %{_includedir}/vtk
-%{_libdir}/*.so
+%{_libdir}/vtk/*.so
 %{_libdir}/vtk/CMake
 %{_libdir}/vtk/*.cmake
 %{_libdir}/vtk/hints
 
 %files tcl
 %defattr(-,root,root,-)
-%{_libdir}/*TCL.so.*
+%{_libdir}/vtk/*TCL.so.*
 %{_bindir}/vtk
 %{_bindir}/vtkWrapTcl
 %{_bindir}/vtkWrapTclInit
@@ -358,7 +361,7 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 #%{python_sitearch}/vtk
 %{python_sitearch}/*
-%{_libdir}/*PythonD.so.*
+%{_libdir}/vtk/*PythonD.so.*
 %{_bindir}/vtkpython
 %{_bindir}/vtkWrapPython
 %{_bindir}/vtkWrapPythonInit
@@ -366,7 +369,7 @@ rm -rf %{buildroot}
 %if %{with java}
 %files java
 %defattr(-,root,root,-)
-%{_libdir}/*Java.so.*
+%{_libdir}/vtk/*Java.so.*
 %{_libdir}/vtk/java
 %{_bindir}/vtkParseJava
 %{_bindir}/vtkWrapJava
@@ -374,7 +377,7 @@ rm -rf %{buildroot}
 
 %files qt
 %defattr(-,root,root,-)
-%{_libdir}/libQVTK.so.*
+%{_libdir}/vtk/libQVTK.so.*
 %{_libdir}/qt4/plugins/designer
 
 %files testing -f build/testing.list
@@ -386,6 +389,9 @@ rm -rf %{buildroot}
 %doc vtk-examples/Examples
 
 %changelog
+* Mon Nov 1 2011 Orion Poplawski <orion@cora.nwra.com> - 5.8.0-2
+- Keep libraries in %%{_libdir}/vtk, use ld.so.conf.d
+
 * Fri Oct 7 2011 Orion Poplawski <orion@cora.nwra.com> - 5.8.0-1
 - Update to 5.8.0
 - Drop version from directory names
