@@ -7,7 +7,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 5.8.0
-Release: 2%{?dist}
+Release: 3%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -47,6 +47,7 @@ BuildRequires: postgresql-devel
 BuildRequires: wget
 BuildRequires: %{_includedir}/Xm
 %{!?with_java:Conflicts: vtk-java}
+Requires: hdf5 = %{_hdf5_version}
 
 %description
 VTK is an open-source software system for image processing, 3D
@@ -389,6 +390,9 @@ rm -rf %{buildroot}
 %doc vtk-examples/Examples
 
 %changelog
+* Fri Nov 18 2011 Orion Poplawski <orion@cora.nwra.com> - 5.8.0-3
+- Rebuild for hdf5 1.8.8, add explicit requires
+
 * Mon Nov 1 2011 Orion Poplawski <orion@cora.nwra.com> - 5.8.0-2
 - Keep libraries in %%{_libdir}/vtk, use ld.so.conf.d
 
