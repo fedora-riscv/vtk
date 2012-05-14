@@ -7,7 +7,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 5.8.0
-Release: 5%{?dist}
+Release: 6%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -21,7 +21,12 @@ Patch5: vtk-5.6.1-system.patch
 
 URL: http://vtk.org/
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
+
+%if (0%{?rhel} <= 6)
+BuildRequires:	cmake28
+%else
 BuildRequires: cmake
+%endif
 BuildRequires: gcc-c++
 #%{?with_java:BuildRequires: gcc-java, libgcj-devel, java-devel}
 %{?with_java:BuildRequires: java-devel}
@@ -153,7 +158,11 @@ export JAVA_HOME=/usr/lib/jvm/java
 
 mkdir build
 pushd build
+%if (0%{?rhel} <= 6)
+%{cmake28} .. \
+%else
 %{cmake} .. \
+%endif
  -DBUILD_DOCUMENTATION:BOOL=ON \
  -DBUILD_EXAMPLES:BOOL=ON \
  -DBUILD_TESTING:BOOL=ON \
@@ -390,6 +399,9 @@ rm -rf %{buildroot}
 %doc vtk-examples/Examples
 
 %changelog
+* Tue May 15 2012 Jonathan G. Underwood <jonathan.underwood@gmail.com> - 5.8.0-6
+- Add cmake28 usage when building for EL6
+
 * Tue Feb 28 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 5.8.0-5
 - Rebuilt for c++ ABI breakage
 
