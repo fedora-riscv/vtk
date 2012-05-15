@@ -1,7 +1,12 @@
 # Disable OSMesa builds for now - see Bug 744434
 %bcond_with OSMesa
-%bcond_without java
 
+# Disable java on ppc64 - fails to build
+%ifarch ppc64
+%bcond_with java
+%else
+%bcond_without java
+%endif
 %{!?python_sitearch:%global python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
 
 Summary: The Visualization Toolkit - A high level 3D visualization library
@@ -401,6 +406,7 @@ rm -rf %{buildroot}
 %changelog
 * Tue May 15 2012 Jonathan G. Underwood <jonathan.underwood@gmail.com> - 5.8.0-6
 - Add cmake28 usage when building for EL6
+- Disable -java build on PPC64 as it fails to build
 
 * Tue Feb 28 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 5.8.0-5
 - Rebuilt for c++ ABI breakage
