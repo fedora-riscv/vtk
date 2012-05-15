@@ -28,7 +28,7 @@ URL: http://vtk.org/
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
 %if 0%{?rhel} && (0%{?rhel} <= 6)
-BuildRequires:	cmake28
+BuildRequires: cmake28
 %else
 BuildRequires: cmake
 %endif
@@ -163,7 +163,7 @@ export JAVA_HOME=/usr/lib/jvm/java
 
 mkdir build
 pushd build
-%if (0%{?rhel} <= 6)
+%if 0%{?rhel} && (0%{?rhel} <= 6)
 %{cmake28} .. \
 %else
 %{cmake} .. \
