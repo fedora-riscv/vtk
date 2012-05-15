@@ -11,14 +11,14 @@
 
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
-Version: 5.8.0
-Release: 6%{?dist}
+Version: 5.10.0
+Release: 1%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
 License: BSD
 Group: System Environment/Libraries
-Source: http://www.vtk.org/files/release/5.8/%{name}-%{version}.tar.gz
+Source: http://www.vtk.org/files/release/5.10/%{name}-%{version}.tar.gz
 Patch1: vtk-5.2.0-gcc43.patch
 # Use system libraries
 # http://public.kitware.com/Bug/view.php?id=11823
@@ -404,6 +404,9 @@ rm -rf %{buildroot}
 %doc vtk-examples/Examples
 
 %changelog
+* Tue May 15 2012 Orion Poplawski <orion@cora.nwra.com> - 5.10.0-1
+- Update to 5.10.0
+
 * Tue May 15 2012 Jonathan G. Underwood <jonathan.underwood@gmail.com> - 5.8.0-6
 - Add cmake28 usage when building for EL6
 - Disable -java build on PPC64 as it fails to build
