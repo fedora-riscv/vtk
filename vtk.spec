@@ -7,7 +7,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 5.8.0
-Release: 5%{?dist}
+Release: 6%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -15,6 +15,9 @@ License: BSD
 Group: System Environment/Libraries
 Source: http://www.vtk.org/files/release/5.8/%{name}-%{version}.tar.gz
 Patch1: vtk-5.2.0-gcc43.patch
+# Add soname to libvtkNetCDF_cxx
+# http://vtk.org/Bug/view.php?id=12207
+Patch2: vtk-soname.patch
 # Use system libraries
 # http://public.kitware.com/Bug/view.php?id=11823
 Patch5: vtk-5.6.1-system.patch
@@ -130,6 +133,7 @@ programming languages.
 %prep
 %setup -q -n VTK
 %patch1 -p1 -b .gcc43
+%patch2 -p1 -b .soname
 %patch5 -p1 -b .system
 
 # Replace relative path ../../../VTKData with %{_datadir}/vtkdata-%{version}
@@ -390,6 +394,9 @@ rm -rf %{buildroot}
 %doc vtk-examples/Examples
 
 %changelog
+* Thu May 24 2012 Orion Poplawski <orion@cora.nwra.com> - 5.8.0-6
+- Add patch to add soname to libvtkNetCDF_cxx
+
 * Tue Feb 28 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 5.8.0-5
 - Rebuilt for c++ ABI breakage
 

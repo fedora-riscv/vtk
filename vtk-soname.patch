@@ -1,0 +1,11 @@
+diff -up VTK/Utilities/vtknetcdf/CMakeLists.txt.soname VTK/Utilities/vtknetcdf/CMakeLists.txt
+--- VTK/Utilities/vtknetcdf/CMakeLists.txt.soname	2011-08-24 07:37:14.000000000 -0600
++++ VTK/Utilities/vtknetcdf/CMakeLists.txt	2012-05-24 14:01:52.533509691 -0600
+@@ -298,6 +298,7 @@ ADD_DEFINITIONS("-DNC_DLL_EXPORT")
+ # Apply user-defined properties to the library target.
+ IF(VTK_LIBRARY_PROPERTIES)
+   SET_TARGET_PROPERTIES(vtkNetCDF PROPERTIES ${VTK_LIBRARY_PROPERTIES})
++  SET_TARGET_PROPERTIES(vtkNetCDF_cxx PROPERTIES ${VTK_LIBRARY_PROPERTIES})
+ ENDIF(VTK_LIBRARY_PROPERTIES)
+ 
+ IF(NOT VTK_INSTALL_NO_LIBRARIES)
