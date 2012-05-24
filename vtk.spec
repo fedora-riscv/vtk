@@ -18,6 +18,8 @@ Patch1: vtk-5.2.0-gcc43.patch
 # Add soname to libvtkNetCDF_cxx
 # http://vtk.org/Bug/view.php?id=12207
 Patch2: vtk-soname.patch
+# Patch to fix compilation with boost 1.48
+Patch3: vtk-boost-1.48.0-bfs.patch
 # Use system libraries
 # http://public.kitware.com/Bug/view.php?id=11823
 Patch5: vtk-5.6.1-system.patch
@@ -134,6 +136,7 @@ programming languages.
 %setup -q -n VTK
 %patch1 -p1 -b .gcc43
 %patch2 -p1 -b .soname
+%patch3 -p1 -b .boost
 %patch5 -p1 -b .system
 
 # Replace relative path ../../../VTKData with %{_datadir}/vtkdata-%{version}
@@ -396,6 +399,7 @@ rm -rf %{buildroot}
 %changelog
 * Thu May 24 2012 Orion Poplawski <orion@cora.nwra.com> - 5.8.0-6
 - Add patch to add soname to libvtkNetCDF_cxx
+- Add patch to compile with boost 1.48
 
 * Tue Feb 28 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 5.8.0-5
 - Rebuilt for c++ ABI breakage
