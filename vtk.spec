@@ -12,7 +12,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 5.10.0
-Release: 2%{?dist}
+Release: 3%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -408,6 +408,9 @@ rm -rf %{buildroot}
 %doc vtk-examples/Examples
 
 %changelog
+* Sun Jul 22 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 5.10.0-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
 * Thu May 24 2012 Orion Poplawski <orion@cora.nwra.com> - 5.10.0-2
 - Add patch to add soname to libvtkNetCDF_cxx
 
