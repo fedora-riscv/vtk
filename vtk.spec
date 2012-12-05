@@ -436,7 +436,7 @@ rm -rf %{buildroot}
 * Fri Nov 18 2011 Orion Poplawski <orion@cora.nwra.com> - 5.8.0-3
 - Rebuild for hdf5 1.8.8, add explicit requires
 
-* Mon Nov 1 2011 Orion Poplawski <orion@cora.nwra.com> - 5.8.0-2
+* Tue Nov 1 2011 Orion Poplawski <orion@cora.nwra.com> - 5.8.0-2
 - Keep libraries in %%{_libdir}/vtk, use ld.so.conf.d
 
 * Fri Oct 7 2011 Orion Poplawski <orion@cora.nwra.com> - 5.8.0-1
@@ -481,7 +481,7 @@ rm -rf %{buildroot}
 * Mon Feb 07 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 5.6.1-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
 
-* Mon Dec 7 2010 Orion Poplawski <orion@cora.nwra.com> - 5.6.1-1
+* Tue Dec 7 2010 Orion Poplawski <orion@cora.nwra.com> - 5.6.1-1
 - Update to 5.6.1
 - Enable qt4 support, drop qt3 support
 
@@ -580,7 +580,7 @@ rm -rf %{buildroot}
 * Wed May 31 2006 Axel Thimm <Axel.Thimm@ATrpms.net>
 - Update to 5.0.
 
-* Mon Apr 04 2004 Intrinsic Spin <spin@freakbait.com> 2.mr
+* Mon Apr 05 2004 Intrinsic Spin <spin@freakbait.com> 2.mr
 - built on a machine with a stock libGL.so
 
 * Sun Apr 04 2004 Intrinsic Spin <spin@freakbait.com>
