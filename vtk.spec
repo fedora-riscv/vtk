@@ -323,6 +323,11 @@ chmod 0755 %{buildroot}%{_libdir}/python*/site-packages/vtk/*.so
 # Verdict places the docs in the false folder
 rm -fr %{buildroot}%{_libdir}/vtk/doc
 
+# Setup Wrapping docs tree
+mkdir _docs
+cp -pr --parents Wrapping/*/README* _docs/ 
+
+
 %check
 #LD_LIBARARY_PATH=`pwd`/bin ctest -V
 
@@ -353,7 +358,7 @@ rm -rf %{buildroot}
 
 %files -f build/main.list
 %defattr(-,root,root,-)
-%doc --parents Copyright.txt README.html vtkLogo.jpg vtkBanner.gif Wrapping/*/README*
+%doc Copyright.txt README.html vtkLogo.jpg vtkBanner.gif _docs/Wrapping
 %config(noreplace) %{_sysconfdir}/ld.so.conf.d/vtk-%{_arch}.conf
 
 %files devel
@@ -410,6 +415,7 @@ rm -rf %{buildroot}
 %changelog
 * Mon Dec 03 2012 Orion Poplawski <orion@cora.nwra.com> - 5.10.1-2
 - Rebuild for hdf5 1.8.10
+- Change doc handling
 
 * Thu Nov 1 2012 Orion Poplawski <orion@cora.nwra.com> - 5.10.1-1
 - Update to 5.10.1
