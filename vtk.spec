@@ -413,6 +413,9 @@ rm -rf %{buildroot}
 %doc vtk-examples/Examples
 
 %changelog
+* Thu May 16 2013 Orion Poplawski <orion@cora.nwra.com> - 5.10.1-5
+- Rebuild for hdf5 1.8.11
+
 * Fri Feb 15 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 5.10.1-4
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_19_Mass_Rebuild
 
