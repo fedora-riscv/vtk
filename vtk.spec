@@ -14,18 +14,16 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 6.0.0
-Release: 0.1.rc2%{?dist}
+Release: 1%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
 License: BSD
 Group: System Environment/Libraries
-Source: http://www.vtk.org/files/release/6.0/%{name}-%{version}.rc2.tar.gz
+Source: http://www.vtk.org/files/release/6.0/%{name}-%{version}.tar.gz
 # Use system libraries
 # http://public.kitware.com/Bug/view.php?id=11823
 Patch5: vtk-6.0.0-system.patch
-# Test
-Patch6: vtk-test.patch
 
 URL: http://vtk.org/
 
@@ -144,9 +142,8 @@ programming languages.
 
 
 %prep
-%setup -q -n VTK%{version}.rc2
+%setup -q -n VTK%{version}
 %patch5 -p1 -b .system
-%patch6 -p1 -b .test
 
 # Replace relative path ../../../VTKData with %{_datadir}/vtkdata-%{version}
 # otherwise it will break on symlinks.
@@ -396,7 +393,7 @@ cp -pr --parents Wrapping/*/README* _docs/
 %doc vtk-examples/Examples
 
 %changelog
-* Mon Jun 10 2013 Orion Poplawski <orion@cora.nwra.com> - 6.0.0-1
+* Thu Jun 27 2013 Orion Poplawski <orion@cora.nwra.com> - 6.0.0-1
 - Update to 6.0.0
 
 * Thu May 16 2013 Orion Poplawski <orion@cora.nwra.com> - 5.10.1-5
