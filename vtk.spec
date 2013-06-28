@@ -122,6 +122,22 @@ Group: System Environment/Libraries
 %description qt
 Qt bindings for VTK
 
+%package qt-python
+Summary: Qt Python bindings for VTK
+Requires: vtk = %{version}-%{release}
+Group: System Environment/Libraries
+
+%description qt-python
+Qt Python bindings for VTK
+
+%package qt-tcl
+Summary: Qt TCL bindings for VTK
+Requires: vtk = %{version}-%{release}
+Group: System Environment/Libraries
+
+%description qt-tcl
+Qt TCL bindings for VTK
+
 %package testing
 Summary: Testing programs for VTK
 Requires: vtk = %{version}-%{release}, vtkdata = %{version}
@@ -241,7 +257,7 @@ echo %{_libdir}/vtk > %{buildroot}%{_sysconfdir}/ld.so.conf.d/vtk-%{_arch}.conf
 
 # Gather list of non-python/tcl libraries
 ls %{buildroot}%{_libdir}/vtk/*.so.* \
-  | grep -Ev '(Java|QVTK|PythonD|TCL)' | sed -e's,^%{buildroot},,' > libs.list
+  | grep -Ev '(Java|Qt|Python27D|TCL)' | sed -e's,^%{buildroot},,' > libs.list
 
 # List of executable utilities
 cat > utils.list << EOF
@@ -288,6 +304,10 @@ done
 for file in `cat examples.list`; do
   chrpath -d %{buildroot}$file
 done
+
+# vtkpython is not being installed
+cp -p bin/vtkpython %{buildroot}%{_bindir}/
+chrpath -d  %{buildroot}%{_bindir}/vtkpython
 
 # http://vtk.org/Bug/view.php?id=14125
 chrpath -d  %{buildroot}%{python_sitearch}/vtk/*.so
@@ -342,6 +362,14 @@ cp -pr --parents Wrapping/*/README* _docs/
 
 %postun qt -p /sbin/ldconfig
 
+%post qt-python -p /sbin/ldconfig
+
+%postun qt-python -p /sbin/ldconfig
+
+%post qt-tcl -p /sbin/ldconfig
+
+%postun qt-tcl -p /sbin/ldconfig
+
 %files -f build/main.list
 %doc Copyright.txt README.html vtkLogo.jpg vtkBanner.gif _docs/Wrapping
 %config(noreplace) %{_sysconfdir}/ld.so.conf.d/vtk-%{_arch}.conf
@@ -362,6 +390,7 @@ cp -pr --parents Wrapping/*/README* _docs/
 
 %files tcl
 %{_libdir}/vtk/*TCL.so.*
+%exclude %{_libdir}/vtk/*QtTCL.so.*
 %{_bindir}/vtk
 %{_bindir}/vtkWrapTcl
 %{_bindir}/vtkWrapTclInit
@@ -371,7 +400,8 @@ cp -pr --parents Wrapping/*/README* _docs/
 %files python
 %{python_sitearch}/*
 %{_libdir}/vtk/*Python27D.so.*
-#%{_bindir}/vtkpython
+%exclude %{_libdir}/vtk/*QtPython27D.so.*
+%{_bindir}/vtkpython
 %{_bindir}/vtkWrapPython
 %{_bindir}/vtkWrapPythonInit
 
@@ -385,7 +415,15 @@ cp -pr --parents Wrapping/*/README* _docs/
 
 %files qt
 %{_libdir}/vtk/lib*Qt*.so.*
+%exclude %{_libdir}/vtk/*TCL.so.*
+%exclude %{_libdir}/vtk/*Python27D.so.*
 %{_libdir}/qt4/plugins/designer/libQVTKWidgetPlugin.so
+
+%files qt-python
+%{_libdir}/vtk/*QtPython27D.so.*
+
+%files qt-tcl
+%{_libdir}/vtk/*QtTCL.so.*
 
 %files testing
 
