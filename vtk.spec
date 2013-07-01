@@ -23,7 +23,10 @@ Group: System Environment/Libraries
 Source: http://www.vtk.org/files/release/6.0/%{name}-%{version}.tar.gz
 # Use system libraries
 # http://public.kitware.com/Bug/view.php?id=11823
-Patch5: vtk-6.0.0-system.patch
+Patch0: vtk-6.0.0-system.patch
+# Install some more needed cmake files to try to support paraview build
+# http://www.vtk.org/Bug/view.php?id=14157
+Patch1: vtk-install.patch
 
 URL: http://vtk.org/
 
@@ -159,7 +162,8 @@ programming languages.
 
 %prep
 %setup -q -n VTK%{version}
-%patch5 -p1 -b .system
+%patch0 -p1 -b .system
+%patch1 -p1 -b .install
 
 # Replace relative path ../../../VTKData with %{_datadir}/vtkdata-%{version}
 # otherwise it will break on symlinks.
