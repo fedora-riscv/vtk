@@ -191,6 +191,7 @@ pushd build
  -DBUILD_EXAMPLES:BOOL=ON \
  -DBUILD_TESTING:BOOL=ON \
  -DVTK_CUSTOM_LIBRARY_SUFFIX="" \
+ -DVTK_INSTALL_ARCHIVE_DIR:PATH=%{_lib}/vtk \
  -DVTK_INSTALL_INCLUDE_DIR:PATH=include/vtk \
  -DVTK_INSTALL_LIBRARY_DIR:PATH=%{_lib}/vtk \
  -DVTK_INSTALL_PACKAGE_DIR:PATH=%{_lib}/cmake/vtk \
@@ -246,9 +247,10 @@ mkdir -p %{buildroot}
 pushd build
 make install DESTDIR=%{buildroot}
 
+# Move python libraries into the proper location
 if [ "%{_lib}" != lib -a "`ls %{buildroot}%{_prefix}/lib/*`" != "" ]; then
   mkdir -p %{buildroot}%{_libdir}
-  mv %{buildroot}%{_prefix}/lib/* %{buildroot}%{_libdir}/
+  mv %{buildroot}%{_prefix}/lib/python* %{buildroot}%{_libdir}/
 fi
 
 # ld config
@@ -381,7 +383,7 @@ cp -pr --parents Wrapping/*/README* _docs/
 %{_bindir}/vtkWrapHierarchy
 %{_includedir}/vtk
 %{_libdir}/vtk/*.so
-%{_libdir}/libvtkWrappingTools.a
+%{_libdir}/vtk/libvtkWrappingTools.a
 %{_libdir}/cmake/vtk/
 %{_bindir}/vtkParseOGLExt
 %{_bindir}/vtkProcessShader
