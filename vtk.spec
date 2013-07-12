@@ -57,6 +57,7 @@ BuildRequires: hdf5-devel
 BuildRequires: libtheora-devel
 BuildRequires: mysql-devel
 BuildRequires: postgresql-devel
+BuildRequires: R-devel
 BuildRequires: wget
 BuildRequires: %{_includedir}/Xm
 %{!?with_java:Conflicts: vtk-java}
@@ -437,6 +438,9 @@ cp -pr --parents Wrapping/*/README* _docs/
 %doc vtk-examples/Examples
 
 %changelog
+* Fri Jul 12 2013 Orion Poplawski <orion@cora.nwra.com> - 6.0.0-1
+- Add BR on R-devel
+
 * Thu Jun 27 2013 Orion Poplawski <orion@cora.nwra.com> - 6.0.0-1
 - Update to 6.0.0
 
