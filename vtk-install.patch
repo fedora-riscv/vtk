@@ -1,7 +1,7 @@
 diff -up VTK6.0.0/CMake/vtkModuleTop.cmake.install VTK6.0.0/CMake/vtkModuleTop.cmake
 --- VTK6.0.0/CMake/vtkModuleTop.cmake.install	2013-06-12 13:47:10.000000000 -0600
-+++ VTK6.0.0/CMake/vtkModuleTop.cmake	2013-06-28 16:12:02.837198769 -0600
-@@ -330,9 +330,11 @@ if (NOT VTK_INSTALL_NO_DEVELOPMENT)
++++ VTK6.0.0/CMake/vtkModuleTop.cmake	2013-07-12 16:15:15.706008475 -0600
+@@ -330,10 +330,15 @@ if (NOT VTK_INSTALL_NO_DEVELOPMENT)
                  CMake/pythonmodules.h.in
                  CMake/UseVTK.cmake
                  CMake/FindTCL.cmake
@@ -11,5 +11,9 @@ diff -up VTK6.0.0/CMake/vtkModuleTop.cmake.install VTK6.0.0/CMake/vtkModuleTop.c
                  CMake/vtkForwardingExecutable.cmake
 +                CMake/vtkGroups.cmake
                  CMake/vtkJavaWrapping.cmake
++                CMake/vtkMakeInstantiator.cmake
++                CMake/vtkMakeInstantiator.cxx.in
++                CMake/vtkMakeInstantiator.h.in
                  CMake/vtkModuleAPI.cmake
                  CMake/vtkModuleHeaders.cmake.in
+                 CMake/vtkModuleInfo.cmake.in
