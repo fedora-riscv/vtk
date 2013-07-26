@@ -14,7 +14,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 6.0.0
-Release: 3%{?dist}
+Release: 4%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -27,6 +27,8 @@ Patch0: vtk-6.0.0-system.patch
 # Install some more needed cmake files to try to support paraview build
 # http://www.vtk.org/Bug/view.php?id=14157
 Patch1: vtk-install.patch
+# Upsream patch to install vtkpython
+Patch2: vtk-vtkpython.patch
 
 URL: http://vtk.org/
 
@@ -165,6 +167,7 @@ programming languages.
 %setup -q -n VTK%{version}
 %patch0 -p1 -b .system
 %patch1 -p1 -b .install
+%patch2 -p1 -b .vtkpython
 
 # Replace relative path ../../../VTKData with %{_datadir}/vtkdata-%{version}
 # otherwise it will break on symlinks.
@@ -310,10 +313,6 @@ for file in `cat examples.list`; do
   chrpath -d %{buildroot}$file
 done
 
-# vtkpython is not being installed
-cp -p bin/vtkpython %{buildroot}%{_bindir}/
-chrpath -d  %{buildroot}%{_bindir}/vtkpython
-
 # http://vtk.org/Bug/view.php?id=14125
 chrpath -d  %{buildroot}%{python_sitearch}/vtk/*.so
 
@@ -436,6 +435,9 @@ cp -pr --parents Wrapping/*/README* _docs/
 %doc vtk-examples/Examples
 
 %changelog
+* Fri Jul 26 2013 Orion Poplawski <orion@cora.nwra.com> - 6.0.0-4
+- Add patch to install vtkpython
+
 * Wed Jul 17 2013 Petr Pisar <ppisar@redhat.com> - 6.0.0-3
 - Perl 5.18 rebuild
 
