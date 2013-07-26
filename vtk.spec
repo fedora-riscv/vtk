@@ -234,8 +234,6 @@ pushd build
 #  -DVTK_DATA_ROOT:PATH=%{_datadir}/vtkdata-%{version} \
 # Not working, see http://public.kitware.com/Bug/view.php?id=11978
 # -DVTK_USE_ODBC=ON \
-# Not working, see http://public.kitware.com/Bug/view.php?id=10779
-# -DVTK_USE_GNU_R:BOOL=ON \
 # Commented old flags in case we'd like to reactive some of them
 # -DVTK_USE_DISPLAY:BOOL=OFF \ # This prevents building of graphics tests
 # -DVTK_USE_MPI:BOOL=ON \
