@@ -57,6 +57,7 @@ BuildRequires: hdf5-devel
 BuildRequires: libtheora-devel
 BuildRequires: mysql-devel
 BuildRequires: postgresql-devel
+BuildRequires: sip-devel
 BuildRequires: wget
 BuildRequires: %{_includedir}/Xm
 %{!?with_java:Conflicts: vtk-java}
