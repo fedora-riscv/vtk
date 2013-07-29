@@ -186,6 +186,7 @@ pushd build
  -DVTK_PYTHON_SETUP_ARGS="--prefix=/usr --root=%{buildroot}" \
  -DVTK_WRAP_PYTHON:BOOL=ON \
  -DVTK_WRAP_PYTHON_SIP:BOOL=ON \
+ -DSIP_INCLUDE_DIR:PATH=/usr/include/python2.7 \
 %if %{with java}
  -DVTK_WRAP_JAVA:BOOL=ON \
  -DJAVA_INCLUDE_PATH:PATH=$JAVA_HOME/include \
