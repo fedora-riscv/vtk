@@ -12,7 +12,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 5.10.1
-Release: 4%{?dist}
+Release: 5%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -192,6 +192,7 @@ pushd build
 %else
  -DVTK_WRAP_JAVA:BOOL=OFF \
 %endif
+ -DVTK_WRAP_PYTHON_SIP:BOOL=ON \
  -DVTK_WRAP_TCL:BOOL=ON \
  -DVTK_USE_BOOST:BOOL=ON \
  -DVTK_USE_GL2PS:BOOL=ON \
@@ -203,6 +204,7 @@ pushd build
  -DVTK_USE_SYSTEM_LIBRARIES=ON \
  -DVTK_USE_SYSTEM_LIBPROJ4=OFF \
  -DVTK_USE_QVTK=ON \
+ -DVTK_USE_QVTK_QTOPENGL=ON \
  -DVTK_USE_QT=ON \
  -DVTK_USE_TEXT_ANALYSIS=ON
 
@@ -413,6 +415,9 @@ rm -rf %{buildroot}
 %doc vtk-examples/Examples
 
 %changelog
+* Sun Jul 28 2013 Orion Poplawski <orion@cora.nwra.com> - 5.10.1-5
+- Build QVTKWidget and QVTKWidget2 (bug #981786)
+
 * Fri Feb 15 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 5.10.1-4
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_19_Mass_Rebuild
 
