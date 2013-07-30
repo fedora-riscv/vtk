@@ -14,7 +14,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 6.0.0
-Release: 4%{?dist}
+Release: 5%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -60,6 +60,8 @@ BuildRequires: libtheora-devel
 BuildRequires: mysql-devel
 BuildRequires: postgresql-devel
 BuildRequires: R-devel
+BuildRequires: PyQt4-devel
+BuildRequires: sip-devel
 BuildRequires: wget
 BuildRequires: %{_includedir}/Xm
 %{!?with_java:Conflicts: vtk-java}
@@ -209,8 +211,6 @@ pushd build
 %if %{with OSMesa}
  -DVTK_OPENGL_HAS_OSMESA:BOOL=ON \
 %endif
- -DVTK_PYTHON_SETUP_ARGS="--prefix=/usr --root=%{buildroot}" \
- -DVTK_WRAP_PYTHON:BOOL=ON \
 %if %{with java}
  -DVTK_WRAP_JAVA:BOOL=ON \
  -DJAVA_INCLUDE_PATH:PATH=$JAVA_HOME/include \
@@ -219,6 +219,10 @@ pushd build
 %else
  -DVTK_WRAP_JAVA:BOOL=OFF \
 %endif
+ -DVTK_PYTHON_SETUP_ARGS="--prefix=/usr --root=%{buildroot}" \
+ -DVTK_WRAP_PYTHON:BOOL=ON \
+ -DVTK_WRAP_PYTHON_SIP:BOOL=ON \
+ -DSIP_INCLUDE_DIR:PATH=/usr/include/python2.7 \
  -DVTK_WRAP_TCL:BOOL=ON \
  -DVTK_Group_Imaging:BOOL=ON \
  -DVTK_Group_Qt:BOOL=ON \
@@ -435,6 +439,9 @@ cp -pr --parents Wrapping/*/README* _docs/
 %doc vtk-examples/Examples
 
 %changelog
+* Mon Jul 29 2013 Orion Poplawski <orion@cora.nwra.com> - 6.0.0-5
+- Enable VTK_WRAP_PYTHON_SIP
+
 * Fri Jul 26 2013 Orion Poplawski <orion@cora.nwra.com> - 6.0.0-4
 - Add patch to install vtkpython
 
