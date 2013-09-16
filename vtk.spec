@@ -12,7 +12,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 5.10.1
-Release: 5%{?dist}
+Release: 6%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -101,6 +101,7 @@ tcl bindings for VTK
 Summary: Python bindings for VTK
 Requires: vtk = %{version}-%{release}
 Group: System Environment/Libraries
+Requires: sip
 
 %description python
 python bindings for VTK
@@ -419,6 +420,9 @@ rm -rf %{buildroot}
 %doc vtk-examples/Examples
 
 %changelog
+* Mon Sep 16 2013 Orion Poplawski <orion@cora.nwra.com> - 5.10.1-6
+- Add requires sip to vtk-python
+
 * Sun Jul 28 2013 Orion Poplawski <orion@cora.nwra.com> - 5.10.1-5
 - Build QVTKWidget and QVTKWidget2 (bug #981786)
 
