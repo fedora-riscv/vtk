@@ -14,7 +14,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 6.0.0
-Release: 9%{?dist}
+Release: 10%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -29,6 +29,8 @@ Patch0: vtk-6.0.0-system.patch
 Patch1: vtk-install.patch
 # Upsream patch to install vtkpython
 Patch2: vtk-vtkpython.patch
+#Patch to vtk to use system netcdf library
+Patch3: vtk-6.0.0-netcdf.patch
 
 URL: http://vtk.org/
 
@@ -58,6 +60,7 @@ BuildRequires: boost-devel
 BuildRequires: hdf5-devel
 BuildRequires: libtheora-devel
 BuildRequires: mysql-devel
+BuildRequires: netcdf-cxx-devel
 BuildRequires: postgresql-devel
 BuildRequires: R-devel
 BuildRequires: PyQt4-devel
@@ -172,6 +175,12 @@ programming languages.
 %patch0 -p1 -b .system
 %patch1 -p1 -b .install
 %patch2 -p1 -b .vtkpython
+%patch3 -p1 -b .netcdf
+# Remove included thirdparty sources just to be sure
+for x in expat freetype gl2ps hdf5 jpeg libxml2 netcdf oggtheora png sqlite tiff zlib
+do
+  rm -r ThirdParty/${x}/vtk${x}
+done
 
 # Replace relative path ../../../VTKData with %{_datadir}/vtkdata-%{version}
 # otherwise it will break on symlinks.
@@ -441,6 +450,9 @@ cp -pr --parents Wrapping/*/README* _docs/
 %doc vtk-examples/Examples
 
 %changelog
+* Fri Dec 27 2013 Orion Poplawski <orion@cora.nwra.com> - 6.0.0-10
+- Add patch to use system netcdf
+
 * Sun Dec 22 2013 Kevin Fenzi <kevin@scrye.com> 6.0.0-9
 - Add BuildRequires on blas-devel and lapack-devel
 
