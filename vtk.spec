@@ -60,11 +60,12 @@ BuildRequires: boost-devel
 BuildRequires: hdf5-devel
 BuildRequires: libtheora-devel
 BuildRequires: mysql-devel
-BuildRequires: netcdf-cxx-devel
+BuildRequires: netcdf-devel
 BuildRequires: postgresql-devel
 BuildRequires: R-devel
 BuildRequires: PyQt4-devel
 BuildRequires: sip-devel
+BuildRequires: sqlite-devel
 BuildRequires: wget
 BuildRequires: %{_includedir}/Xm
 BuildRequires: blas-devel
@@ -244,7 +245,9 @@ pushd build
  -DModule_vtkFiltersStatisticsGnuR:BOOL=ON \
  -DVTK_USE_OGGTHEORA_ENCODER=ON \
  -DVTK_USE_SYSTEM_LIBRARIES=ON \
- -DVTK_USE_SYSTEM_LIBPROJ4=OFF
+ -DVTK_USE_SYSTEM_LIBPROJ4=OFF \
+ -DVTK_USE_SYSTEM_NETCDF=ON \
+ -DVTK_USE_SYSTEM_SQLITE=ON
 
 # TODO - MPI
 #-DVTK_Group_MPI:BOOL=ON \
