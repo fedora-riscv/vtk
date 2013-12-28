@@ -25,19 +25,3 @@ diff -up VTK6.0.0/CMakeLists.txt.system VTK6.0.0/CMakeLists.txt
  # The third party macros are still used in one or two third party builds.
  include(vtkThirdParty)
  
-diff -up VTK6.0.0/ThirdParty/sqlite/CMakeLists.txt.system VTK6.0.0/ThirdParty/sqlite/CMakeLists.txt
---- VTK6.0.0/ThirdParty/sqlite/CMakeLists.txt.system	2013-06-12 13:47:10.000000000 -0600
-+++ VTK6.0.0/ThirdParty/sqlite/CMakeLists.txt	2013-12-27 21:21:16.058122214 -0700
-@@ -1,4 +1,9 @@
- set(vtksqlite_THIRD_PARTY 1)
--set(vtksqlite_LIBRARIES vtksqlite)
--vtk_module_export_info()
--add_subdirectory(vtksqlite)
-+if(VTK_USE_SYSTEM_SQLITE)
-+  set(vtksqlite_LIBRARIES sqlite3)
-+  vtk_module_export_info()
-+else(VTK_USE_SYSTEM_SQLITE)
-+  set(vtksqlite_LIBRARIES vtksqlite)
-+  vtk_module_export_info()
-+  add_subdirectory(vtksqlite)
-+endif(VTK_USE_SYSTEM_SQLITE)

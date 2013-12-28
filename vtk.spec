@@ -178,7 +178,7 @@ programming languages.
 %patch2 -p1 -b .vtkpython
 %patch3 -p1 -b .netcdf
 # Remove included thirdparty sources just to be sure
-for x in expat freetype gl2ps hdf5 jpeg libxml2 netcdf oggtheora png sqlite tiff zlib
+for x in expat freetype gl2ps hdf5 jpeg libxml2 netcdf oggtheora png tiff zlib
 do
   rm -r ThirdParty/${x}/vtk${x}
 done
