@@ -1,6 +1,6 @@
 diff -up VTK6.0.0/CMake/vtkModuleMacros.cmake.system VTK6.0.0/CMake/vtkModuleMacros.cmake
 --- VTK6.0.0/CMake/vtkModuleMacros.cmake.system	2013-06-12 13:47:10.000000000 -0600
-+++ VTK6.0.0/CMake/vtkModuleMacros.cmake	2013-12-27 20:52:29.299431600 -0700
++++ VTK6.0.0/CMake/vtkModuleMacros.cmake	2013-12-27 20:59:39.548152746 -0700
 @@ -613,7 +613,7 @@ macro(vtk_module_third_party _pkg)
      message(FATAL_ERROR "Cannot specify both LIBRARIES and NO_LIBRARIES")
    endif()
@@ -12,7 +12,7 @@ diff -up VTK6.0.0/CMake/vtkModuleMacros.cmake.system VTK6.0.0/CMake/vtkModuleMac
    if(VTK_USE_SYSTEM_${_upper})
 diff -up VTK6.0.0/CMakeLists.txt.system VTK6.0.0/CMakeLists.txt
 --- VTK6.0.0/CMakeLists.txt.system	2013-06-12 13:47:10.000000000 -0600
-+++ VTK6.0.0/CMakeLists.txt	2013-12-27 20:52:29.299431600 -0700
++++ VTK6.0.0/CMakeLists.txt	2013-12-27 20:59:39.548152746 -0700
 @@ -107,6 +107,11 @@ set(VTK_INSTALL_INCLUDE_DIR_CM24 ${VTK_I
  set(VTK_INSTALL_DOXYGEN_DIR_CM24 ${VTK_INSTALL_DATA_DIR}/doxygen)
  
@@ -27,17 +27,17 @@ diff -up VTK6.0.0/CMakeLists.txt.system VTK6.0.0/CMakeLists.txt
  
 diff -up VTK6.0.0/ThirdParty/sqlite/CMakeLists.txt.system VTK6.0.0/ThirdParty/sqlite/CMakeLists.txt
 --- VTK6.0.0/ThirdParty/sqlite/CMakeLists.txt.system	2013-06-12 13:47:10.000000000 -0600
-+++ VTK6.0.0/ThirdParty/sqlite/CMakeLists.txt	2013-12-27 20:58:33.672959677 -0700
++++ VTK6.0.0/ThirdParty/sqlite/CMakeLists.txt	2013-12-27 21:21:16.058122214 -0700
 @@ -1,4 +1,9 @@
  set(vtksqlite_THIRD_PARTY 1)
 -set(vtksqlite_LIBRARIES vtksqlite)
 -vtk_module_export_info()
 -add_subdirectory(vtksqlite)
-+if(VTK_USE_SYTEM_SQLITE)
++if(VTK_USE_SYSTEM_SQLITE)
 +  set(vtksqlite_LIBRARIES sqlite3)
 +  vtk_module_export_info()
-+else(VTK_USE_SYTEM_SQLITE)
++else(VTK_USE_SYSTEM_SQLITE)
 +  set(vtksqlite_LIBRARIES vtksqlite)
 +  vtk_module_export_info()
 +  add_subdirectory(vtksqlite)
-+endif(VTK_USE_SYTEM_SQLITE)
++endif(VTK_USE_SYSTEM_SQLITE)
