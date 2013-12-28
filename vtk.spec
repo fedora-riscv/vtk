@@ -60,7 +60,7 @@ BuildRequires: boost-devel
 BuildRequires: hdf5-devel
 BuildRequires: libtheora-devel
 BuildRequires: mysql-devel
-BuildRequires: netcdf-devel
+BuildRequires: netcdf-cxx-devel
 BuildRequires: postgresql-devel
 BuildRequires: R-devel
 BuildRequires: PyQt4-devel
