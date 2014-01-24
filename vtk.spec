@@ -217,6 +217,7 @@ pushd build
  -DVTK_INSTALL_INCLUDE_DIR:PATH=include/vtk \
  -DVTK_INSTALL_LIBRARY_DIR:PATH=%{_lib}/vtk \
  -DVTK_INSTALL_PACKAGE_DIR:PATH=%{_lib}/cmake/vtk \
+ -DVTK_INSTALL_PYTHON_MODULE_DIR:PATH=%{_lib}/python%{python_version}/site-packages \
  -DVTK_INSTALL_QT_DIR:PATH=/%{_lib}/qt4/plugins/designer \
  -DVTK_INSTALL_TCL_DIR:PATH=share/tcl%{tcl_version}/vtk \
  -DTK_INTERNAL_PATH:PATH=/usr/include/tk-private/generic \
@@ -233,7 +234,7 @@ pushd build
 %endif
  -DVTK_WRAP_PYTHON:BOOL=ON \
  -DVTK_WRAP_PYTHON_SIP:BOOL=ON \
- -DSIP_INCLUDE_DIR:PATH=/usr/include/python2.7 \
+ -DSIP_INCLUDE_DIR:PATH=/usr/include/python%{python_version} \
  -DVTK_WRAP_TCL:BOOL=ON \
  -DVTK_Group_Imaging:BOOL=ON \
  -DVTK_Group_Qt:BOOL=ON \
@@ -328,12 +329,11 @@ for filelist in utils.list examples.list; do
 done
 
 # Remove any remnants of rpaths on files we install
+# Seems to be some kind of java path
 for file in `cat examples.list`; do
   chrpath -d %{buildroot}$file
 done
-
-# http://vtk.org/Bug/view.php?id=14125
-chrpath -d  %{buildroot}%{python_sitearch}/vtk/*.so
+chrpath -d  %{buildroot}%{_libdir}/qt4/plugins/designer/libQVTKWidgetPlugin.so
 
 # Main package contains utils and core libs
 cat libs.list utils.list > main.list
@@ -350,9 +350,6 @@ for file in `find %{buildroot} -type f -perm 0755 \
   chmod 0644 $file
 done
 find Utilities/Upgrading -type f | xargs chmod -x
-
-# Add exec bits to shared libs ...
-chmod 0755 %{buildroot}%{_libdir}/python*/site-packages/vtk/*.so
 
 # Setup Wrapping docs tree
 mkdir _docs
@@ -407,8 +404,7 @@ cp -pr --parents Wrapping/*/README* _docs/
 %{_libdir}/vtk/libvtkWrappingTools.a
 %{_libdir}/cmake/vtk/
 %{_bindir}/vtkParseOGLExt
-%{_bindir}/vtkProcessShader
-%{_docdir}/vtk-6.0/
+%{_docdir}/vtk-6.1/
 %{tcl_sitelib}/vtk/vtktcl.c
 
 %files tcl
