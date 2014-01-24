@@ -13,24 +13,22 @@
 
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
-Version: 6.0.0
-Release: 10%{?dist}
+Version: 6.1.0
+Release: 1%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
 License: BSD
 Group: System Environment/Libraries
-Source: http://www.vtk.org/files/release/6.0/%{name}-%{version}.tar.gz
+Source: http://www.vtk.org/files/release/6.1/VTK-%{version}.tar.gz
 # Use system libraries
 # http://public.kitware.com/Bug/view.php?id=11823
-Patch0: vtk-6.0.0-system.patch
+Patch0: vtk-6.1.0-system.patch
 # Install some more needed cmake files to try to support paraview build
 # http://www.vtk.org/Bug/view.php?id=14157
 Patch1: vtk-install.patch
-# Upsream patch to install vtkpython
-Patch2: vtk-vtkpython.patch
 #Patch to vtk to use system netcdf library
-Patch3: vtk-6.0.0-netcdf.patch
+Patch2: vtk-6.1.0-netcdf.patch
 
 URL: http://vtk.org/
 
@@ -58,6 +56,7 @@ BuildRequires: doxygen, graphviz
 BuildRequires: gnuplot
 BuildRequires: boost-devel
 BuildRequires: hdf5-devel
+BuildRequires: jsoncpp-devel
 BuildRequires: libtheora-devel
 BuildRequires: mysql-devel
 BuildRequires: netcdf-cxx-devel
@@ -172,15 +171,15 @@ programming languages.
 
 
 %prep
-%setup -q -n VTK%{version}
+%setup -q -n VTK-%{version}
 %patch0 -p1 -b .system
 %patch1 -p1 -b .install
-%patch2 -p1 -b .vtkpython
-%patch3 -p1 -b .netcdf
+%patch2 -p1 -b .netcdf
 # Remove included thirdparty sources just to be sure
-for x in expat freetype gl2ps hdf5 jpeg libxml2 netcdf oggtheora png tiff zlib
+# TODO - vtksqlite
+for x in autobahn vtkexpat vtkfreetype vtkgl2ps vtkhdf5 vtkjpeg vtklibxml2 vtknetcdf vtkoggtheora vtkpng vtktiff twisted vtkzlib zope
 do
-  rm -r ThirdParty/${x}/vtk${x}
+  rm -r ThirdParty/*/${x}
 done
 
 # Replace relative path ../../../VTKData with %{_datadir}/vtkdata-%{version}
@@ -211,9 +210,10 @@ pushd build
 %endif
  -DBUILD_DOCUMENTATION:BOOL=ON \
  -DBUILD_EXAMPLES:BOOL=ON \
- -DBUILD_TESTING:BOOL=ON \
+ -DBUILD_TESTING:BOOL=OFF \
  -DVTK_CUSTOM_LIBRARY_SUFFIX="" \
  -DVTK_INSTALL_ARCHIVE_DIR:PATH=%{_lib}/vtk \
+ -DVTK_INSTALL_DATA_DIR=share/paraview \
  -DVTK_INSTALL_INCLUDE_DIR:PATH=include/vtk \
  -DVTK_INSTALL_LIBRARY_DIR:PATH=%{_lib}/vtk \
  -DVTK_INSTALL_PACKAGE_DIR:PATH=%{_lib}/cmake/vtk \
@@ -231,7 +231,6 @@ pushd build
 %else
  -DVTK_WRAP_JAVA:BOOL=OFF \
 %endif
- -DVTK_PYTHON_SETUP_ARGS="--prefix=/usr --root=%{buildroot}" \
  -DVTK_WRAP_PYTHON:BOOL=ON \
  -DVTK_WRAP_PYTHON_SIP:BOOL=ON \
  -DSIP_INCLUDE_DIR:PATH=/usr/include/python2.7 \
@@ -243,11 +242,13 @@ pushd build
  -DVTK_Group_Tk:BOOL=ON \
  -DVTK_Group_Views:BOOL=ON \
  -DModule_vtkFiltersStatisticsGnuR:BOOL=ON \
+ -DModule_vtkTestingCore:BOOL=ON \
+ -DModule_vtkTestingRendering:BOOL=ON \
  -DVTK_USE_OGGTHEORA_ENCODER=ON \
  -DVTK_USE_SYSTEM_LIBRARIES=ON \
- -DVTK_USE_SYSTEM_LIBPROJ4=OFF \
- -DVTK_USE_SYSTEM_NETCDF=ON \
- -DVTK_USE_SYSTEM_SQLITE=ON
+ -DVTK_USE_SYSTEM_HDF5:BOOL=ON \
+ -DVTK_USE_SYSTEM_LIBPROJ4:BOOL=OFF \
+ -DVTK_USE_SYSTEM_NETCDF:BOOL=ON
 
 # TODO - MPI
 #-DVTK_Group_MPI:BOOL=ON \
@@ -453,6 +454,11 @@ cp -pr --parents Wrapping/*/README* _docs/
 %doc vtk-examples/Examples
 
 %changelog
+* Thu Jan 23 2014 Orion Poplawski <orion@cora.nwra.com> - 6.1.0-1
+- Update to 6.1.0
+- Rebase patches, drop vtkpython patch
+- Disable BUILD_TESTING for now until we can provide test data
+
 * Fri Dec 27 2013 Orion Poplawski <orion@cora.nwra.com> - 6.0.0-10
 - Add patch to use system netcdf
 

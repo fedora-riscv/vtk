@@ -1,17 +1,17 @@
-diff -up VTK6.0.0/CMake/vtkModuleTop.cmake.install VTK6.0.0/CMake/vtkModuleTop.cmake
---- VTK6.0.0/CMake/vtkModuleTop.cmake.install	2013-06-12 13:47:10.000000000 -0600
-+++ VTK6.0.0/CMake/vtkModuleTop.cmake	2013-07-12 16:15:15.706008475 -0600
-@@ -330,10 +330,15 @@ if (NOT VTK_INSTALL_NO_DEVELOPMENT)
+diff -up VTK-6.1.0/CMake/vtkModuleTop.cmake.install VTK-6.1.0/CMake/vtkModuleTop.cmake
+--- VTK-6.1.0/CMake/vtkModuleTop.cmake.install	2014-01-23 19:12:04.922871103 -0700
++++ VTK-6.1.0/CMake/vtkModuleTop.cmake	2014-01-23 19:14:33.002645155 -0700
+@@ -330,11 +330,15 @@ if (NOT VTK_INSTALL_NO_DEVELOPMENT)
                  CMake/pythonmodules.h.in
                  CMake/UseVTK.cmake
                  CMake/FindTCL.cmake
 +                CMake/TopologicalSort.cmake
                  CMake/vtkTclTkMacros.cmake
                  CMake/vtk-forward.c.in
-                 CMake/vtkForwardingExecutable.cmake
 +                CMake/vtkGroups.cmake
+                 CMake/vtkForwardingExecutable.cmake
                  CMake/vtkJavaWrapping.cmake
-+                CMake/vtkMakeInstantiator.cmake
+                 CMake/vtkMakeInstantiator.cmake
 +                CMake/vtkMakeInstantiator.cxx.in
 +                CMake/vtkMakeInstantiator.h.in
                  CMake/vtkModuleAPI.cmake
