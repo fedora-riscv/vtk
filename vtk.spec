@@ -213,7 +213,7 @@ pushd build
  -DBUILD_TESTING:BOOL=OFF \
  -DVTK_CUSTOM_LIBRARY_SUFFIX="" \
  -DVTK_INSTALL_ARCHIVE_DIR:PATH=%{_lib}/vtk \
- -DVTK_INSTALL_DATA_DIR=share/paraview \
+ -DVTK_INSTALL_DATA_DIR=share/vtk \
  -DVTK_INSTALL_INCLUDE_DIR:PATH=include/vtk \
  -DVTK_INSTALL_LIBRARY_DIR:PATH=%{_lib}/vtk \
  -DVTK_INSTALL_PACKAGE_DIR:PATH=%{_lib}/cmake/vtk \
@@ -393,6 +393,7 @@ cp -pr --parents Wrapping/*/README* _docs/
 %files -f build/main.list
 %doc Copyright.txt README.html vtkLogo.jpg vtkBanner.gif _docs/Wrapping
 %config(noreplace) %{_sysconfdir}/ld.so.conf.d/vtk-%{_arch}.conf
+%{_datadir}/vtk
 %dir %{_libdir}/vtk
 
 %files devel
