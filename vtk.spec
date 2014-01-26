@@ -84,9 +84,11 @@ Requires: vtk = %{version}-%{release}
 Requires: cmake
 Requires: gl2ps-devel
 Requires: expat-devel, libjpeg-devel, libpng-devel
+Requires: libfreetype-devel
 Requires: libogg-devel
 Requires: libtheora-devel
 Requires: libtiff-devel
+Requires: libxml2-devel
 Requires: postgresql-devel
 Requires: mysql-devel
 Requires: qt4-devel
