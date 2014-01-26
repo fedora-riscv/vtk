@@ -441,7 +441,7 @@ cp -pr --parents Wrapping/*/README* _docs/
 %doc vtk-examples/Examples
 
 %changelog
-* Sun Jan 25 2014 Orion Poplawski <orion@cora.nwra.com> - 6.0.0-8
+* Sun Jan 26 2014 Orion Poplawski <orion@cora.nwra.com> - 6.0.0-8
 - Add Requires: libfreetype-devel; libxml2-devel to vtk-devel (bug #1057924)
 
 * Sun Aug 04 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 6.0.0-7
