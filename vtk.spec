@@ -14,7 +14,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 6.1.0
-Release: 3%{?dist}
+Release: 4%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -89,7 +89,7 @@ Requires: vtk = %{version}-%{release}
 Requires: cmake
 Requires: gl2ps-devel
 Requires: expat-devel, libjpeg-devel, libpng-devel
-Requires: libfreetype-devel
+Requires: freetype-devel
 Requires: libogg-devel
 Requires: libtheora-devel
 Requires: libtiff-devel
@@ -453,6 +453,9 @@ cp -pr --parents Wrapping/*/README* _docs/
 %doc vtk-examples/Examples
 
 %changelog
+* Tue Jan 28 2014 Orion Poplawski <orion@cora.nwra.com> - 6.1.0-4
+- Really fix requires freetype-devel
+
 * Mon Jan 27 2014 Orion Poplawski <orion@cora.nwra.com> - 6.1.0-3
 - Fix requires freetype-devel
 
