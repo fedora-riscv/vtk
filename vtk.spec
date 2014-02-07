@@ -7,28 +7,30 @@
 %else
 %bcond_without java
 %endif
-%{!?python_sitearch:%global python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
+
+%{!?tcl_version: %global tcl_version %(echo 'puts $tcl_version' | tclsh)}
+%{!?tcl_sitelib: %global tcl_sitelib %{_datadir}/tcl%{tcl_version}}
 
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
-Version: 5.10.1
-Release: 7%{?dist}
+Version: 6.1.0
+Release: 4%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
 License: BSD
 Group: System Environment/Libraries
-Source: http://www.vtk.org/files/release/5.10/%{name}-%{version}.tar.gz
-Patch1: vtk-5.2.0-gcc43.patch
-# Add soname to libvtkNetCDF_cxx
-# http://vtk.org/Bug/view.php?id=12207
-Patch2: vtk-soname.patch
+Source: http://www.vtk.org/files/release/6.1/VTK-%{version}.tar.gz
 # Use system libraries
 # http://public.kitware.com/Bug/view.php?id=11823
-Patch5: vtk-5.6.1-system.patch
+Patch0: vtk-6.1.0-system.patch
+# Install some more needed cmake files to try to support paraview build
+# http://www.vtk.org/Bug/view.php?id=14157
+Patch1: vtk-install.patch
+#Patch to vtk to use system netcdf library
+Patch2: vtk-6.1.0-netcdf.patch
 
 URL: http://vtk.org/
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
 %if 0%{?rhel} && (0%{?rhel} <= 6)
 BuildRequires: cmake28
@@ -54,20 +56,29 @@ BuildRequires: doxygen, graphviz
 BuildRequires: gnuplot
 BuildRequires: boost-devel
 BuildRequires: hdf5-devel
+BuildRequires: jsoncpp-devel
 BuildRequires: libtheora-devel
 BuildRequires: mysql-devel
+BuildRequires: netcdf-cxx-devel
 BuildRequires: postgresql-devel
+BuildRequires: R-devel
 BuildRequires: PyQt4-devel
 BuildRequires: sip-devel
+BuildRequires: sqlite-devel
 BuildRequires: wget
 BuildRequires: %{_includedir}/Xm
+BuildRequires: blas-devel
+BuildRequires: lapack-devel
 %{!?with_java:Conflicts: vtk-java}
 Requires: hdf5 = %{_hdf5_version}
+
+# Do not check .so files in the python_sitearch directory
+%global __provides_exclude_from ^%{python_sitearch}/.*\\.so$
 
 %description
 VTK is an open-source software system for image processing, 3D
 graphics, volume rendering and visualization. VTK includes many
-advanced algorithms (e.g., surface reconstruction, implicit modelling,
+advanced algorithms (e.g., surface reconstruction, implicit modeling,
 decimation) and rendering techniques (e.g., hardware-accelerated
 volume rendering, LOD control).
 
@@ -75,11 +86,14 @@ volume rendering, LOD control).
 Summary: VTK header files for building C++ code
 Requires: vtk = %{version}-%{release}
 %{?with_OSMesa:Requires: mesa-libOSMesa-devel}
+Requires: cmake
 Requires: gl2ps-devel
 Requires: expat-devel, libjpeg-devel, libpng-devel
+Requires: freetype-devel
 Requires: libogg-devel
 Requires: libtheora-devel
 Requires: libtiff-devel
+Requires: libxml2-devel
 Requires: postgresql-devel
 Requires: mysql-devel
 Requires: qt4-devel
@@ -87,7 +101,7 @@ Group: Development/Libraries
 
 %description devel 
 This provides the VTK header files required to compile C++ programs that
-use VTK to do 3D visualisation.
+use VTK to do 3D visualization.
 
 %package tcl
 Summary: Tcl bindings for VTK
@@ -125,6 +139,22 @@ Group: System Environment/Libraries
 %description qt
 Qt bindings for VTK
 
+%package qt-python
+Summary: Qt Python bindings for VTK
+Requires: vtk = %{version}-%{release}
+Group: System Environment/Libraries
+
+%description qt-python
+Qt Python bindings for VTK
+
+%package qt-tcl
+Summary: Qt TCL bindings for VTK
+Requires: vtk = %{version}-%{release}
+Group: System Environment/Libraries
+
+%description qt-tcl
+Qt TCL bindings for VTK
+
 %package testing
 Summary: Testing programs for VTK
 Requires: vtk = %{version}-%{release}, vtkdata = %{version}
@@ -145,10 +175,16 @@ programming languages.
 
 
 %prep
-%setup -q -n VTK%{version}
-%patch1 -p1 -b .gcc43
-%patch2 -p1 -b .soname
-%patch5 -p1 -b .system
+%setup -q -n VTK-%{version}
+%patch0 -p1 -b .system
+%patch1 -p1 -b .install
+%patch2 -p1 -b .netcdf
+# Remove included thirdparty sources just to be sure
+# TODO - vtksqlite
+for x in autobahn vtkexpat vtkfreetype vtkgl2ps vtkhdf5 vtkjpeg vtklibxml2 vtknetcdf vtkoggtheora vtkpng vtktiff twisted vtkzlib zope
+do
+  rm -r ThirdParty/*/${x}
+done
 
 # Replace relative path ../../../VTKData with %{_datadir}/vtkdata-%{version}
 # otherwise it will break on symlinks.
@@ -159,7 +195,7 @@ grep -rl '\.\./\.\./\.\./\.\./VTKData' . | xargs \
 mkdir vtk-examples
 cp -a Examples vtk-examples
 # Don't ship Win32 examples
-rm -rf vtk-examples/Examples/GUI/Win32
+rm -r vtk-examples/Examples/GUI/Win32
 find vtk-examples -type f | xargs chmod -R a-x
 
 %build
@@ -178,18 +214,20 @@ pushd build
 %endif
  -DBUILD_DOCUMENTATION:BOOL=ON \
  -DBUILD_EXAMPLES:BOOL=ON \
- -DBUILD_TESTING:BOOL=ON \
- -DVTK_INSTALL_INCLUDE_DIR:PATH=/include/vtk \
- -DVTK_INSTALL_LIB_DIR:PATH=/%{_lib}/vtk \
- -DVTK_INSTALL_QT_DIR=/%{_lib}/qt4/plugins/designer \
+ -DBUILD_TESTING:BOOL=OFF \
+ -DVTK_CUSTOM_LIBRARY_SUFFIX="" \
+ -DVTK_INSTALL_ARCHIVE_DIR:PATH=%{_lib}/vtk \
+ -DVTK_INSTALL_DATA_DIR=share/vtk \
+ -DVTK_INSTALL_INCLUDE_DIR:PATH=include/vtk \
+ -DVTK_INSTALL_LIBRARY_DIR:PATH=%{_lib}/vtk \
+ -DVTK_INSTALL_PACKAGE_DIR:PATH=%{_lib}/cmake/vtk \
+ -DVTK_INSTALL_PYTHON_MODULE_DIR:PATH=%{_lib}/python%{python_version}/site-packages \
+ -DVTK_INSTALL_QT_DIR:PATH=/%{_lib}/qt4/plugins/designer \
+ -DVTK_INSTALL_TCL_DIR:PATH=share/tcl%{tcl_version}/vtk \
  -DTK_INTERNAL_PATH:PATH=/usr/include/tk-private/generic \
 %if %{with OSMesa}
  -DVTK_OPENGL_HAS_OSMESA:BOOL=ON \
 %endif
- -DVTK_PYTHON_SETUP_ARGS="--prefix=/usr --root=%{buildroot}" \
- -DVTK_WRAP_PYTHON:BOOL=ON \
- -DVTK_WRAP_PYTHON_SIP:BOOL=ON \
- -DSIP_INCLUDE_DIR:PATH=/usr/include/python2.7 \
 %if %{with java}
  -DVTK_WRAP_JAVA:BOOL=ON \
  -DJAVA_INCLUDE_PATH:PATH=$JAVA_HOME/include \
@@ -198,46 +236,51 @@ pushd build
 %else
  -DVTK_WRAP_JAVA:BOOL=OFF \
 %endif
+ -DVTK_WRAP_PYTHON:BOOL=ON \
  -DVTK_WRAP_PYTHON_SIP:BOOL=ON \
+ -DSIP_INCLUDE_DIR:PATH=/usr/include/python%{python_version} \
  -DVTK_WRAP_TCL:BOOL=ON \
- -DVTK_USE_BOOST:BOOL=ON \
- -DVTK_USE_GL2PS:BOOL=ON \
- -DVTK_USE_GUISUPPORT:BOOL=ON \
- -DVTK_USE_MYSQL=ON \
+ -DVTK_Group_Imaging:BOOL=ON \
+ -DVTK_Group_Qt:BOOL=ON \
+ -DVTK_Group_Rendering:BOOL=ON \
+ -DVTK_Group_StandAlone:BOOL=ON \
+ -DVTK_Group_Tk:BOOL=ON \
+ -DVTK_Group_Views:BOOL=ON \
+ -DModule_vtkFiltersStatisticsGnuR:BOOL=ON \
+ -DModule_vtkTestingCore:BOOL=ON \
+ -DModule_vtkTestingRendering:BOOL=ON \
  -DVTK_USE_OGGTHEORA_ENCODER=ON \
- -DVTK_USE_PARALLEL:BOOL=ON \
- -DVTK_USE_POSTGRES=ON \
  -DVTK_USE_SYSTEM_LIBRARIES=ON \
- -DVTK_USE_SYSTEM_LIBPROJ4=OFF \
- -DVTK_USE_QVTK=ON \
- -DVTK_USE_QVTK_QTOPENGL=ON \
- -DVTK_USE_QT=ON \
- -DVTK_USE_TEXT_ANALYSIS=ON
+ -DVTK_USE_SYSTEM_HDF5:BOOL=ON \
+ -DVTK_USE_SYSTEM_LIBPROJ4:BOOL=OFF \
+ -DVTK_USE_SYSTEM_NETCDF:BOOL=ON
 
+# TODO - MPI
+#-DVTK_Group_MPI:BOOL=ON \
+# Needed for some tests.  Fails to compile at the moment.  We don't run test though.
+#  -DVTK_DATA_ROOT:PATH=%{_datadir}/vtkdata-%{version} \
 # Not working, see http://public.kitware.com/Bug/view.php?id=11978
 # -DVTK_USE_ODBC=ON \
-# Not working, see http://public.kitware.com/Bug/view.php?id=10779
-# -DVTK_USE_GNU_R:BOOL=ON \
 # Commented old flags in case we'd like to reactive some of them
 # -DVTK_USE_DISPLAY:BOOL=OFF \ # This prevents building of graphics tests
 # -DVTK_USE_MPI:BOOL=ON \
 
 # Got intermittent build error with -j
-make #%{?_smp_mflags}
+make %{?_smp_mflags}
 
 # Remove executable bits from sources (some of which are generated)
 find . -name \*.c -or -name \*.cxx -or -name \*.h -or -name \*.hxx -or \
        -name \*.gif | xargs chmod -x
 
 %install
-rm -rf %{buildroot}
 mkdir -p %{buildroot}
 pushd build
 make install DESTDIR=%{buildroot}
 
+# Move python libraries into the proper location
 if [ "%{_lib}" != lib -a "`ls %{buildroot}%{_prefix}/lib/*`" != "" ]; then
   mkdir -p %{buildroot}%{_libdir}
-  mv %{buildroot}%{_prefix}/lib/* %{buildroot}%{_libdir}/
+  mv %{buildroot}%{_prefix}/lib/python* %{buildroot}%{_libdir}/
 fi
 
 # ld config
@@ -246,12 +289,11 @@ echo %{_libdir}/vtk > %{buildroot}%{_sysconfdir}/ld.so.conf.d/vtk-%{_arch}.conf
 
 # Gather list of non-python/tcl libraries
 ls %{buildroot}%{_libdir}/vtk/*.so.* \
-  | grep -Ev '(Java|QVTK|PythonD|TCL)' | sed -e's,^%{buildroot},,' > libs.list
+  | grep -Ev '(Java|Qt|Python27D|TCL)' | sed -e's,^%{buildroot},,' > libs.list
 
 # List of executable utilities
 cat > utils.list << EOF
 vtkEncodeString
-lproj
 EOF
 
 # List of executable examples
@@ -278,44 +320,32 @@ Cone5
 Cone6
 EOF
 
-# List of executable test binaries
-cat > testing.list << EOF
-CommonCxxTests
-TestCxxFeatures
-TestInstantiator
-FilteringCxxTests
-GraphicsCxxTests
-GenericFilteringCxxTests
-ImagingCxxTests
-IOCxxTests
-RenderingCxxTests
-VTKBenchMark
-VolumeRenderingCxxTests
-WidgetsCxxTests
-SocketClient
-SocketServer
-EOF
-
-# Install utils/examples/testing, too
-for filelist in utils.list examples.list testing.list; do
+# Install examples too
+for filelist in examples.list; do
   for file in `cat $filelist`; do
     install -p bin/$file %{buildroot}%{_bindir}
   done
+done
+
+# Fix up filelist paths
+for filelist in utils.list examples.list; do
   perl -pi -e's,^,%{_bindir}/,' $filelist
 done
 
-# Remove any remnants of rpaths
-for file in `cat utils.list examples.list testing.list`; do
+# Remove any remnants of rpaths on files we install
+# Seems to be some kind of java path
+for file in `cat examples.list`; do
   chrpath -d %{buildroot}$file
 done
+chrpath -d  %{buildroot}%{_libdir}/qt4/plugins/designer/libQVTKWidgetPlugin.so
 
 # Main package contains utils and core libs
 cat libs.list utils.list > main.list
 popd
 
 # Make scripts executable
-chmod a+x %{buildroot}%{_libdir}/vtk/doxygen/*.pl
-chmod a+x %{buildroot}%{_libdir}/vtk/testing/*.{py,tcl}
+#chmod a+x %{buildroot}%{_libdir}/vtk/doxygen/*.pl
+#chmod a+x %{buildroot}%{_libdir}/vtk/testing/*.{py,tcl}
 
 # Remove exec bit from non-scripts and %%doc
 for file in `find %{buildroot} -type f -perm 0755 \
@@ -325,12 +355,6 @@ for file in `find %{buildroot} -type f -perm 0755 \
 done
 find Utilities/Upgrading -type f | xargs chmod -x
 
-# Add exec bits to shared libs ...
-chmod 0755 %{buildroot}%{_libdir}/python*/site-packages/vtk/*.so
-
-# Verdict places the docs in the false folder
-rm -fr %{buildroot}%{_libdir}/vtk/doc
-
 # Setup Wrapping docs tree
 mkdir _docs
 cp -pr --parents Wrapping/*/README* _docs/ 
@@ -339,8 +363,6 @@ cp -pr --parents Wrapping/*/README* _docs/
 %check
 #LD_LIBARARY_PATH=`pwd`/bin ctest -V
 
-%clean
-rm -rf %{buildroot}
 
 %post -p /sbin/ldconfig
 
@@ -364,63 +386,100 @@ rm -rf %{buildroot}
 
 %postun qt -p /sbin/ldconfig
 
+%post qt-python -p /sbin/ldconfig
+
+%postun qt-python -p /sbin/ldconfig
+
+%post qt-tcl -p /sbin/ldconfig
+
+%postun qt-tcl -p /sbin/ldconfig
+
 %files -f build/main.list
-%defattr(-,root,root,-)
 %doc Copyright.txt README.html vtkLogo.jpg vtkBanner.gif _docs/Wrapping
 %config(noreplace) %{_sysconfdir}/ld.so.conf.d/vtk-%{_arch}.conf
+%{_datadir}/vtk
+%dir %{_libdir}/vtk
 
 %files devel
-%defattr(-,root,root,-)
 %doc Utilities/Upgrading
+%{_bindir}/vtkHashSource
 %{_bindir}/vtkWrapHierarchy
-%{_libdir}/vtk/doxygen
 %{_includedir}/vtk
 %{_libdir}/vtk/*.so
-%{_libdir}/vtk/CMake
-%{_libdir}/vtk/*.cmake
-%{_libdir}/vtk/hints
+%{_libdir}/vtk/libvtkWrappingTools.a
+%{_libdir}/cmake/vtk/
+%{_bindir}/vtkParseOGLExt
+%{_docdir}/vtk-6.1/
+%{tcl_sitelib}/vtk/vtktcl.c
 
 %files tcl
-%defattr(-,root,root,-)
 %{_libdir}/vtk/*TCL.so.*
+%exclude %{_libdir}/vtk/*QtTCL.so.*
 %{_bindir}/vtk
 %{_bindir}/vtkWrapTcl
 %{_bindir}/vtkWrapTclInit
-%{_libdir}/vtk/pkgIndex.tcl
-%{_libdir}/vtk/tcl
+%{tcl_sitelib}/vtk/
+%exclude %{tcl_sitelib}/vtk/vtktcl.c
 
 %files python
-%defattr(-,root,root,-)
-#%{python_sitearch}/vtk
 %{python_sitearch}/*
-%{_libdir}/vtk/*PythonD.so.*
+%{_libdir}/vtk/*Python27D.so.*
+%exclude %{_libdir}/vtk/*QtPython27D.so.*
 %{_bindir}/vtkpython
 %{_bindir}/vtkWrapPython
 %{_bindir}/vtkWrapPythonInit
 
 %if %{with java}
 %files java
-%defattr(-,root,root,-)
 %{_libdir}/vtk/*Java.so.*
-%{_libdir}/vtk/java
+%{_libdir}/vtk/vtk.jar
 %{_bindir}/vtkParseJava
 %{_bindir}/vtkWrapJava
 %endif
 
 %files qt
-%defattr(-,root,root,-)
-%{_libdir}/vtk/libQVTK.so.*
-%{_libdir}/qt4/plugins/designer
+%{_libdir}/vtk/lib*Qt*.so.*
+%exclude %{_libdir}/vtk/*TCL.so.*
+%exclude %{_libdir}/vtk/*Python27D.so.*
+%{_libdir}/qt4/plugins/designer/libQVTKWidgetPlugin.so
 
-%files testing -f build/testing.list
-%defattr(-,root,root,-)
-%{_libdir}/vtk/testing
+%files qt-python
+%{_libdir}/vtk/*QtPython27D.so.*
+
+%files qt-tcl
+%{_libdir}/vtk/*QtTCL.so.*
+
+%files testing
 
 %files examples -f build/examples.list
-%defattr(-,root,root,-)
 %doc vtk-examples/Examples
 
 %changelog
+* Tue Jan 28 2014 Orion Poplawski <orion@cora.nwra.com> - 6.1.0-4
+- Really fix requires freetype-devel
+
+* Mon Jan 27 2014 Orion Poplawski <orion@cora.nwra.com> - 6.1.0-3
+- Fix requires freetype-devel
+
+* Sun Jan 26 2014 Orion Poplawski <orion@cora.nwra.com> - 6.1.0-2
+- Add Requires: libfreetype-devel; libxml2-devel to vtk-devel (bug #1057924)
+
+* Thu Jan 23 2014 Orion Poplawski <orion@cora.nwra.com> - 6.1.0-1
+- Update to 6.1.0
+- Rebase patches, drop vtkpython patch
+- Disable BUILD_TESTING for now until we can provide test data
+
+* Fri Dec 27 2013 Orion Poplawski <orion@cora.nwra.com> - 6.0.0-10
+- Add patch to use system netcdf
+
+* Sun Dec 22 2013 Kevin Fenzi <kevin@scrye.com> 6.0.0-9
+- Add BuildRequires on blas-devel and lapack-devel
+- Enable VTK_WRAP_PYTHON_SIP
+- Add patch to install vtkpython
+- Install vtkMakeInstantiator files for gdcm build
+- Add BR on R-devel
+- Update to 6.0.0
+
 * Mon Sep 16 2013 Orion Poplawski <orion@cora.nwra.com> - 5.10.1-7
 - Add requires PyQt4 to vtk-python
 
