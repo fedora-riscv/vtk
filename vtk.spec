@@ -1,12 +1,7 @@
 # Disable OSMesa builds for now - see Bug 744434
 %bcond_with OSMesa
-
-# Disable java on ppc64 - fails to build
-%ifarch ppc64
-%bcond_with java
-%else
+# Make Java conditional
 %bcond_without java
-%endif
 
 %{!?tcl_version: %global tcl_version %(echo 'puts $tcl_version' | tclsh)}
 %{!?tcl_sitelib: %global tcl_sitelib %{_datadir}/tcl%{tcl_version}}
