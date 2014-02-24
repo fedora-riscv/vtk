@@ -270,12 +270,6 @@ mkdir -p %{buildroot}
 pushd build
 make install DESTDIR=%{buildroot}
 
-# Move python libraries into the proper location
-if [ "%{_lib}" != lib -a "`ls %{buildroot}%{_prefix}/lib/*`" != "" ]; then
-  mkdir -p %{buildroot}%{_libdir}
-  mv %{buildroot}%{_prefix}/lib/python* %{buildroot}%{_libdir}/
-fi
-
 # ld config
 mkdir -p %{buildroot}%{_sysconfdir}/ld.so.conf.d
 echo %{_libdir}/vtk > %{buildroot}%{_sysconfdir}/ld.so.conf.d/vtk-%{_arch}.conf
