@@ -9,7 +9,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 6.1.0
-Release: 4%{?dist}
+Release: 6%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -85,6 +85,7 @@ Requires: cmake
 Requires: gl2ps-devel
 Requires: expat-devel, libjpeg-devel, libpng-devel
 Requires: freetype-devel
+Requires: hdf5-devel
 Requires: libogg-devel
 Requires: libtheora-devel
 Requires: libtiff-devel
@@ -92,6 +93,7 @@ Requires: libxml2-devel
 Requires: postgresql-devel
 Requires: mysql-devel
 Requires: qt4-devel
+Requires: qtwebkit-devel
 Group: Development/Libraries
 
 %description devel 
@@ -442,6 +444,9 @@ cp -pr --parents Wrapping/*/README* _docs/
 %doc vtk-examples/Examples
 
 %changelog
+* Wed Mar 26 2014 Orion Poplawski <orion@cora.nwra.com> - 6.1.0-5
+- Add Requires: qtwebkit-devel and hdf5-devel to vtk-devel (bug #1080781)
+
 * Tue Jan 28 2014 Orion Poplawski <orion@cora.nwra.com> - 6.1.0-4
 - Really fix requires freetype-devel
 
