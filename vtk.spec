@@ -444,6 +444,9 @@ cp -pr --parents Wrapping/*/README* _docs/
 %doc vtk-examples/Examples
 
 %changelog
+* Tue May  6 2014 Tom Callaway <spot@fedoraproject.org> - 6.1.0-6
+- rebuild against R 3.1.0 (without bundled blas/lapack)
+
 * Wed Mar 26 2014 Orion Poplawski <orion@cora.nwra.com> - 6.1.0-5
 - Add Requires: qtwebkit-devel and hdf5-devel to vtk-devel (bug #1080781)
 
