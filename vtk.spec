@@ -59,7 +59,7 @@ BuildRequires: hdf5-devel
 BuildRequires: libtheora-devel
 BuildRequires: mysql-devel
 BuildRequires: postgresql-devel
-BuildRequires: R-devel
+BuildRequires: R-devel, blas-devel, lapack-devel
 BuildRequires: PyQt4-devel
 BuildRequires: sip-devel
 BuildRequires: wget
