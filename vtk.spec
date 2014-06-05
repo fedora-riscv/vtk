@@ -14,7 +14,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 6.0.0
-Release: 11%{?dist}
+Release: 12%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -79,21 +79,25 @@ volume rendering, LOD control).
 
 %package devel
 Summary: VTK header files for building C++ code
-Requires: vtk = %{version}-%{release}
-%{?with_OSMesa:Requires: mesa-libOSMesa-devel}
+Requires: vtk%{?_isa} = %{version}-%{release}
+%{?with_OSMesa:Requires: mesa-libOSMesa-devel%{?_isa}}
 Requires: cmake
-Requires: gl2ps-devel
-Requires: expat-devel, libjpeg-devel, libpng-devel
-Requires: freetype-devel
-Requires: hdf5-devel
-Requires: libogg-devel
-Requires: libtheora-devel
-Requires: libtiff-devel
-Requires: libxml2-devel
-Requires: postgresql-devel
-Requires: mysql-devel
-Requires: qt4-devel
-Requires: qtwebkit-devel
+Requires: blas-devel%{?_isa}
+Requires: gl2ps-devel%{?_isa}
+Requires: expat-devel%{?_isa}
+Requires: freetype-devel%{?_isa}
+Requires: hdf5-devel%{?_isa}
+Requires: lapack-devel%{?_isa}
+Requires: libjpeg-devel%{?_isa}
+Requires: libpng-devel%{?_isa}
+Requires: libogg-devel%{?_isa}
+Requires: libtheora-devel%{?_isa}
+Requires: libtiff-devel%{?_isa}
+Requires: libxml2-devel%{?_isa}
+Requires: postgresql-devel%{?_isa}
+Requires: mysql-devel%{?_isa}
+Requires: qt4-devel%{?_isa}
+Requires: qtwebkit-devel%{?_isa}
 Group: Development/Libraries
 
 %description devel 
@@ -102,7 +106,7 @@ use VTK to do 3D visualization.
 
 %package tcl
 Summary: Tcl bindings for VTK
-Requires: vtk = %{version}-%{release}
+Requires: vtk%{?_isa} = %{version}-%{release}
 Group: System Environment/Libraries
 
 %description tcl
@@ -110,7 +114,7 @@ tcl bindings for VTK
 
 %package python
 Summary: Python bindings for VTK
-Requires: vtk = %{version}-%{release}
+Requires: vtk%{?_isa} = %{version}-%{release}
 Group: System Environment/Libraries
 
 %description python
@@ -119,7 +123,7 @@ python bindings for VTK
 %if %{with java}
 %package java
 Summary: Java bindings for VTK
-Requires: vtk = %{version}-%{release}
+Requires: vtk%{?_isa} = %{version}-%{release}
 Group: System Environment/Libraries
 
 %description java
@@ -128,7 +132,7 @@ Java bindings for VTK
 
 %package qt
 Summary: Qt bindings for VTK
-Requires: vtk = %{version}-%{release}
+Requires: vtk%{?_isa} = %{version}-%{release}
 Group: System Environment/Libraries
 
 %description qt
@@ -136,7 +140,7 @@ Qt bindings for VTK
 
 %package qt-python
 Summary: Qt Python bindings for VTK
-Requires: vtk = %{version}-%{release}
+Requires: vtk%{?_isa} = %{version}-%{release}
 Group: System Environment/Libraries
 
 %description qt-python
@@ -144,7 +148,7 @@ Qt Python bindings for VTK
 
 %package qt-tcl
 Summary: Qt TCL bindings for VTK
-Requires: vtk = %{version}-%{release}
+Requires: vtk%{?_isa} = %{version}-%{release}
 Group: System Environment/Libraries
 
 %description qt-tcl
@@ -152,7 +156,7 @@ Qt TCL bindings for VTK
 
 %package testing
 Summary: Testing programs for VTK
-Requires: vtk = %{version}-%{release}, vtkdata = %{version}
+Requires: vtk%{?_isa} = %{version}-%{release}, vtkdata = %{version}
 Group: Applications/Engineering
 
 %description testing
@@ -160,7 +164,7 @@ Testing programs for VTK
 
 %package examples
 Summary: Examples for VTK
-Requires: vtk = %{version}-%{release}, vtkdata = %{version}
+Requires: vtk%{?_isa} = %{version}-%{release}, vtkdata = %{version}
 Group: Applications/Engineering
 
 %description examples
@@ -443,6 +447,9 @@ cp -pr --parents Wrapping/*/README* _docs/
 %doc vtk-examples/Examples
 
 %changelog
+* Thu Jun 5 2014 Orion Poplawski <orion@cora.nwra.com> - 6.0.0-12
+- Add requires on blas-devel and lapack-devel to vtk-devel (bug #1105004)
+
 * Wed May  7 2014 Tom Callaway <spot@fedoraproject.org> - 6.0.0-11
 - rebuild against R without bundled blas/lapack
 
