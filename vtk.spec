@@ -9,7 +9,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 6.1.0
-Release: 14%{?dist}
+Release: 15%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -202,6 +202,9 @@ export CFLAGS="%{optflags} -D_UNICODE"
 export CXXFLAGS="%{optflags} -D_UNICODE"
 %if %{with java}
 export JAVA_HOME=/usr/lib/jvm/java
+# Arm/Aarch64 builders have less ram
+# https://bugzilla.redhat.com/show_bug.cgi?id=1115920
+export JAVA_TOOL_OPTIONS=-Xmx2048m
 %endif
 
 mkdir build
@@ -448,6 +451,9 @@ cp -pr --parents Wrapping/*/README* _docs/
 %doc vtk-examples/Examples
 
 %changelog
+* Thu Sep 4 2014 Orion Poplawski <orion@cora.nwra.com> - 6.1.0-15
+- Increase java heap space for builds (bug #1115920)
+
 * Mon Aug 18 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 6.1.0-14
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
 
