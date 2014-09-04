@@ -199,6 +199,9 @@ export CFLAGS="%{optflags} -D_UNICODE"
 export CXXFLAGS="%{optflags} -D_UNICODE"
 %if %{with java}
 export JAVA_HOME=/usr/lib/jvm/java
+# Arm/Aarch64 builders have less ram
+# https://bugzilla.redhat.com/show_bug.cgi?id=1115920
+export JAVA_TOOL_OPTIONS=-Xmx2048m
 %endif
 
 mkdir build
@@ -448,6 +451,7 @@ cp -pr --parents Wrapping/*/README* _docs/
 
 %changelog
 * Sun Dec 13 2015 Orion Poplawski <orion@cora.nwra.com> - 6.1.0-5
+- Increase java heap space for builds (bug #1115920)
 - Add requires on blas-devel and lapack-devel to vtk-devel (bug #1105004)
 - Add Requires: qtwebkit-devel and hdf5-devel to vtk-devel (bug #1080781)
 
