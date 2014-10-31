@@ -9,7 +9,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 6.1.0
-Release: 15%{?dist}
+Release: 16%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -27,11 +27,7 @@ Patch2: vtk-6.1.0-netcdf.patch
 
 URL: http://vtk.org/
 
-%if 0%{?rhel} && (0%{?rhel} <= 6)
-BuildRequires: cmake28
-%else
 BuildRequires: cmake
-%endif
 BuildRequires: gcc-c++
 #%{?with_java:BuildRequires: gcc-java, libgcj-devel, java-devel}
 %{?with_java:BuildRequires: java-devel}
@@ -209,11 +205,7 @@ export JAVA_TOOL_OPTIONS=-Xmx2048m
 
 mkdir build
 pushd build
-%if 0%{?rhel} && (0%{?rhel} <= 6)
-%{cmake28} .. \
-%else
 %{cmake} .. \
-%endif
  -DBUILD_DOCUMENTATION:BOOL=ON \
  -DBUILD_EXAMPLES:BOOL=ON \
  -DBUILD_TESTING:BOOL=OFF \
@@ -451,6 +443,9 @@ cp -pr --parents Wrapping/*/README* _docs/
 %doc vtk-examples/Examples
 
 %changelog
+* Fri Oct 31 2014 Orion Poplawski <orion@cora.nwra.com> - 6.1.0-16
+- No longer need cmake28 on RHEL6
+
 * Thu Sep 4 2014 Orion Poplawski <orion@cora.nwra.com> - 6.1.0-15
 - Increase java heap space for builds (bug #1115920)
 
