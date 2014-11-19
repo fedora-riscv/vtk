@@ -447,7 +447,7 @@ cp -pr --parents Wrapping/*/README* _docs/
 %doc vtk-examples/Examples
 
 %changelog
-* Wed Nov 17 2014 Orion Poplawski <orion@cora.nwra.com> - 6.1.0-17
+* Wed Nov 19 2014 Orion Poplawski <orion@cora.nwra.com> - 6.1.0-17
 - Add patch to fix compilation with mesa 10.4 (bug #1138466)
 
 * Fri Oct 31 2014 Orion Poplawski <orion@cora.nwra.com> - 6.1.0-16
