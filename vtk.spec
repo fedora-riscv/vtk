@@ -9,7 +9,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 6.1.0
-Release: 16%{?dist}
+Release: 17%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -22,8 +22,11 @@ Patch0: vtk-6.1.0-system.patch
 # Install some more needed cmake files to try to support paraview build
 # http://www.vtk.org/Bug/view.php?id=14157
 Patch1: vtk-install.patch
-#Patch to vtk to use system netcdf library
+# Patch to vtk to use system netcdf library
 Patch2: vtk-6.1.0-netcdf.patch
+# Fix compilation with mesa 10.4
+# https://bugzilla.redhat.com/show_bug.cgi?id=1138466
+Patch3: vtk-glext.patch
 
 URL: http://vtk.org/
 
@@ -174,6 +177,7 @@ programming languages.
 %patch0 -p1 -b .system
 %patch1 -p1 -b .install
 %patch2 -p1 -b .netcdf
+%patch3 -p1 -b .glext
 # Remove included thirdparty sources just to be sure
 # TODO - vtksqlite
 for x in autobahn vtkexpat vtkfreetype vtkgl2ps vtkhdf5 vtkjpeg vtklibxml2 vtknetcdf vtkoggtheora vtkpng vtktiff twisted vtkzlib zope
@@ -443,6 +447,9 @@ cp -pr --parents Wrapping/*/README* _docs/
 %doc vtk-examples/Examples
 
 %changelog
+* Wed Nov 17 2014 Orion Poplawski <orion@cora.nwra.com> - 6.1.0-17
+- Add patch to fix compilation with mesa 10.4 (bug #1138466)
+
 * Fri Oct 31 2014 Orion Poplawski <orion@cora.nwra.com> - 6.1.0-16
 - No longer need cmake28 on RHEL6
 
