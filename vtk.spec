@@ -22,8 +22,11 @@ Patch0: vtk-6.1.0-system.patch
 # Install some more needed cmake files to try to support paraview build
 # http://www.vtk.org/Bug/view.php?id=14157
 Patch1: vtk-install.patch
-#Patch to vtk to use system netcdf library
+# Patch to vtk to use system netcdf library
 Patch2: vtk-6.1.0-netcdf.patch
+# Fix compilation with mesa 10.4
+# https://bugzilla.redhat.com/show_bug.cgi?id=1138466
+Patch3: vtk-glext.patch
 
 URL: http://vtk.org/
 
@@ -175,6 +178,7 @@ programming languages.
 %patch0 -p1 -b .system
 %patch1 -p1 -b .install
 %patch2 -p1 -b .netcdf
+%patch3 -p1 -b .glext
 # Remove included thirdparty sources just to be sure
 # TODO - vtksqlite
 for x in autobahn vtkexpat vtkfreetype vtkgl2ps vtkhdf5 vtkjpeg vtklibxml2 vtknetcdf vtkoggtheora vtkpng vtktiff twisted vtkzlib zope
@@ -451,6 +455,7 @@ cp -pr --parents Wrapping/*/README* _docs/
 
 %changelog
 * Sun Dec 13 2015 Orion Poplawski <orion@cora.nwra.com> - 6.1.0-5
+- Add patch to fix compilation with mesa 10.4 (bug #1291099)
 - Increase java heap space for builds (bug #1115920)
 - Add requires on blas-devel and lapack-devel to vtk-devel (bug #1105004)
 - Add Requires: qtwebkit-devel and hdf5-devel to vtk-devel (bug #1080781)
