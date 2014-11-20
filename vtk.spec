@@ -9,7 +9,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 6.1.0
-Release: 17%{?dist}
+Release: 18%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -204,7 +204,9 @@ export CXXFLAGS="%{optflags} -D_UNICODE"
 export JAVA_HOME=/usr/lib/jvm/java
 # Arm/Aarch64 builders have less ram
 # https://bugzilla.redhat.com/show_bug.cgi?id=1115920
+%ifnarch s390
 export JAVA_TOOL_OPTIONS=-Xmx2048m
+%endif
 %endif
 
 mkdir build
@@ -447,6 +449,9 @@ cp -pr --parents Wrapping/*/README* _docs/
 %doc vtk-examples/Examples
 
 %changelog
+* Thu Nov 20 2014 Dan Horák <dan[at]danny.cz> - 6.1.0-18
+- Don't override Java memory settings on s390 (related to bug #1115920)
+
 * Wed Nov 19 2014 Orion Poplawski <orion@cora.nwra.com> - 6.1.0-17
 - Add patch to fix compilation with mesa 10.4 (bug #1138466)
 
