@@ -205,7 +205,9 @@ export CXXFLAGS="%{optflags} -D_UNICODE"
 export JAVA_HOME=/usr/lib/jvm/java
 # Arm/Aarch64 builders have less ram
 # https://bugzilla.redhat.com/show_bug.cgi?id=1115920
+%ifnarch s390
 export JAVA_TOOL_OPTIONS=-Xmx2048m
+%endif
 %endif
 
 mkdir build
@@ -456,6 +458,7 @@ cp -pr --parents Wrapping/*/README* _docs/
 %changelog
 * Sun Dec 13 2015 Orion Poplawski <orion@cora.nwra.com> - 6.1.0-5
 - Add patch to fix compilation with mesa 10.4 (bug #1291099)
+- Don't override Java memory settings on s390 (related to bug #1115920)
 - Increase java heap space for builds (bug #1115920)
 - Add requires on blas-devel and lapack-devel to vtk-devel (bug #1105004)
 - Add Requires: qtwebkit-devel and hdf5-devel to vtk-devel (bug #1080781)
