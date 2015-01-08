@@ -9,7 +9,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 6.1.0
-Release: 18%{?dist}
+Release: 19%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -449,6 +449,9 @@ cp -pr --parents Wrapping/*/README* _docs/
 %doc vtk-examples/Examples
 
 %changelog
+* Thu Jan 08 2015 Orion Poplawski <orion@cora.nwra.com> - 6.1.0-19
+- Rebuild for hdf5 1.8.14
+
 * Thu Nov 20 2014 Dan Horák <dan[at]danny.cz> - 6.1.0-18
 - Don't override Java memory settings on s390 (related to bug #1115920)
 
