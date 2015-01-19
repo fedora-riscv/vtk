@@ -9,7 +9,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 6.1.0
-Release: 20%{?dist}
+Release: 21%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -101,7 +101,8 @@ Requires: mysql-devel%{?_isa}
 Requires: qt4-devel%{?_isa}
 Requires: qtwebkit-devel%{?_isa}
 Requires: jsoncpp-devel%{?_isa}
-Requires: python2-devel%{?_isa}
+# bz #1183210 + #1183530
+Requires: python2-devel
 Group: Development/Libraries
 
 %description devel 
@@ -455,6 +456,9 @@ cp -pr --parents Wrapping/*/README* _docs/
 %doc vtk-examples/Examples
 
 %changelog
+* Mon Jan 19 2015 François Cami <fcami@fedoraproject.org> - 6.1.0-21
+- Switch to non-explicit arch requires for now (bugs #1183210 #1183530)
+
 * Sat Jan 17 2015 François Cami <fcami@fedoraproject.org> - 6.1.0-20
 - Add jsoncpp-devel and python2-devel to vtk-devel Requires (bug #1183210)
 
