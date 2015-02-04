@@ -30,6 +30,9 @@ Patch3: vtk-glext.patch
 # Fix types for std::min/man
 # http://www.vtk.org/Bug/view.php?id=15249
 Patch4: vtk-type.patch
+# Fix tcl library loading
+# http://www.vtk.org/Bug/view.php?id=15279
+Patch5: vtk-tcllib.patch
 
 URL: http://vtk.org/
 
@@ -185,6 +188,7 @@ programming languages.
 %patch2 -p1 -b .netcdf
 %patch3 -p1 -b .glext
 %patch4 -p1 -b .type
+%patch5 -p1 -b .tcllib
 # Remove included thirdparty sources just to be sure
 # TODO - vtksqlite
 for x in autobahn vtkexpat vtkfreetype vtkgl2ps vtkhdf5 vtkjpeg vtklibxml2 vtknetcdf vtkoggtheora vtkpng vtktiff twisted vtkzlib zope
@@ -464,6 +468,7 @@ cp -pr --parents Wrapping/*/README* _docs/
 %changelog
 * Sun Dec 13 2015 Orion Poplawski <orion@cora.nwra.com> - 6.1.0-5
 - Add patch to fix compilation with mesa 10.4 (bug #1291099)
+- Add patch to fix tcl library loading
 - Add jsoncpp-devel and python2-devel to vtk-devel Requires (bug #1183210)
 - Add patch to fix compilation error
 - Don't override Java memory settings on s390 (related to bug #1115920)
