@@ -9,7 +9,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 6.1.0
-Release: 22%{?dist}
+Release: 23%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -30,6 +30,9 @@ Patch3: vtk-glext.patch
 # Fix types for std::min/man
 # http://www.vtk.org/Bug/view.php?id=15249
 Patch4: vtk-type.patch
+# Fix tcl library loading
+# http://www.vtk.org/Bug/view.php?id=15279
+Patch5: vtk-tcllib.patch
 
 URL: http://vtk.org/
 
@@ -185,6 +188,7 @@ programming languages.
 %patch2 -p1 -b .netcdf
 %patch3 -p1 -b .glext
 %patch4 -p1 -b .type
+%patch5 -p1 -b .tcllib
 # Remove included thirdparty sources just to be sure
 # TODO - vtksqlite
 for x in autobahn vtkexpat vtkfreetype vtkgl2ps vtkhdf5 vtkjpeg vtklibxml2 vtknetcdf vtkoggtheora vtkpng vtktiff twisted vtkzlib zope
@@ -456,6 +460,9 @@ cp -pr --parents Wrapping/*/README* _docs/
 %doc vtk-examples/Examples
 
 %changelog
+* Tue Feb 3 2015 Orion Poplawski <orion@cora.nwra.com> - 6.1.0-23
+- Add patch to fix tcl library loading
+
 * Mon Jan 26 2015 Petr Machata <pmachata@redhat.com> - 6.1.0-22
 - Rebuild for boost 1.57.0
 
