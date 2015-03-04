@@ -1,19 +1,18 @@
-diff -up VTK-6.1.0/CMake/vtkModuleMacros.cmake.tcllib VTK-6.1.0/CMake/vtkModuleMacros.cmake
-diff -up VTK-6.1.0/Wrapping/Tcl/CMakeLists.txt.tcllib VTK-6.1.0/Wrapping/Tcl/CMakeLists.txt
---- VTK-6.1.0/Wrapping/Tcl/CMakeLists.txt.tcllib	2014-01-22 08:55:41.000000000 -0700
-+++ VTK-6.1.0/Wrapping/Tcl/CMakeLists.txt	2015-02-03 16:12:42.635456315 -0700
-@@ -261,7 +261,7 @@ endforeach()
+diff -up VTK-6.2.0.rc1/Wrapping/Tcl/CMakeLists.txt.tcllib VTK-6.2.0.rc1/Wrapping/Tcl/CMakeLists.txt
+--- VTK-6.2.0.rc1/Wrapping/Tcl/CMakeLists.txt.tcllib	2015-02-16 15:08:49.121229694 -0700
++++ VTK-6.2.0.rc1/Wrapping/Tcl/CMakeLists.txt	2015-02-16 15:09:38.793971979 -0700
+@@ -264,7 +264,7 @@ endforeach()
  # Configure the Tcl package index file for the install tree.
  SET(VTK_TCL_SCRIPT_DIR "[file dirname [info script]]")
  IF(UNIX)
 -  SET(VTK_TCL_LIBRARY_DIR "[file dirname [file dirname [file dirname [info script]]]]")
 +  SET(VTK_TCL_LIBRARY_DIR "${CMAKE_INSTALL_PREFIX}/${VTK_INSTALL_LIBRARY_DIR}")
- ELSE(UNIX)
+ ELSE()
    SET(VTK_TCL_LIBRARY_DIR
        "[file join [file dirname [file dirname [file dirname [file dirname [info script]]]]] bin]")
-diff -up VTK-6.1.0/Wrapping/Tcl/pkgIndex.tcl.in.tcllib VTK-6.1.0/Wrapping/Tcl/pkgIndex.tcl.in
---- VTK-6.1.0/Wrapping/Tcl/pkgIndex.tcl.in.tcllib	2014-01-22 08:55:41.000000000 -0700
-+++ VTK-6.1.0/Wrapping/Tcl/pkgIndex.tcl.in	2015-02-03 16:12:42.635456315 -0700
+diff -up VTK-6.2.0.rc1/Wrapping/Tcl/pkgIndex.tcl.in.tcllib VTK-6.2.0.rc1/Wrapping/Tcl/pkgIndex.tcl.in
+--- VTK-6.2.0.rc1/Wrapping/Tcl/pkgIndex.tcl.in.tcllib	2015-02-16 12:03:08.000000000 -0700
++++ VTK-6.2.0.rc1/Wrapping/Tcl/pkgIndex.tcl.in	2015-02-16 15:08:49.121229694 -0700
 @@ -7,7 +7,7 @@ package ifneeded vtkinit {@VTK_MAJOR_VER
        if {[catch "load {} $libName"]} {
          set libExt [info sharedlibextension]
@@ -23,9 +22,9 @@ diff -up VTK-6.1.0/Wrapping/Tcl/pkgIndex.tcl.in.tcllib VTK-6.1.0/Wrapping/Tcl/pk
          if {[catch "cd {$libPath}; load {$libFile}" errorMessage]} {
            puts $errorMessage
          }
-diff -up VTK-6.1.0/Wrapping/Tcl/vtkbase/vtkbase.tcl.in.tcllib VTK-6.1.0/Wrapping/Tcl/vtkbase/vtkbase.tcl.in
---- VTK-6.1.0/Wrapping/Tcl/vtkbase/vtkbase.tcl.in.tcllib	2015-02-03 16:12:42.814455894 -0700
-+++ VTK-6.1.0/Wrapping/Tcl/vtkbase/vtkbase.tcl.in	2015-02-03 16:23:08.653411667 -0700
+diff -up VTK-6.2.0.rc1/Wrapping/Tcl/vtkbase/vtkbase.tcl.in.tcllib VTK-6.2.0.rc1/Wrapping/Tcl/vtkbase/vtkbase.tcl.in
+--- VTK-6.2.0.rc1/Wrapping/Tcl/vtkbase/vtkbase.tcl.in.tcllib	2015-02-16 12:03:08.000000000 -0700
++++ VTK-6.2.0.rc1/Wrapping/Tcl/vtkbase/vtkbase.tcl.in	2015-02-16 15:08:49.122229706 -0700
 @@ -44,7 +44,7 @@ namespace eval ::vtk {
          }
  
