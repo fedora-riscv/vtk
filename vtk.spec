@@ -8,28 +8,19 @@
 
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
-Version: 6.1.0
-Release: 24%{?dist}
+Version: 6.2.0
+Release: 0.1.rc1%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
 License: BSD
 Group: System Environment/Libraries
-Source: http://www.vtk.org/files/release/6.1/VTK-%{version}.tar.gz
-# Use system libraries
-# http://public.kitware.com/Bug/view.php?id=11823
-Patch0: vtk-6.1.0-system.patch
-# Install some more needed cmake files to try to support paraview build
-# http://www.vtk.org/Bug/view.php?id=14157
-Patch1: vtk-install.patch
-# Patch to vtk to use system netcdf library
-Patch2: vtk-6.1.0-netcdf.patch
+Source0: http://www.vtk.org/files/release/6.2/VTK-%{version}.rc1.tar.gz
+Source1: http://www.vtk.org/files/release/6.2/VTKData-%{version}.rc1.tar.gz
+Source2: xorg.conf
 # Fix compilation with mesa 10.4
 # https://bugzilla.redhat.com/show_bug.cgi?id=1138466
 Patch3: vtk-glext.patch
-# Fix types for std::min/man
-# http://www.vtk.org/Bug/view.php?id=15249
-Patch4: vtk-type.patch
 # Fix tcl library loading
 # http://www.vtk.org/Bug/view.php?id=15279
 Patch5: vtk-tcllib.patch
@@ -69,6 +60,8 @@ BuildRequires: wget
 BuildRequires: %{_includedir}/Xm
 BuildRequires: blas-devel
 BuildRequires: lapack-devel
+# For %check
+BuildRequires: xorg-x11-drv-dummy
 %{!?with_java:Conflicts: vtk-java}
 Requires: hdf5 = %{_hdf5_version}
 
@@ -162,9 +155,17 @@ Group: System Environment/Libraries
 %description qt-tcl
 Qt TCL bindings for VTK
 
+%package data
+Summary: VTK data files for tests/examples
+BuildArch: noarch
+Obsoletes: vtkdata < 6.1.0-3
+
+%description data
+VTK data files for tests and examples.
+
 %package testing
 Summary: Testing programs for VTK
-Requires: vtk%{?_isa} = %{version}-%{release}, vtkdata = %{version}
+Requires: vtk%{?_isa} = %{version}-%{release}, vtk-data = %{version}
 Group: Applications/Engineering
 
 %description testing
@@ -172,7 +173,7 @@ Testing programs for VTK
 
 %package examples
 Summary: Examples for VTK
-Requires: vtk%{?_isa} = %{version}-%{release}, vtkdata = %{version}
+Requires: vtk%{?_isa} = %{version}-%{release}, vtk-data = %{version}
 Group: Applications/Engineering
 
 %description examples
@@ -182,12 +183,8 @@ programming languages.
 
 
 %prep
-%setup -q -n VTK-%{version}
-%patch0 -p1 -b .system
-%patch1 -p1 -b .install
-%patch2 -p1 -b .netcdf
+%setup -q -b 1 -n VTK-%{version}.rc1
 %patch3 -p1 -b .glext
-%patch4 -p1 -b .type
 %patch5 -p1 -b .tcllib
 # Remove included thirdparty sources just to be sure
 # TODO - vtksqlite
@@ -195,11 +192,6 @@ for x in autobahn vtkexpat vtkfreetype vtkgl2ps vtkhdf5 vtkjpeg vtklibxml2 vtkne
 do
   rm -r ThirdParty/*/${x}
 done
-
-# Replace relative path ../../../VTKData with %{_datadir}/vtkdata-%{version}
-# otherwise it will break on symlinks.
-grep -rl '\.\./\.\./\.\./\.\./VTKData' . | xargs \
-  perl -pi -e's,\.\./\.\./\.\./\.\./VTKData,%{_datadir}/vtkdata-%{version},g'
 
 # Save an unbuilt copy of the Example's sources for %doc
 mkdir vtk-examples
@@ -225,7 +217,7 @@ pushd build
 %{cmake} .. \
  -DBUILD_DOCUMENTATION:BOOL=ON \
  -DBUILD_EXAMPLES:BOOL=ON \
- -DBUILD_TESTING:BOOL=OFF \
+ -DBUILD_TESTING:BOOL=ON \
  -DVTK_CUSTOM_LIBRARY_SUFFIX="" \
  -DVTK_INSTALL_ARCHIVE_DIR:PATH=%{_lib}/vtk \
  -DVTK_INSTALL_DATA_DIR=share/vtk \
@@ -284,7 +276,6 @@ find . -name \*.c -or -name \*.cxx -or -name \*.h -or -name \*.hxx -or \
        -name \*.gif | xargs chmod -x
 
 %install
-mkdir -p %{buildroot}
 pushd build
 make install DESTDIR=%{buildroot}
 
@@ -358,15 +349,29 @@ for file in `find %{buildroot} -type f -perm 0755 \
   head -1 $file | grep '^#!' > /dev/null && continue
   chmod 0644 $file
 done
-find Utilities/Upgrading -type f | xargs chmod -x
+find Utilities/Upgrading -type f -print0 | xargs -0 chmod -x
 
 # Setup Wrapping docs tree
-mkdir _docs
+mkdir -p _docs
 cp -pr --parents Wrapping/*/README* _docs/ 
+
+#Install data
+cp -al .ExternalData %{buildroot}%{_datadir}/vtk/
 
 
 %check
-#LD_LIBARARY_PATH=`pwd`/bin ctest -V
+cd build
+cp %SOURCE2 .
+if [ -x /usr/libexec/Xorg ]; then
+   Xorg=/usr/libexec/Xorg
+else
+   Xorg=/usr/libexec/Xorg.bin
+fi
+$Xorg -noreset +extension GLX +extension RANDR +extension RENDER -logfile ./xorg.log -config ./xorg.conf :99 &
+export DISPLAY=:99
+ctest %{_smp_mflags} -V || :
+kill %1 || :
+cat xorg.log
 
 
 %post -p /sbin/ldconfig
@@ -403,6 +408,7 @@ cp -pr --parents Wrapping/*/README* _docs/
 %doc Copyright.txt README.html vtkLogo.jpg vtkBanner.gif _docs/Wrapping
 %config(noreplace) %{_sysconfdir}/ld.so.conf.d/vtk-%{_arch}.conf
 %{_datadir}/vtk
+%exclude %{_datadir}/vtk/.ExternalData
 %dir %{_libdir}/vtk
 
 %files devel
@@ -414,7 +420,7 @@ cp -pr --parents Wrapping/*/README* _docs/
 %{_libdir}/vtk/libvtkWrappingTools.a
 %{_libdir}/cmake/vtk/
 %{_bindir}/vtkParseOGLExt
-%{_docdir}/vtk-6.1/
+%{_docdir}/vtk-6.2/
 %{tcl_sitelib}/vtk/vtktcl.c
 
 %files tcl
@@ -453,6 +459,9 @@ cp -pr --parents Wrapping/*/README* _docs/
 
 %files qt-tcl
 %{_libdir}/vtk/*QtTCL.so.*
+
+%files data
+%{_datadir}/vtk/.ExternalData
 
 %files testing
 
