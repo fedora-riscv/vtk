@@ -84,6 +84,10 @@ volume rendering, LOD control).
 %package devel
 Summary: VTK header files for building C++ code
 Requires: vtk%{?_isa} = %{version}-%{release}
+Requires: vtk-python%{?_isa} = %{version}-%{release}
+Requires: vtk-qt-python%{?_isa} = %{version}-%{release}
+Requires: vtk-qt-tcl%{?_isa} = %{version}-%{release}
+Requires: vtk-tcl%{?_isa} = %{version}-%{release}
 %{?with_OSMesa:Requires: mesa-libOSMesa-devel%{?_isa}}
 Requires: cmake
 Requires: blas-devel%{?_isa}
@@ -468,6 +472,7 @@ cp -pr --parents Wrapping/*/README* _docs/
 %changelog
 * Sun Dec 13 2015 Orion Poplawski <orion@cora.nwra.com> - 6.1.0-5
 - Add patch to fix compilation with mesa 10.4 (bug #1291099)
+- Add needed vtk-*-devel requires to vtk-devel (bug #1199310)
 - Add patch to fix tcl library loading
 - Add jsoncpp-devel and python2-devel to vtk-devel Requires (bug #1183210)
 - Add patch to fix compilation error
