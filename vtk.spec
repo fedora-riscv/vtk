@@ -14,7 +14,6 @@ Release: 0.1.rc1%{?dist}
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
 License: BSD
-Group: System Environment/Libraries
 Source0: http://www.vtk.org/files/release/6.2/VTK-%{version}.rc1.tar.gz
 Source1: http://www.vtk.org/files/release/6.2/VTKData-%{version}.rc1.tar.gz
 Source2: xorg.conf
@@ -78,6 +77,10 @@ volume rendering, LOD control).
 %package devel
 Summary: VTK header files for building C++ code
 Requires: vtk%{?_isa} = %{version}-%{release}
+Requires: vtk-python%{?_isa} = %{version}-%{release}
+Requires: vtk-qt-python%{?_isa} = %{version}-%{release}
+Requires: vtk-qt-tcl%{?_isa} = %{version}-%{release}
+Requires: vtk-tcl%{?_isa} = %{version}-%{release}
 %{?with_OSMesa:Requires: mesa-libOSMesa-devel%{?_isa}}
 Requires: cmake
 Requires: blas-devel%{?_isa}
@@ -99,7 +102,6 @@ Requires: qtwebkit-devel%{?_isa}
 Requires: jsoncpp-devel%{?_isa}
 # bz #1183210 + #1183530
 Requires: python2-devel
-Group: Development/Libraries
 
 %description devel 
 This provides the VTK header files required to compile C++ programs that
@@ -108,7 +110,6 @@ use VTK to do 3D visualization.
 %package tcl
 Summary: Tcl bindings for VTK
 Requires: vtk%{?_isa} = %{version}-%{release}
-Group: System Environment/Libraries
 
 %description tcl
 tcl bindings for VTK
@@ -116,7 +117,6 @@ tcl bindings for VTK
 %package python
 Summary: Python bindings for VTK
 Requires: vtk%{?_isa} = %{version}-%{release}
-Group: System Environment/Libraries
 
 %description python
 python bindings for VTK
@@ -125,7 +125,6 @@ python bindings for VTK
 %package java
 Summary: Java bindings for VTK
 Requires: vtk%{?_isa} = %{version}-%{release}
-Group: System Environment/Libraries
 
 %description java
 Java bindings for VTK
@@ -134,7 +133,6 @@ Java bindings for VTK
 %package qt
 Summary: Qt bindings for VTK
 Requires: vtk%{?_isa} = %{version}-%{release}
-Group: System Environment/Libraries
 
 %description qt
 Qt bindings for VTK
@@ -142,7 +140,6 @@ Qt bindings for VTK
 %package qt-python
 Summary: Qt Python bindings for VTK
 Requires: vtk%{?_isa} = %{version}-%{release}
-Group: System Environment/Libraries
 
 %description qt-python
 Qt Python bindings for VTK
@@ -150,7 +147,6 @@ Qt Python bindings for VTK
 %package qt-tcl
 Summary: Qt TCL bindings for VTK
 Requires: vtk%{?_isa} = %{version}-%{release}
-Group: System Environment/Libraries
 
 %description qt-tcl
 Qt TCL bindings for VTK
@@ -166,7 +162,6 @@ VTK data files for tests and examples.
 %package testing
 Summary: Testing programs for VTK
 Requires: vtk%{?_isa} = %{version}-%{release}, vtk-data = %{version}
-Group: Applications/Engineering
 
 %description testing
 Testing programs for VTK
@@ -174,7 +169,6 @@ Testing programs for VTK
 %package examples
 Summary: Examples for VTK
 Requires: vtk%{?_isa} = %{version}-%{release}, vtk-data = %{version}
-Group: Applications/Engineering
 
 %description examples
 This package contains many well-commented examples showing how to use
@@ -275,6 +269,7 @@ make %{?_smp_mflags}
 find . -name \*.c -or -name \*.cxx -or -name \*.h -or -name \*.hxx -or \
        -name \*.gif | xargs chmod -x
 
+
 %install
 pushd build
 make install DESTDIR=%{buildroot}
@@ -286,11 +281,6 @@ echo %{_libdir}/vtk > %{buildroot}%{_sysconfdir}/ld.so.conf.d/vtk-%{_arch}.conf
 # Gather list of non-python/tcl libraries
 ls %{buildroot}%{_libdir}/vtk/*.so.* \
   | grep -Ev '(Java|Qt|Python27D|TCL)' | sed -e's,^%{buildroot},,' > libs.list
-
-# List of executable utilities
-cat > utils.list << EOF
-vtkEncodeString
-EOF
 
 # List of executable examples
 cat > examples.list << EOF
@@ -316,27 +306,31 @@ Cone5
 Cone6
 EOF
 
+# List of executable test binaries
+find bin \( -name \*Tests -o -name Test\* -o -name VTKBenchMark \) \
+         -printf '%f\n' > testing.list
+
 # Install examples too
-for filelist in examples.list; do
+for filelist in examples.list testing.list; do
   for file in `cat $filelist`; do
     install -p bin/$file %{buildroot}%{_bindir}
   done
 done
 
 # Fix up filelist paths
-for filelist in utils.list examples.list; do
+for filelist in examples.list testing.list; do
   perl -pi -e's,^,%{_bindir}/,' $filelist
 done
 
 # Remove any remnants of rpaths on files we install
 # Seems to be some kind of java path
-for file in `cat examples.list`; do
+for file in `cat examples.list testing.list`; do
   chrpath -d %{buildroot}$file
 done
 chrpath -d  %{buildroot}%{_libdir}/qt4/plugins/designer/libQVTKWidgetPlugin.so
 
 # Main package contains utils and core libs
-cat libs.list utils.list > main.list
+cat libs.list
 popd
 
 # Make scripts executable
@@ -356,7 +350,8 @@ mkdir -p _docs
 cp -pr --parents Wrapping/*/README* _docs/ 
 
 #Install data
-cp -al .ExternalData %{buildroot}%{_datadir}/vtk/
+mkdir -p %{buildroot}%{_datadir}/vtkdata
+cp -al build/ExternalData/* %{buildroot}%{_datadir}/vtkdata/
 
 
 %check
@@ -367,7 +362,7 @@ if [ -x /usr/libexec/Xorg ]; then
 else
    Xorg=/usr/libexec/Xorg.bin
 fi
-$Xorg -noreset +extension GLX +extension RANDR +extension RENDER -logfile ./xorg.log -config ./xorg.conf :99 &
+$Xorg -noreset +extension GLX +extension RANDR +extension RENDER -logfile ./xorg.log -config ./xorg.conf -configdir . :99 &
 export DISPLAY=:99
 ctest %{_smp_mflags} -V || :
 kill %1 || :
@@ -404,11 +399,11 @@ cat xorg.log
 
 %postun qt-tcl -p /sbin/ldconfig
 
-%files -f build/main.list
+%files -f build/libs.list
 %doc Copyright.txt README.html vtkLogo.jpg vtkBanner.gif _docs/Wrapping
 %config(noreplace) %{_sysconfdir}/ld.so.conf.d/vtk-%{_arch}.conf
+%{_bindir}/vtkEncodeString
 %{_datadir}/vtk
-%exclude %{_datadir}/vtk/.ExternalData
 %dir %{_libdir}/vtk
 
 %files devel
@@ -461,14 +456,23 @@ cat xorg.log
 %{_libdir}/vtk/*QtTCL.so.*
 
 %files data
-%{_datadir}/vtk/.ExternalData
+%{_datadir}/vtkdata
 
-%files testing
+%files testing -f build/testing.list
 
 %files examples -f build/examples.list
 %doc vtk-examples/Examples
 
+
 %changelog
+* Fri Feb 20 2015 Orion Poplawski <orion@cora.nwra.com> - 6.2.0-0.1.rc1
+- Update to 6.2.0.rc1
+- Remove type, system, install, and netcdf patches applied upstream
+- Integrate and replace vtkdata
+- Build and run tests again
+- Generate testing.list based on executable name
+- Add needed vtk-*-devel requires to vtk-devel
+
 * Wed Feb 04 2015 Petr Machata <pmachata@redhat.com> - 6.1.0-24
 - Bump for rebuild.
 
