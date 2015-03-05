@@ -9,7 +9,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 6.1.0
-Release: 25%{?dist}
+Release: 26%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -85,6 +85,10 @@ volume rendering, LOD control).
 %package devel
 Summary: VTK header files for building C++ code
 Requires: vtk%{?_isa} = %{version}-%{release}
+Requires: vtk-python%{?_isa} = %{version}-%{release}
+Requires: vtk-qt-python%{?_isa} = %{version}-%{release}
+Requires: vtk-qt-tcl%{?_isa} = %{version}-%{release}
+Requires: vtk-tcl%{?_isa} = %{version}-%{release}
 %{?with_OSMesa:Requires: mesa-libOSMesa-devel%{?_isa}}
 Requires: cmake
 Requires: blas-devel%{?_isa}
@@ -460,6 +464,9 @@ cp -pr --parents Wrapping/*/README* _docs/
 %doc vtk-examples/Examples
 
 %changelog
+* Thu Mar 05 2015 Orion Poplawski <orion@cora.nwra.com> - 6.1.0-26
+- Add needed vtk-*-devel requires to vtk-devel (bug #1199310)
+
 * Wed Mar 04 2015 Orion Poplawski <orion@cora.nwra.com> - 6.1.0-25
 - Rebuild for jsoncpp
 
