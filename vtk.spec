@@ -104,6 +104,7 @@ Requires: libtiff-devel%{?_isa}
 Requires: libxml2-devel%{?_isa}
 Requires: postgresql-devel%{?_isa}
 Requires: mysql-devel%{?_isa}
+Requires: netcdf-cxx-devel%{?_isa}
 Requires: qt4-devel%{?_isa}
 Requires: qtwebkit-devel%{?_isa}
 Requires: jsoncpp-devel%{?_isa}
@@ -472,6 +473,7 @@ cp -pr --parents Wrapping/*/README* _docs/
 %changelog
 * Sun Dec 13 2015 Orion Poplawski <orion@cora.nwra.com> - 6.1.0-5
 - Add patch to fix compilation with mesa 10.4 (bug #1291099)
+- Add requires netcdf-cxx-devel to vtk-devel (bug #1224512)
 - Add needed vtk-*-devel requires to vtk-devel (bug #1199310)
 - Add patch to fix tcl library loading
 - Add jsoncpp-devel and python2-devel to vtk-devel Requires (bug #1183210)
