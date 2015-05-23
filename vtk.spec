@@ -9,7 +9,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 6.2.0
-Release: 3%{?dist}
+Release: 4%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -97,6 +97,7 @@ Requires: libtiff-devel%{?_isa}
 Requires: libxml2-devel%{?_isa}
 Requires: postgresql-devel%{?_isa}
 Requires: mysql-devel%{?_isa}
+Requires: netcdf-cxx-devel%{?_isa}
 Requires: qt4-devel%{?_isa}
 Requires: qtwebkit-devel%{?_isa}
 Requires: jsoncpp-devel%{?_isa}
@@ -461,6 +462,9 @@ cat xorg.log
 
 
 %changelog
+* Sat May 23 2015 Orion Poplawski <orion@cora.nwra.com> - 6.2.0-4
+- Add requires netcdf-cxx-devel to vtk-devel (bug #1224512)
+
 * Sun May 17 2015 Orion Poplawski <orion@cora.nwra.com> - 6.2.0-3
 - Rebuild for hdf5 1.8.15
 
