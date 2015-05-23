@@ -9,7 +9,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 6.1.0
-Release: 26%{?dist}
+Release: 24%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -105,6 +105,7 @@ Requires: libtiff-devel%{?_isa}
 Requires: libxml2-devel%{?_isa}
 Requires: postgresql-devel%{?_isa}
 Requires: mysql-devel%{?_isa}
+Requires: netcdf-cxx-devel%{?_isa}
 Requires: qt4-devel%{?_isa}
 Requires: qtwebkit-devel%{?_isa}
 Requires: jsoncpp-devel%{?_isa}
@@ -464,14 +465,9 @@ cp -pr --parents Wrapping/*/README* _docs/
 %doc vtk-examples/Examples
 
 %changelog
-* Thu Mar 05 2015 Orion Poplawski <orion@cora.nwra.com> - 6.1.0-26
+* Thu Jun 25 2015 Orion Poplawski <orion@cora.nwra.com> - 6.1.0-24
+- Add requires netcdf-cxx-devel to vtk-devel (bug #1224512)
 - Add needed vtk-*-devel requires to vtk-devel (bug #1199310)
-
-* Wed Mar 04 2015 Orion Poplawski <orion@cora.nwra.com> - 6.1.0-25
-- Rebuild for jsoncpp
-
-* Wed Feb 04 2015 Petr Machata <pmachata@redhat.com> - 6.1.0-24
-- Bump for rebuild.
 
 * Tue Feb 3 2015 Orion Poplawski <orion@cora.nwra.com> - 6.1.0-23
 - Add patch to fix tcl library loading
