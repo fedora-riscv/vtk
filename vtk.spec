@@ -9,7 +9,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 6.2.0
-Release: 5%{?dist}
+Release: 6%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -17,9 +17,6 @@ License: BSD
 Source0: http://www.vtk.org/files/release/6.2/VTK-%{version}.tar.gz
 Source1: http://www.vtk.org/files/release/6.2/VTKData-%{version}.tar.gz
 Source2: xorg.conf
-# Fix compilation with mesa 10.4
-# https://bugzilla.redhat.com/show_bug.cgi?id=1138466
-Patch3: vtk-glext.patch
 # Fix tcl library loading
 # http://www.vtk.org/Bug/view.php?id=15279
 Patch5: vtk-tcllib.patch
@@ -179,7 +176,6 @@ programming languages.
 
 %prep
 %setup -q -b 1 -n VTK-%{version}
-%patch3 -p1 -b .glext
 %patch5 -p1 -b .tcllib
 # Remove included thirdparty sources just to be sure
 # TODO - vtksqlite - http://www.vtk.org/Bug/view.php?id=14154
@@ -462,6 +458,9 @@ cat xorg.log
 
 
 %changelog
+* Tue Jul 7 2015 Orion Poplawski <orion@cora.nwra.com> - 6.2.0-6
+- Drop glext patch, no longer needed
+
 * Fri Jun 19 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 6.2.0-5
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
 
