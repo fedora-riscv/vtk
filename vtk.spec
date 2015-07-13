@@ -9,7 +9,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 6.1.0
-Release: 24%{?dist}
+Release: 25%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -33,7 +33,9 @@ Patch4: vtk-type.patch
 # Fix tcl library loading
 # http://www.vtk.org/Bug/view.php?id=15279
 Patch5: vtk-tcllib.patch
-
+# Fix VTK_INSTALL_PREFIX - backport from upstream
+# https://bugzilla.redhat.com/show_bug.cgi?id=1228881
+Patch6: vtk-install-prefix.patch
 URL: http://vtk.org/
 
 BuildRequires: cmake
@@ -194,6 +196,7 @@ programming languages.
 %patch3 -p1 -b .glext
 %patch4 -p1 -b .type
 %patch5 -p1 -b .tcllib
+%patch6 -p1 -b .install-prefix
 # Remove included thirdparty sources just to be sure
 # TODO - vtksqlite
 for x in autobahn vtkexpat vtkfreetype vtkgl2ps vtkhdf5 vtkjpeg vtklibxml2 vtknetcdf vtkoggtheora vtkpng vtktiff twisted vtkzlib zope
@@ -465,6 +468,9 @@ cp -pr --parents Wrapping/*/README* _docs/
 %doc vtk-examples/Examples
 
 %changelog
+* Mon Jul 13 2015 Orion Poplawski <orion@cora.nwra.com> - 6.1.0-25
+- Add patch to fix VTK_INSTALL_PREFIX (bug #1228881)
+
 * Thu Jun 25 2015 Orion Poplawski <orion@cora.nwra.com> - 6.1.0-24
 - Add requires netcdf-cxx-devel to vtk-devel (bug #1224512)
 - Add needed vtk-*-devel requires to vtk-devel (bug #1199310)
