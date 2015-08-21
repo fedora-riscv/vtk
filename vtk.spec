@@ -71,6 +71,24 @@ BuildRequires: lapack-devel
 %{!?with_java:Conflicts: vtk-java}
 Requires: hdf5 = %{_hdf5_version}
 
+# Bundled KWSys
+# https://fedorahosted.org/fpc/ticket/555
+# Components used are specified in Utilities/KWSys/CMakeLists.txt
+Provides: bundled(kwsys-base64)
+Provides: bundled(kwsys-commandlinearguments)
+Provides: bundled(kwsys-directory)
+Provides: bundled(kwsys-dynamicloader)
+Provides: bundled(kwsys-encoding)
+Provides: bundled(kwsys-fstream)
+Provides: bundled(kwsys-fundamentaltype)
+Provides: bundled(kwsys-glob)
+Provides: bundled(kwsys-md5)
+Provides: bundled(kwsys-process)
+Provides: bundled(kwsys-regularexpression)
+Provides: bundled(kwsys-system)
+Provides: bundled(kwsys-systeminformation)
+Provides: bundled(kwsys-systemtools)
+
 # Do not check .so files in the python_sitearch directory
 %global __provides_exclude_from ^%{python_sitearch}/.*\\.so$
 
@@ -205,6 +223,9 @@ done
 # otherwise it will break on symlinks.
 grep -rl '\.\./\.\./\.\./\.\./VTKData' . | xargs \
   perl -pi -e's,\.\./\.\./\.\./\.\./VTKData,%{_datadir}/vtkdata-%{version},g'
+
+# Remove unused KWSys items
+find Utilities/KWSys/vtksys/ -name \*.[ch]\* | grep -vE '^Utilities/KWSys/vtksys/([a-z].*|Configure|SharedForward|String\.hxx|Base64|CommandLineArguments|Directory|DynamicLoader|Encoding|FStream|FundamentalType|Glob|MD5|Process|RegularExpression|System|SystemInformation|SystemTools)(C|CXX|UNIX)?\.' | xargs rm
 
 # Save an unbuilt copy of the Example's sources for %doc
 mkdir vtk-examples
@@ -473,6 +494,7 @@ cp -pr --parents Wrapping/*/README* _docs/
 %changelog
 * Sun Dec 13 2015 Orion Poplawski <orion@cora.nwra.com> - 6.1.0-5
 - Add patch to fix compilation with mesa 10.4 (bug #1291099)
+- Note bundled kwsys, remove unused kwsys files
 - Add requires netcdf-cxx-devel to vtk-devel (bug #1224512)
 - Add needed vtk-*-devel requires to vtk-devel (bug #1199310)
 - Add patch to fix tcl library loading
