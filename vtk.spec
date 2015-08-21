@@ -9,7 +9,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 6.2.0
-Release: 8%{?dist}
+Release: 9%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -60,6 +60,24 @@ BuildRequires: lapack-devel
 BuildRequires: xorg-x11-drv-dummy
 %{!?with_java:Conflicts: vtk-java}
 Requires: hdf5 = %{_hdf5_version}
+
+# Bundled KWSys
+# https://fedorahosted.org/fpc/ticket/555
+# Components used are specified in Utilities/KWSys/CMakeLists.txt
+Provides: bundled(kwsys-base64)
+Provides: bundled(kwsys-commandlinearguments)
+Provides: bundled(kwsys-directory)
+Provides: bundled(kwsys-dynamicloader)
+Provides: bundled(kwsys-encoding)
+Provides: bundled(kwsys-fstream)
+Provides: bundled(kwsys-fundamentaltype)
+Provides: bundled(kwsys-glob)
+Provides: bundled(kwsys-md5)
+Provides: bundled(kwsys-process)
+Provides: bundled(kwsys-regularexpression)
+Provides: bundled(kwsys-system)
+Provides: bundled(kwsys-systeminformation)
+Provides: bundled(kwsys-systemtools)
 
 # Do not check .so files in the python_sitearch directory
 %global __provides_exclude_from ^%{python_sitearch}/.*\\.so$
@@ -183,6 +201,9 @@ for x in autobahn vtkexpat vtkfreetype vtkgl2ps vtkhdf5 vtkjpeg vtklibxml2 vtkne
 do
   rm -r ThirdParty/*/${x}
 done
+
+# Remove unused KWSys items
+find Utilities/KWSys/vtksys/ -name \*.[ch]\* | grep -vE '^Utilities/KWSys/vtksys/([a-z].*|Configure|SharedForward|String\.hxx|Base64|CommandLineArguments|Directory|DynamicLoader|Encoding|FStream|FundamentalType|Glob|MD5|Process|RegularExpression|System|SystemInformation|SystemTools)(C|CXX|UNIX)?\.' | xargs rm
 
 # Save an unbuilt copy of the Example's sources for %doc
 mkdir vtk-examples
@@ -458,6 +479,9 @@ cat xorg.log
 
 
 %changelog
+* Fri Aug 21 2015 Orion Poplawski <orion@cora.nwra.com> - 6.2.0-9
+- Note bundled kwsys, remove unused kwsys files
+
 * Wed Jul 29 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 6.2.0-8
 - Rebuilt for https://fedoraproject.org/wiki/Changes/F23Boost159
 
