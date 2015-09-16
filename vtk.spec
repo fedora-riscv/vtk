@@ -8,14 +8,14 @@
 
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
-Version: 6.2.0
-Release: 10%{?dist}
+Version: 6.3.0
+Release: 1%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
 License: BSD
-Source0: http://www.vtk.org/files/release/6.2/VTK-%{version}.tar.gz
-Source1: http://www.vtk.org/files/release/6.2/VTKData-%{version}.tar.gz
+Source0: http://www.vtk.org/files/release/6.3/VTK-%{version}.tar.gz
+Source1: http://www.vtk.org/files/release/6.3/VTKData-%{version}.tar.gz
 Source2: xorg.conf
 # Fix tcl library loading
 # http://www.vtk.org/Bug/view.php?id=15279
@@ -414,7 +414,7 @@ cat xorg.log
 %postun qt-tcl -p /sbin/ldconfig
 
 %files -f build/libs.list
-%doc Copyright.txt README.html vtkLogo.jpg vtkBanner.gif _docs/Wrapping
+%doc Copyright.txt README.md vtkLogo.jpg vtkBanner.gif _docs/Wrapping
 %config(noreplace) %{_sysconfdir}/ld.so.conf.d/vtk-%{_arch}.conf
 %{_bindir}/vtkEncodeString
 %{_datadir}/vtk
@@ -429,7 +429,7 @@ cat xorg.log
 %{_libdir}/vtk/libvtkWrappingTools.a
 %{_libdir}/cmake/vtk/
 %{_bindir}/vtkParseOGLExt
-%{_docdir}/vtk-6.2/
+%{_docdir}/vtk-6.3/
 %{tcl_sitelib}/vtk/vtktcl.c
 
 %files tcl
@@ -479,6 +479,9 @@ cat xorg.log
 
 
 %changelog
+* Tue Sep 15 2015 Orion Poplawski <orion@cora.nwra.com> - 6.3.0-1
+- Update to 6.3.0
+
 * Thu Aug 27 2015 Jonathan Wakely <jwakely@redhat.com> - 6.2.0-10
 - Rebuilt for Boost 1.59
 
