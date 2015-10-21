@@ -88,6 +88,16 @@ Provides: bundled(kwsys-regularexpression)
 Provides: bundled(kwsys-system)
 Provides: bundled(kwsys-systeminformation)
 Provides: bundled(kwsys-systemtools)
+# Other bundled libraries
+Provides: bundled(alglib)
+Provides: bundled(exodusII) = 2.0.0
+Provides: bundled(ftgl) = 1.32
+Provides: bundled(sqlite) = 3.6.22
+Provides: bundled(utf8cpp)
+Provides: bundled(verdict) = 1.2.0
+Provides: bundled(vpic)
+Provides: bundled(xdmf2) = 2.1
+Provides: bundled(xdmf3)
 
 # Do not check .so files in the python_sitearch directory
 %global __provides_exclude_from ^%{python_sitearch}/.*\\.so$
@@ -213,8 +223,15 @@ programming languages.
 %patch4 -p1 -b .type
 %patch5 -p1 -b .tcllib
 # Remove included thirdparty sources just to be sure
-# TODO - vtksqlite
-for x in autobahn vtkexpat vtkfreetype vtkgl2ps vtkhdf5 vtkjpeg vtklibxml2 vtknetcdf vtkoggtheora vtkpng vtktiff twisted vtkzlib zope
+# TODO - alglib - http://www.vtk.org/Bug/view.php?id=15729
+# TODO - vtkexodusII - not yet packaged
+# TODO - vtksqlite - http://www.vtk.org/Bug/view.php?id=14154
+# TODO - utf8cpp(source) - http://www.vtk.org/Bug/view.php?id=15730
+# TODO - vtkverdict - not yet packaged
+# TODO - VPIC - not yet packaged
+# TODO - vtkxdmf2 - not yet packaged
+# TODO - vtkxdmf3 - not yet packaged
+for x in autobahn vtkexpat vtkfreetype vtkgl2ps vtkhdf5 vtkjpeg vtkjsoncpp vtklibxml2 vtknetcdf vtkoggtheora vtkpng vtktiff twisted vtkzlib zope
 do
   rm -r ThirdParty/*/${x}
 done
@@ -494,6 +511,7 @@ cp -pr --parents Wrapping/*/README* _docs/
 %changelog
 * Sun Dec 13 2015 Orion Poplawski <orion@cora.nwra.com> - 6.1.0-5
 - Add patch to fix compilation with mesa 10.4 (bug #1291099)
+- Note bundled libraries
 - Note bundled kwsys, remove unused kwsys files
 - Add requires netcdf-cxx-devel to vtk-devel (bug #1224512)
 - Add needed vtk-*-devel requires to vtk-devel (bug #1199310)
