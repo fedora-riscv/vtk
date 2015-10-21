@@ -82,6 +82,7 @@ Provides: bundled(kwsys-systemtools)
 Provides: bundles(alglib)
 Provides: bundles(exodusII) = 2.0.0
 Provides: bundles(ftgl) = 1.32
+Provides: bundles(metaio)
 Provides: bundles(sqlite) = 3.6.22
 Provides: bundles(utf8cpp)
 Provides: bundles(verdict) = 1.2.0
