@@ -9,7 +9,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 6.3.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -78,6 +78,16 @@ Provides: bundled(kwsys-regularexpression)
 Provides: bundled(kwsys-system)
 Provides: bundled(kwsys-systeminformation)
 Provides: bundled(kwsys-systemtools)
+# Other bundled libraries
+Provides: bundles(alglib)
+Provides: bundles(exodusII) = 2.0.0
+Provides: bundles(ftgl) = 1.32
+Provides: bundles(sqlite) = 3.6.22
+Provides: bundles(utf8cpp)
+Provides: bundles(verdict) = 1.2.0
+Provides: bundles(vpic)
+Provides: bundles(xdmf2) = 2.1
+Provides: bundles(xdmf3)
 
 # Do not check .so files in the python_sitearch directory
 %global __provides_exclude_from ^%{python_sitearch}/.*\\.so$
@@ -196,8 +206,15 @@ programming languages.
 %setup -q -b 1 -n VTK-%{version}
 %patch5 -p1 -b .tcllib
 # Remove included thirdparty sources just to be sure
+# TODO - alglib - http://www.vtk.org/Bug/view.php?id=15729
+# TODO - vtkexodusII - not yet packaged
 # TODO - vtksqlite - http://www.vtk.org/Bug/view.php?id=14154
-for x in autobahn vtkexpat vtkfreetype vtkgl2ps vtkhdf5 vtkjpeg vtklibxml2 vtknetcdf vtkoggtheora vtkpng vtktiff twisted vtkzlib zope
+# TODO - utf8cpp(source) - http://www.vtk.org/Bug/view.php?id=15730
+# TODO - vtkverdict - not yet packaged
+# TODO - VPIC - not yet packaged
+# TODO - vtkxdmf2 - not yet packaged
+# TODO - vtkxdmf3 - not yet packaged
+for x in autobahn vtkexpat vtkfreetype vtkgl2ps vtkglew vtkhdf5 vtkjpeg vtkjsoncpp vtklibxml2 vtkmpi4py vtknetcdf vtkoggtheora vtkpng vtktiff twisted vtkzlib zope
 do
   rm -r ThirdParty/*/${x}
 done
@@ -479,6 +496,9 @@ cat xorg.log
 
 
 %changelog
+* Wed Oct 21 2015 Orion Poplawski <orion@cora.nwra.com> - 6.3.0-2
+- Note bundled libraries
+
 * Tue Sep 15 2015 Orion Poplawski <orion@cora.nwra.com> - 6.3.0-1
 - Update to 6.3.0
 
