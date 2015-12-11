@@ -25,7 +25,6 @@ URL: http://vtk.org/
 
 BuildRequires: cmake
 BuildRequires: gcc-c++
-#%{?with_java:BuildRequires: gcc-java, libgcj-devel, java-devel}
 %{?with_java:BuildRequires: java-devel}
 BuildRequires: libX11-devel, libXt-devel, libXext-devel
 BuildRequires: libICE-devel, libGL-devel
