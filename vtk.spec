@@ -78,16 +78,16 @@ Provides: bundled(kwsys-system)
 Provides: bundled(kwsys-systeminformation)
 Provides: bundled(kwsys-systemtools)
 # Other bundled libraries
-Provides: bundles(alglib)
-Provides: bundles(exodusII) = 2.0.0
-Provides: bundles(ftgl) = 1.32
-Provides: bundles(metaio)
-Provides: bundles(sqlite) = 3.6.22
-Provides: bundles(utf8cpp)
-Provides: bundles(verdict) = 1.2.0
-Provides: bundles(vpic)
-Provides: bundles(xdmf2) = 2.1
-Provides: bundles(xdmf3)
+Provides: bundled(alglib)
+Provides: bundled(exodusII) = 2.0.0
+Provides: bundled(ftgl) = 1.32
+Provides: bundled(metaio)
+Provides: bundled(sqlite) = 3.6.22
+Provides: bundled(utf8cpp)
+Provides: bundled(verdict) = 1.2.0
+Provides: bundled(vpic)
+Provides: bundled(xdmf2) = 2.1
+Provides: bundled(xdmf3)
 
 # Do not check .so files in the python_sitearch directory
 %global __provides_exclude_from ^%{python_sitearch}/.*\\.so$
