@@ -27,11 +27,7 @@ Patch2: vtk-6.1.0-netcdf.patch
 
 URL: http://vtk.org/
 
-%if 0%{?rhel} && (0%{?rhel} <= 6)
-BuildRequires: cmake28
-%else
 BuildRequires: cmake
-%endif
 BuildRequires: gcc-c++
 %{?with_java:BuildRequires: java-devel}
 BuildRequires: libX11-devel, libXt-devel, libXext-devel
@@ -201,11 +197,7 @@ export JAVA_HOME=/usr/lib/jvm/java
 
 mkdir build
 pushd build
-%if 0%{?rhel} && (0%{?rhel} <= 6)
-%{cmake28} .. \
-%else
 %{cmake} .. \
-%endif
  -DBUILD_DOCUMENTATION:BOOL=ON \
  -DBUILD_EXAMPLES:BOOL=ON \
  -DBUILD_TESTING:BOOL=OFF \
