@@ -9,7 +9,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 6.3.0
-Release: 8%{?dist}
+Release: 9%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -58,7 +58,9 @@ BuildRequires: %{_includedir}/Xm
 BuildRequires: blas-devel
 BuildRequires: lapack-devel
 # For %check
+%ifnarch s390x
 BuildRequires: xorg-x11-drv-dummy
+%endif
 %{!?with_java:Conflicts: vtk-java}
 Requires: hdf5 = %{_hdf5_version}
 
@@ -387,7 +389,7 @@ cp -pr --parents Wrapping/*/README* _docs/
 mkdir -p %{buildroot}%{_datadir}/vtkdata
 cp -al build/ExternalData/* %{buildroot}%{_datadir}/vtkdata/
 
-
+%ifnarch s390x
 %check
 cd build
 cp %SOURCE2 .
@@ -401,7 +403,7 @@ export DISPLAY=:99
 ctest %{_smp_mflags} -V || :
 kill %1 || :
 cat xorg.log
-
+%endif
 
 %post -p /sbin/ldconfig
 
@@ -499,6 +501,9 @@ cat xorg.log
 
 
 %changelog
+* Thu Jul 28 2016 Than Ngo <than@redhat.com> - 6.3.0-9
+- %%check: make non-fatal as temporary workaround for build on s390x
+
 * Wed Jun 29 2016 Orion Poplawski <orion@cora.nwra.com> - 6.3.0-8
 - Rebuild for hdf5 1.8.17
 
