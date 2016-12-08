@@ -4,11 +4,7 @@
 %bcond_without mpich
 # Need to coordinate with other qt users first
 %bcond_with qt5
-%ifarch s390 s390x
-%bcond_with openmpi
-%else
 %bcond_without openmpi
-%endif
 # VTK currently is carrying local modifications to gl2ps
 %bcond_with gl2ps
 %if !%{with gl2ps}
@@ -21,7 +17,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 7.1.0
-Release: 2%{?dist}
+Release: 3%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -823,6 +819,7 @@ cat xorg.log
 %files qt-tcl
 %{_libdir}/vtk/*QtTCL.so.*
 
+%if %{with mpich}
 %files mpich -f build-mpich/libs.list
 %license Copyright.txt
 %doc README.md vtkLogo.jpg vtkBanner.gif _docs/Wrapping
@@ -876,7 +873,9 @@ cat xorg.log
 
 %files mpich-qt-tcl
 %{_libdir}/mpich/lib/*QtTCL.so.*
+%endif
 
+%if %{with openmpi}
 %files openmpi -f build-openmpi/libs.list
 %license Copyright.txt
 %doc README.md vtkLogo.jpg vtkBanner.gif _docs/Wrapping
@@ -930,6 +929,7 @@ cat xorg.log
 
 %files openmpi-qt-tcl
 %{_libdir}/openmpi/lib/*QtTCL.so.*
+%endif
 
 %files data
 %{_datadir}/vtkdata
@@ -941,6 +941,10 @@ cat xorg.log
 
 
 %changelog
+* Thu Dec 8 2016 Dan Horák <dan[at]danny.cz> - 7.1.0-3
+- Enable openmpi on s390(x)
+- Add missing conditions for mpich/openmpi subpackages
+
 * Thu Dec 8 2016 Orion Poplawski <orion@cora.nwra.com> - 7.1.0-2
 - Fix MPI library install location
 
