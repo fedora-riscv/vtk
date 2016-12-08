@@ -21,7 +21,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 7.1.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -564,9 +564,9 @@ export CXX=mpic++
  %{vtk_cmake_options} \
  -DCMAKE_PREFIX_PATH:PATH=$MPI_HOME \
  -DCMAKE_INSTALL_PREFIX:PATH=$MPI_HOME \
- -DVTK_INSTALL_ARCHIVE_DIR:PATH=lib/vtk \
- -DVTK_INSTALL_LIBRARY_DIR:PATH=lib/vtk \
- -DVTK_INSTALL_PACKAGE_DIR:PATH=lib/cmake/vtk \
+ -DVTK_INSTALL_ARCHIVE_DIR:PATH=lib \
+ -DVTK_INSTALL_LIBRARY_DIR:PATH=lib \
+ -DVTK_INSTALL_PACKAGE_DIR:PATH=lib/cmake \
  -DVTK_INSTALL_PYTHON_MODULE_DIR:PATH=lib/python%{python2_version}/site-packages \
 %if %{with qt5}
  -DVTK_INSTALL_QT_DIR:PATH=lib/qt5/plugins/designer \
@@ -592,9 +592,9 @@ export CXX=mpic++
  %{vtk_cmake_options} \
  -DCMAKE_PREFIX_PATH:PATH=$MPI_HOME \
  -DCMAKE_INSTALL_PREFIX:PATH=$MPI_HOME \
- -DVTK_INSTALL_ARCHIVE_DIR:PATH=lib/vtk \
- -DVTK_INSTALL_LIBRARY_DIR:PATH=lib/vtk \
- -DVTK_INSTALL_PACKAGE_DIR:PATH=lib/cmake/vtk \
+ -DVTK_INSTALL_ARCHIVE_DIR:PATH=lib \
+ -DVTK_INSTALL_LIBRARY_DIR:PATH=lib \
+ -DVTK_INSTALL_PACKAGE_DIR:PATH=lib/cmake \
  -DVTK_INSTALL_PYTHON_MODULE_DIR:PATH=lib/python%{python2_version}/site-packages \
 %if %{with qt5}
  -DVTK_INSTALL_QT_DIR:PATH=lib/qt5/plugins/designer \
@@ -680,7 +680,7 @@ pushd build-mpich
 %make_install
 
 # Gather list of non-python/tcl libraries
-ls %{buildroot}%{_libdir}/mpich/lib/vtk/*.so.* \
+ls %{buildroot}%{_libdir}/mpich/lib/*.so.* \
   | grep -Ev '(Java|Qt|Python27D|TCL)' | sed -e's,^%{buildroot},,' > libs.list
 popd
 %_mpich_unload
@@ -692,7 +692,7 @@ pushd build-openmpi
 %make_install
 
 # Gather list of non-python/tcl libraries
-ls %{buildroot}%{_libdir}/openmpi/lib/vtk/*.so.* \
+ls %{buildroot}%{_libdir}/openmpi/lib/*.so.* \
   | grep -Ev '(Java|Qt|Python27D|TCL)' | sed -e's,^%{buildroot},,' > libs.list
 %_openmpi_unload
 popd
@@ -827,22 +827,20 @@ cat xorg.log
 %license Copyright.txt
 %doc README.md vtkLogo.jpg vtkBanner.gif _docs/Wrapping
 %{_libdir}/mpich/bin/vtkEncodeString
-%dir %{_libdir}/mpich/lib/vtk
 
 %files mpich-devel
 %{_libdir}/mpich/bin/vtkHashSource
 %{_libdir}/mpich/bin/vtkWrapHierarchy
 %{_libdir}/mpich/include/
-%dir %{_libdir}/mpich/lib/vtk
-%{_libdir}/mpich/lib/vtk/*.so
-%{_libdir}/mpich/lib/vtk/libvtkWrappingTools.a
+%{_libdir}/mpich/lib/*.so
+%{_libdir}/mpich/lib/libvtkWrappingTools.a
 %{_libdir}/mpich/lib/cmake/
 %{_libdir}/mpich/share/doc/vtk-7.1/
 %{_libdir}/mpich/share/tcl%{tcl_version}/vtk/vtktcl.c
 
 %files mpich-tcl
-%{_libdir}/mpich/lib/vtk/*TCL.so.*
-%exclude %{_libdir}/mpich/lib/vtk/*QtTCL.so.*
+%{_libdir}/mpich/lib/*TCL.so.*
+%exclude %{_libdir}/mpich/lib/*QtTCL.so.*
 %{_libdir}/mpich/bin/pvtk
 %{_libdir}/mpich/bin/vtk
 %{_libdir}/mpich/bin/vtkWrapTcl
@@ -852,8 +850,8 @@ cat xorg.log
 
 %files mpich-python
 %{_libdir}/mpich/lib/python%{python2_version}/
-%{_libdir}/mpich/lib/vtk/*Python27D.so.*
-%exclude %{_libdir}/mpich/lib/vtk/*QtPython27D.so.*
+%{_libdir}/mpich/lib/*Python27D.so.*
+%exclude %{_libdir}/mpich/lib/*QtPython27D.so.*
 %{_libdir}/mpich/bin/pvtkpython
 %{_libdir}/mpich/bin/vtkpython
 %{_libdir}/mpich/bin/vtkWrapPython
@@ -861,44 +859,42 @@ cat xorg.log
 
 %if %{with java}
 %files mpich-java
-%{_libdir}/mpich/lib/vtk/*Java.so.*
-%{_libdir}/mpich/lib/vtk/vtk.jar
+%{_libdir}/mpich/lib/*Java.so.*
+%{_libdir}/mpich/lib/vtk.jar
 %{_libdir}/mpich/bin/vtkParseJava
 %{_libdir}/mpich/bin/vtkWrapJava
 %endif
 
 %files mpich-qt
-%{_libdir}/mpich/lib/vtk/lib*Qt*.so.*
-%exclude %{_libdir}/mpich/lib/vtk/*TCL.so.*
-%exclude %{_libdir}/mpich/lib/vtk/*Python27D.so.*
+%{_libdir}/mpich/lib/lib*Qt*.so.*
+%exclude %{_libdir}/mpich/lib/*TCL.so.*
+%exclude %{_libdir}/mpich/lib/*Python27D.so.*
 %{_libdir}/mpich/lib/qt?/
 
 %files mpich-qt-python
-%{_libdir}/mpich/lib/vtk/*QtPython27D.so.*
+%{_libdir}/mpich/lib/*QtPython27D.so.*
 
 %files mpich-qt-tcl
-%{_libdir}/mpich/lib/vtk/*QtTCL.so.*
+%{_libdir}/mpich/lib/*QtTCL.so.*
 
 %files openmpi -f build-openmpi/libs.list
 %license Copyright.txt
 %doc README.md vtkLogo.jpg vtkBanner.gif _docs/Wrapping
 %{_libdir}/openmpi/bin/vtkEncodeString
-%dir %{_libdir}/openmpi/lib/vtk
 
 %files openmpi-devel
 %{_libdir}/openmpi/bin/vtkHashSource
 %{_libdir}/openmpi/bin/vtkWrapHierarchy
 %{_libdir}/openmpi/include/
-%dir %{_libdir}/openmpi/lib/vtk
-%{_libdir}/openmpi/lib/vtk/*.so
-%{_libdir}/openmpi/lib/vtk/libvtkWrappingTools.a
+%{_libdir}/openmpi/lib/*.so
+%{_libdir}/openmpi/lib/libvtkWrappingTools.a
 %{_libdir}/openmpi/lib/cmake/
 %{_libdir}/openmpi/share/doc/vtk-7.1/
 %{_libdir}/openmpi/share/tcl%{tcl_version}/vtk/vtktcl.c
 
 %files openmpi-tcl
-%{_libdir}/openmpi/lib/vtk/*TCL.so.*
-%exclude %{_libdir}/openmpi/lib/vtk/*QtTCL.so.*
+%{_libdir}/openmpi/lib/*TCL.so.*
+%exclude %{_libdir}/openmpi/lib/*QtTCL.so.*
 %{_libdir}/openmpi/bin/pvtk
 %{_libdir}/openmpi/bin/vtk
 %{_libdir}/openmpi/bin/vtkWrapTcl
@@ -908,8 +904,8 @@ cat xorg.log
 
 %files openmpi-python
 %{_libdir}/openmpi/lib/python%{python2_version}/
-%{_libdir}/openmpi/lib/vtk/*Python27D.so.*
-%exclude %{_libdir}/openmpi/lib/vtk/*QtPython27D.so.*
+%{_libdir}/openmpi/lib/*Python27D.so.*
+%exclude %{_libdir}/openmpi/lib/*QtPython27D.so.*
 %{_libdir}/openmpi/bin/pvtkpython
 %{_libdir}/openmpi/bin/vtkpython
 %{_libdir}/openmpi/bin/vtkWrapPython
@@ -917,23 +913,23 @@ cat xorg.log
 
 %if %{with java}
 %files openmpi-java
-%{_libdir}/openmpi/lib/vtk/*Java.so.*
-%{_libdir}/openmpi/lib/vtk/vtk.jar
+%{_libdir}/openmpi/lib/*Java.so.*
+%{_libdir}/openmpi/lib/vtk.jar
 %{_libdir}/openmpi/bin/vtkParseJava
 %{_libdir}/openmpi/bin/vtkWrapJava
 %endif
 
 %files openmpi-qt
-%{_libdir}/openmpi/lib/vtk/lib*Qt*.so.*
-%exclude %{_libdir}/openmpi/lib/vtk/*TCL.so.*
-%exclude %{_libdir}/openmpi/lib/vtk/*Python27D.so.*
+%{_libdir}/openmpi/lib/lib*Qt*.so.*
+%exclude %{_libdir}/openmpi/lib/*TCL.so.*
+%exclude %{_libdir}/openmpi/lib/*Python27D.so.*
 %{_libdir}/openmpi/lib/qt?/
 
 %files openmpi-qt-python
-%{_libdir}/openmpi/lib/vtk/*QtPython27D.so.*
+%{_libdir}/openmpi/lib/*QtPython27D.so.*
 
 %files openmpi-qt-tcl
-%{_libdir}/openmpi/lib/vtk/*QtTCL.so.*
+%{_libdir}/openmpi/lib/*QtTCL.so.*
 
 %files data
 %{_datadir}/vtkdata
@@ -945,6 +941,9 @@ cat xorg.log
 
 
 %changelog
+* Thu Dec 8 2016 Orion Poplawski <orion@cora.nwra.com> - 7.1.0-2
+- Fix MPI library install location
+
 * Mon Dec 5 2016 Orion Poplawski <orion@cora.nwra.com> - 7.1.0-1
 - Update to 7.1.0
 - Enable OSMesa
