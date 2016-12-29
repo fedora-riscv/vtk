@@ -17,7 +17,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 7.1.0
-Release: 3%{?dist}
+Release: 4%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -479,11 +479,6 @@ export CFLAGS="%{optflags} -D_UNICODE -DHAVE_UINTPTR_T"
 export CXXFLAGS="%{optflags} -D_UNICODE -DHAVE_UINTPTR_T"
 %if %{with java}
 export JAVA_HOME=/usr/lib/jvm/java
-# Arm/Aarch64 builders have less ram
-# https://bugzilla.redhat.com/show_bug.cgi?id=1115920
-%ifnarch s390
-export JAVA_TOOL_OPTIONS=-Xmx2048m
-%endif
 %endif
 
 %global vtk_cmake_options \\\
@@ -941,6 +936,9 @@ cat xorg.log
 
 
 %changelog
+* Thu Dec 29 2016 Orion Poplawski <orion@cora.nwra.com> - 7.1.0-4
+- Drop setting java heap size
+
 * Thu Dec 8 2016 Dan Horák <dan[at]danny.cz> - 7.1.0-3
 - Enable openmpi on s390(x)
 - Add missing conditions for mpich/openmpi subpackages
