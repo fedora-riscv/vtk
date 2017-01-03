@@ -17,7 +17,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 7.1.0
-Release: 4%{?dist}
+Release: 5%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -479,6 +479,10 @@ export CFLAGS="%{optflags} -D_UNICODE -DHAVE_UINTPTR_T"
 export CXXFLAGS="%{optflags} -D_UNICODE -DHAVE_UINTPTR_T"
 %if %{with java}
 export JAVA_HOME=/usr/lib/jvm/java
+%ifarch s390x
+# getting "java.lang.OutOfMemoryError: Java heap space" during the build
+export JAVA_TOOL_OPTIONS=-Xmx2048m
+%endif
 %endif
 
 %global vtk_cmake_options \\\
@@ -936,6 +940,9 @@ cat xorg.log
 
 
 %changelog
+* Tue Jan 3 2017 Dan Horák <dan[at]danny.cz> - 7.1.0-5
+- s390x needs increased Java heap size
+
 * Thu Dec 29 2016 Orion Poplawski <orion@cora.nwra.com> - 7.1.0-4
 - Drop setting java heap size
 
