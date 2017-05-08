@@ -16,8 +16,8 @@
 
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
-Version: 7.1.0
-Release: 6%{?dist}
+Version: 7.1.1
+Release: 1%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -25,9 +25,8 @@ License: BSD
 Source0: http://www.vtk.org/files/release/7.1/VTK-%{version}.tar.gz
 Source1: http://www.vtk.org/files/release/7.1/VTKData-%{version}.tar.gz
 Source2: xorg.conf
-# Make sure wrapper abi is the same
-# https://gitlab.kitware.com/vtk/vtk/issues/16919
-Patch1: vtk-abi.patch
+# Also set -Wno-format-security when setting -Wno-format
+Patch0: vtk-format.patch
 # Fix tcl library loading
 # http://www.vtk.org/Bug/view.php?id=15279
 Patch5: vtk-tcllib.patch
@@ -448,7 +447,7 @@ programming languages.
 
 %prep
 %setup -q -b 1 -n VTK-%{version}
-%patch1 -p1 -b .abi
+%patch0 -p1 -b .format
 %patch5 -p1 -b .tcllib
 # Remove included thirdparty sources just to be sure
 # TODO - alglib - http://www.vtk.org/Bug/view.php?id=15729
@@ -479,7 +478,7 @@ export CFLAGS="%{optflags} -D_UNICODE -DHAVE_UINTPTR_T"
 export CXXFLAGS="%{optflags} -D_UNICODE -DHAVE_UINTPTR_T"
 %if %{with java}
 export JAVA_HOME=/usr/lib/jvm/java
-%ifarch s390x
+%ifarch %{arm} s390x
 # getting "java.lang.OutOfMemoryError: Java heap space" during the build
 export JAVA_TOOL_OPTIONS=-Xmx2048m
 %endif
@@ -940,6 +939,9 @@ cat xorg.log
 
 
 %changelog
+* Mon May 8 2017 Orion Poplawski <orion@cora.nwra.com> - 7.1.1-1
+- Update to 7.1.1
+
 * Sat Feb 11 2017 Fedora Release Engineering <releng@fedoraproject.org> - 7.1.0-6
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
 
