@@ -17,7 +17,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 7.1.1
-Release: 1%{?dist}
+Release: 2%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -86,9 +86,7 @@ BuildRequires:  mpi4py-openmpi
 BuildRequires:  netcdf-openmpi-devel
 %endif
 # For %check
-%ifnarch s390x
 BuildRequires: xorg-x11-drv-dummy
-%endif
 %{!?with_java:Conflicts: vtk-java}
 Requires: hdf5 = %{_hdf5_version}
 
@@ -716,7 +714,6 @@ cp -pr --parents Wrapping/*/README* _docs/
 mkdir -p %{buildroot}%{_datadir}/vtkdata
 cp -al build/ExternalData/* %{buildroot}%{_datadir}/vtkdata/
 
-%ifnarch s390x
 %check
 cd build
 cp %SOURCE2 .
@@ -730,7 +727,6 @@ export DISPLAY=:99
 ctest %{_smp_mflags} -V || :
 kill %1 || :
 cat xorg.log
-%endif
 
 %post -p /sbin/ldconfig
 
@@ -939,6 +935,9 @@ cat xorg.log
 
 
 %changelog
+* Tue May 9 2017 Orion Poplawski <orion@cora.nwra.com> - 7.1.1-2
+- Enable tests on s390x
+
 * Mon May 8 2017 Orion Poplawski <orion@cora.nwra.com> - 7.1.1-1
 - Update to 7.1.1
 
