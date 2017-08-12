@@ -17,7 +17,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 7.1.1
-Release: 5%{?dist}
+Release: 6%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -40,7 +40,7 @@ BuildRequires: libX11-devel, libXt-devel, libXext-devel
 BuildRequires: libICE-devel, libGL-devel
 %{?with_OSMesa:BuildRequires: mesa-libOSMesa-devel}
 BuildRequires: tk-devel, tcl-devel
-BuildRequires: python-devel
+BuildRequires: python2-devel
 BuildRequires: expat-devel, freetype-devel, libjpeg-devel, libpng-devel
 %if 0%{with gl2ps}
 BuildRequires: gl2ps-devel
@@ -185,11 +185,15 @@ Requires: vtk%{?_isa} = %{version}-%{release}
 %description tcl
 tcl bindings for VTK.
 
-%package python
+%package -n python2-vtk
 Summary: Python bindings for VTK
 Requires: vtk%{?_isa} = %{version}-%{release}
+%{?python_provide:%python_provide python2-vtk}
+# Remove before F30
+Provides: %{name}-python%{?_isa} = %{version}-%{release}
+Obsoletes: %{name}-python < %{version}-%{release}
 
-%description python
+%description -n python2-vtk
 python bindings for VTK.
 
 %if %{with java}
@@ -208,11 +212,15 @@ Requires: vtk%{?_isa} = %{version}-%{release}
 %description qt
 Qt bindings for VTK.
 
-%package qt-python
+%package -n python2-vtk-qt
 Summary: Qt Python bindings for VTK
 Requires: vtk%{?_isa} = %{version}-%{release}
+%{?python_provide:%python_provide python2-vtk-qt}
+# Remove before F30
+Provides: %{name}-qt-python%{?_isa} = %{version}-%{release}
+Obsoletes: %{name}-qt-python < %{version}-%{release}
 
-%description qt-python
+%description -n python2-vtk-qt
 Qt Python bindings for VTK.
 
 %package qt-tcl
@@ -736,9 +744,9 @@ cat xorg.log
 
 %postun tcl -p /sbin/ldconfig
 
-%post python -p /sbin/ldconfig
+%post -n python2-vtk -p /sbin/ldconfig
 
-%postun python -p /sbin/ldconfig
+%postun -n python2-vtk -p /sbin/ldconfig
 
 %if %{with java}
 %post java -p /sbin/ldconfig
@@ -750,9 +758,9 @@ cat xorg.log
 
 %postun qt -p /sbin/ldconfig
 
-%post qt-python -p /sbin/ldconfig
+%post -n python2-vtk-qt -p /sbin/ldconfig
 
-%postun qt-python -p /sbin/ldconfig
+%postun -n python2-vtk-qt -p /sbin/ldconfig
 
 %post qt-tcl -p /sbin/ldconfig
 
@@ -785,7 +793,7 @@ cat xorg.log
 %{tcl_sitelib}/vtk/
 %exclude %{tcl_sitelib}/vtk/vtktcl.c
 
-%files python
+%files -n python2-vtk
 %{python2_sitearch}/*
 %{_libdir}/vtk/*Python27D.so.*
 %exclude %{_libdir}/vtk/*QtPython27D.so.*
@@ -807,7 +815,7 @@ cat xorg.log
 %exclude %{_libdir}/vtk/*Python27D.so.*
 %{_libdir}/qt?/plugins/designer/libQVTKWidgetPlugin.so
 
-%files qt-python
+%files -n python2-vtk-qt
 %{_libdir}/vtk/*QtPython27D.so.*
 
 %files qt-tcl
@@ -935,6 +943,10 @@ cat xorg.log
 
 
 %changelog
+* Sat Aug 12 2017 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 7.1.1-6
+- Python 2 binary packages renamed to python2-vtk and python2-vtk-qt
+  See https://fedoraproject.org/wiki/FinalizingFedoraSwitchtoPython3
+
 * Thu Aug 03 2017 Fedora Release Engineering <releng@fedoraproject.org> - 7.1.1-5
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Binutils_Mass_Rebuild
 
