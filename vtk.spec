@@ -17,7 +17,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 7.1.1
-Release: 2%{?dist}
+Release: 3%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -168,8 +168,15 @@ Requires: libxml2-devel%{?_isa}
 Requires: postgresql-devel%{?_isa}
 Requires: mysql-devel%{?_isa}
 Requires: netcdf-cxx-devel%{?_isa}
+%if %{with qt5}
+BuildRequires: cmake(Qt5)
+BuildRequires: cmake(Qt5UiPlugin)
+BuildRequires: cmake(Qt5X11Extras)
+BuildRequires: qt5-qtwebkit-devel%{?_isa}
+%else
 Requires: qt4-devel%{?_isa}
 Requires: qtwebkit-devel%{?_isa}
+%endif
 Requires: jsoncpp-devel%{?_isa}
 # bz #1183210 + #1183530
 Requires: python2-devel
@@ -263,8 +270,15 @@ Requires: postgresql-devel%{?_isa}
 Requires: mysql-devel%{?_isa}
 Requires: netcdf-cxx-devel%{?_isa}
 Requires: netcdf-mpich-devel%{?_isa}
+%if %{with qt5}
+BuildRequires: cmake(Qt5)
+BuildRequires: cmake(Qt5UiPlugin)
+BuildRequires: cmake(Qt5X11Extras)
+BuildRequires: qt5-qtwebkit-devel%{?_isa}
+%else
 Requires: qt4-devel%{?_isa}
 Requires: qtwebkit-devel%{?_isa}
+%endif
 Requires: jsoncpp-devel%{?_isa}
 # bz #1183210 + #1183530
 Requires: python2-devel
@@ -361,8 +375,15 @@ Requires: postgresql-devel%{?_isa}
 Requires: mysql-devel%{?_isa}
 Requires: netcdf-cxx-devel%{?_isa}
 Requires: netcdf-openmpi-devel%{?_isa}
+%if %{with qt5}
+BuildRequires: cmake(Qt5)
+BuildRequires: cmake(Qt5UiPlugin)
+BuildRequires: cmake(Qt5X11Extras)
+BuildRequires: qt5-qtwebkit-devel%{?_isa}
+%else
 Requires: qt4-devel%{?_isa}
 Requires: qtwebkit-devel%{?_isa}
+%endif
 Requires: jsoncpp-devel%{?_isa}
 # bz #1183210 + #1183530
 Requires: python2-devel
@@ -935,6 +956,9 @@ cat xorg.log
 
 
 %changelog
+* Thu May 11 2017 Orion Poplawski <orion@cora.nwra.com> - 7.1.1-3
+- Build with Qt5
+
 * Tue May 9 2017 Orion Poplawski <orion@cora.nwra.com> - 7.1.1-2
 - Enable tests on s390x
 
