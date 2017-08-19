@@ -190,6 +190,7 @@ Summary: Python bindings for VTK
 Requires: vtk%{?_isa} = %{version}-%{release}
 %{?python_provide:%python_provide python2-vtk}
 # Remove before F30
+Provides: %{name}-python = %{version}-%{release}
 Provides: %{name}-python%{?_isa} = %{version}-%{release}
 Obsoletes: %{name}-python < %{version}-%{release}
 
@@ -217,6 +218,7 @@ Summary: Qt Python bindings for VTK
 Requires: vtk%{?_isa} = %{version}-%{release}
 %{?python_provide:%python_provide python2-vtk-qt}
 # Remove before F30
+Provides: %{name}-qt-python = %{version}-%{release}
 Provides: %{name}-qt-python%{?_isa} = %{version}-%{release}
 Obsoletes: %{name}-qt-python < %{version}-%{release}
 
