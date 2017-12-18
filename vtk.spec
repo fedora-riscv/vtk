@@ -17,7 +17,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 7.1.1
-Release: 7%{?dist}
+Release: 8%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -65,7 +65,11 @@ BuildRequires: boost-devel
 BuildRequires: hdf5-devel
 BuildRequires: jsoncpp-devel
 BuildRequires: libtheora-devel
+%if 0%{?fedora} >= 28
+BuildRequires:  mariadb-connector-c-devel
+%else
 BuildRequires: mysql-devel
+%endif
 BuildRequires: netcdf-cxx-devel
 BuildRequires: postgresql-devel
 BuildRequires: R-devel
@@ -530,6 +534,8 @@ export JAVA_TOOL_OPTIONS=-Xmx2048m
  -DVTK_Group_Views:BOOL=ON \\\
  -DModule_vtkFiltersStatisticsGnuR:BOOL=ON \\\
  -DModule_vtkIOExportOpenGL2:BOOL=ON \\\
+ -DModule_vtkIOMySQL:BOOL=ON \\\
+ -DModule_vtkIOPostgreSQL:BOOL=ON \\\
  -DModule_vtkRenderingParallel:BOOL=ON \\\
  -DModule_vtkTestingCore:BOOL=ON \\\
  -DModule_vtkTestingRendering:BOOL=ON \\\
@@ -945,6 +951,10 @@ cat xorg.log
 
 
 %changelog
+* Mon Dec 18 2017 Orion Poplawski <orion@nwra.com> - 7.1.1-8
+- Enable mysql and postgresql support
+- Use mariadb BR for F28+ (Bug #1494054)
+
 * Fri Sep 01 2017 Björn Esser <besser82@fedoraproject.org> - 7.1.1-7
 - Rebuilt for jsoncpp-1.8.3
 
