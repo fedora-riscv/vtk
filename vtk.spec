@@ -17,7 +17,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 7.1.1
-Release: 12%{?dist}
+Release: 13%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -71,7 +71,7 @@ BuildRequires:  mariadb-connector-c-devel
 BuildRequires: mysql-devel
 %endif
 BuildRequires: netcdf-cxx-devel
-BuildRequires: postgresql-devel
+BuildRequires: libpq-devel
 BuildRequires: R-devel
 BuildRequires: sip-devel
 BuildRequires: sqlite-devel
@@ -169,7 +169,7 @@ Requires: libogg-devel%{?_isa}
 Requires: libtheora-devel%{?_isa}
 Requires: libtiff-devel%{?_isa}
 Requires: libxml2-devel%{?_isa}
-Requires: postgresql-devel%{?_isa}
+Requires: libpq-devel%{?_isa}
 Requires: mysql-devel%{?_isa}
 Requires: netcdf-cxx-devel%{?_isa}
 Requires: qt4-devel%{?_isa}
@@ -273,7 +273,7 @@ Requires: libogg-devel%{?_isa}
 Requires: libtheora-devel%{?_isa}
 Requires: libtiff-devel%{?_isa}
 Requires: libxml2-devel%{?_isa}
-Requires: postgresql-devel%{?_isa}
+Requires: libpq-devel%{?_isa}
 Requires: mysql-devel%{?_isa}
 Requires: netcdf-cxx-devel%{?_isa}
 Requires: netcdf-mpich-devel%{?_isa}
@@ -371,7 +371,7 @@ Requires: libogg-devel%{?_isa}
 Requires: libtheora-devel%{?_isa}
 Requires: libtiff-devel%{?_isa}
 Requires: libxml2-devel%{?_isa}
-Requires: postgresql-devel%{?_isa}
+Requires: libpq-devel%{?_isa}
 Requires: mysql-devel%{?_isa}
 Requires: netcdf-cxx-devel%{?_isa}
 Requires: netcdf-openmpi-devel%{?_isa}
@@ -951,6 +951,9 @@ cat xorg.log
 
 
 %changelog
+* Thu Sep 06 2018 Pavel Raiskup <praiskup@redhat.com> - 7.1.1-13
+- rebuild against libpq (rhbz#1618698, rhbz#1623764)
+
 * Sat Jul 14 2018 Fedora Release Engineering <releng@fedoraproject.org> - 7.1.1-12
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
 
