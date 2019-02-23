@@ -15,24 +15,21 @@
 %endif
 
 %{!?tcl_version: %global tcl_version %(echo 'puts $tcl_version' | tclsh)}
-%{!?tcl_sitelib: %global tcl_sitelib %{_datadir}/tcl%{tcl_version}}
 
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
-Version: 8.1.1
-Release: 3%{?dist}
+Version: 8.2.0
+Release: 1%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
 License: BSD
-Source0: http://www.vtk.org/files/release/8.1/VTK-%{version}.tar.gz
-Source1: http://www.vtk.org/files/release/8.1/VTKData-%{version}.tar.gz
+Source0: http://www.vtk.org/files/release/8.2/VTK-%{version}.tar.gz
+Source1: http://www.vtk.org/files/release/8.2/VTKData-%{version}.tar.gz
 Source2: xorg.conf
+Source3: FindPEGTL.cmake
 # Python 3.7 compat
 Patch0: https://gitlab.kitware.com/vtk/vtk/merge_requests/4490.patch
-# Fix tcl library loading
-# http://www.vtk.org/Bug/view.php?id=15279
-Patch5: vtk-tcllib.patch
 
 URL: http://vtk.org/
 
@@ -73,6 +70,9 @@ BuildRequires: chrpath
 BuildRequires: doxygen, graphviz
 BuildRequires: gnuplot
 BuildRequires: boost-devel
+BuildRequires: double-conversion-devel
+BuildRequires: eigen3-devel
+BuildRequires: glew-devel
 BuildRequires: hdf5-devel
 BuildRequires: jsoncpp-devel
 BuildRequires: libtheora-devel
@@ -83,6 +83,9 @@ BuildRequires: mysql-devel
 %endif
 BuildRequires: netcdf-cxx-devel
 BuildRequires: libpq-devel
+BuildRequires: PEGTL-devel
+BuildRequires: proj-devel
+BuildRequires: pugixml-devel
 BuildRequires: R-devel
 BuildRequires: sip-devel
 BuildRequires: sqlite-devel
@@ -141,7 +144,6 @@ Provides: bundled(ftgl) = 1.32
 %if !%{with gl2ps}
 Provides: bundled(gl2ps) = 1.4.0
 %endif
-Provides: bundled(glew)
 Provides: bundled(libharu)
 Provides: bundled(metaio)
 Provides: bundled(sqlite) = 3.6.22
@@ -150,6 +152,9 @@ Provides: bundled(verdict) = 1.2.0
 Provides: bundled(vpic)
 Provides: bundled(xdmf2) = 2.1
 Provides: bundled(xdmf3)
+
+Obsoletes: %{name}-tcl < 8.2.0-1
+Obsoletes: %{name}-qt-tcl < 8.2.0-1
 
 %description
 VTK is an open-source software system for image processing, 3D
@@ -176,8 +181,6 @@ Requires: python%{python3_pkgversion}-vtk-qt%{?_isa} = %{version}-%{release}
 Requires: python2-vtk%{?_isa} = %{version}-%{release}
 Requires: python2-vtk-qt%{?_isa} = %{version}-%{release}
 %endif
-Requires: vtk-qt-tcl%{?_isa} = %{version}-%{release}
-Requires: vtk-tcl%{?_isa} = %{version}-%{release}
 %{?with_OSMesa:Requires: mesa-libOSMesa-devel%{?_isa}}
 Requires: cmake
 Requires: blas-devel%{?_isa}
@@ -220,13 +223,6 @@ Requires: python2-devel
 %description devel 
 This provides the VTK header files required to compile C++ programs that
 use VTK to do 3D visualization.
-
-%package tcl
-Summary: Tcl bindings for VTK
-Requires: vtk%{?_isa} = %{version}-%{release}
-
-%description tcl
-tcl bindings for VTK.
 
 %if 0%{?fedora} >= 30
 %package -n python%{python3_pkgversion}-vtk
@@ -280,16 +276,12 @@ Requires: vtk%{?_isa} = %{version}-%{release}
 Qt Python 2 bindings for VTK.
 %endif
 
-%package qt-tcl
-Summary: Qt TCL bindings for VTK
-Requires: vtk%{?_isa} = %{version}-%{release}
-
-%description qt-tcl
-Qt TCL bindings for VTK.
-
 %if %{with mpich}
 %package mpich
 Summary: The Visualization Toolkit - mpich version
+
+Obsoletes: %{name}-mpich-tcl < 8.2.0-1
+Obsoletes: %{name}-mpich-qt-tcl < 8.2.0-1
 
 %description mpich
 VTK is an open-source software system for image processing, 3D
@@ -305,8 +297,6 @@ Summary: VTK header files for building C++ code with mpich
 Requires: vtk-mpich%{?_isa} = %{version}-%{release}
 #Requires: python2-vtk%{?_isa} = %{version}-%{release}
 #Requires: python2-vtk-qt%{?_isa} = %{version}-%{release}
-#Requires: vtk-qt-tcl%{?_isa} = %{version}-%{release}
-#Requires: vtk-tcl%{?_isa} = %{version}-%{release}
 %{?with_OSMesa:Requires: mesa-libOSMesa-devel%{?_isa}}
 Requires: cmake
 Requires: mpich-devel
@@ -350,13 +340,6 @@ This provides the VTK header files required to compile C++ programs that
 use VTK to do 3D visualization.
 
 NOTE: The version in this package has been compiled with mpich support.
-
-%package mpich-tcl
-Summary: Tcl bindings for VTK with mpich
-Requires: vtk-mpich%{?_isa} = %{version}-%{release}
-
-%description mpich-tcl
-tcl bindings for VTK with mpich.
 
 %if 0%{?fedora} >= 30
 %package -n python%{python3_pkgversion}-vtk-mpich
@@ -405,18 +388,14 @@ Requires: vtk-mpich%{?_isa} = %{version}-%{release}
 %description -n python2-vtk-mpich-qt
 Qt Python 2 bindings for VTK with mpich.
 %endif
-
-%package mpich-qt-tcl
-Summary: Qt TCL bindings for VTK with mpich
-Requires: vtk-mpich%{?_isa} = %{version}-%{release}
-
-%description mpich-qt-tcl
-Qt TCL bindings for VTK with mpich.
 %endif
 
 %if %{with openmpi}
 %package openmpi
 Summary: The Visualization Toolkit - openmpi version
+
+Obsoletes: %{name}-openmpi-tcl < 8.2.0-1
+Obsoletes: %{name}-openmpi-qt-tcl < 8.2.0-1
 
 %description openmpi
 VTK is an open-source software system for image processing, 3D
@@ -432,8 +411,6 @@ Summary: VTK header files for building C++ code with openmpi
 Requires: vtk-openmpi%{?_isa} = %{version}-%{release}
 #Requires: python2-vtk%{?_isa} = %{version}-%{release}
 #Requires: python2-vtk-qt%{?_isa} = %{version}-%{release}
-#Requires: vtk-qt-tcl%{?_isa} = %{version}-%{release}
-#Requires: vtk-tcl%{?_isa} = %{version}-%{release}
 %{?with_OSMesa:Requires: mesa-libOSMesa-devel%{?_isa}}
 Requires: cmake
 Requires: openmpi-devel
@@ -477,13 +454,6 @@ This provides the VTK header files required to compile C++ programs that
 use VTK to do 3D visualization.
 
 NOTE: The version in this package has been compiled with openmpi support.
-
-%package openmpi-tcl
-Summary: Tcl bindings for VTK with openmpi
-Requires: vtk-openmpi%{?_isa} = %{version}-%{release}
-
-%description openmpi-tcl
-tcl bindings for VTK with openmpi.
 
 %if 0%{?fedora} >= 30
 %package -n python%{python3_pkgversion}-vtk-openmpi
@@ -532,13 +502,6 @@ Requires: vtk-openmpi%{?_isa} = %{version}-%{release}
 %description -n python2-vtk-openmpi-qt
 Qt Python 2 bindings for VTK with openmpi.
 %endif
-
-%package openmpi-qt-tcl
-Summary: Qt TCL bindings for VTK with openmpi
-Requires: vtk-openmpi%{?_isa} = %{version}-%{release}
-
-%description openmpi-qt-tcl
-Qt TCL bindings for VTK with openmpi.
 %endif
 
 %package data
@@ -568,8 +531,7 @@ programming languages.
 
 %prep
 %setup -q -b 1 -n VTK-%{version}
-%patch0 -p1 -b .py37
-%patch5 -p1 -b .tcllib
+#patch0 -p1 -b .py37
 # Remove included thirdparty sources just to be sure
 # TODO - alglib - http://www.vtk.org/Bug/view.php?id=15729
 # TODO - vtkexodusII - not yet packaged
@@ -579,10 +541,13 @@ programming languages.
 # TODO - VPIC - not yet packaged
 # TODO - vtkxdmf2 - not yet packaged
 # TODO - vtkxdmf3 - not yet packaged
-for x in vtk{Autobahn%{?_with_gl2ps:,gl2ps},expat,freetype,hdf5,jpeg,jsoncpp,libxml2,lz4,mpi4py,netcdf,oggtheora,png,tiff,Twisted,zlib,ZopeInterface}
+for x in vtk{doubleconversion,eigen,expat,freetype,%{?_with_gl2ps:gl2ps,}hdf5,jpeg,jsoncpp,libxml2,lz4,lzma,mpi4py,netcdf,ogg,pegtl,png,sqlite,theora,tiff,zlib}
 do
   rm -r ThirdParty/*/${x}
 done
+
+# Needed to find PEGTL
+cp %SOURCE3 CMake/FindPEGTL.cmake
 
 # Remove unused KWSys items
 find Utilities/KWSys/vtksys/ -name \*.[ch]\* | grep -vE '^Utilities/KWSys/vtksys/([a-z].*|Configure|SharedForward|String\.hxx|Base64|CommandLineArguments|Directory|DynamicLoader|Encoding|FStream|FundamentalType|Glob|MD5|Process|RegularExpression|System|SystemInformation|SystemTools)(C|CXX|UNIX)?\.' | xargs rm
@@ -607,17 +572,15 @@ export JAVA_TOOL_OPTIONS=-Xmx2048m
 
 %global vtk_cmake_options \\\
  -DVTK_CUSTOM_LIBRARY_SUFFIX="" \\\
- -DVTK_INSTALL_ARCHIVE_DIR:PATH=%{_lib}/vtk \\\
+ -DVTK_INSTALL_ARCHIVE_DIR:PATH=%{_lib} \\\
  -DVTK_INSTALL_DATA_DIR=share/vtk \\\
  -DVTK_INSTALL_INCLUDE_DIR:PATH=include/vtk \\\
- -DVTK_INSTALL_LIBRARY_DIR:PATH=%{_lib}/vtk \\\
+ -DVTK_INSTALL_LIBRARY_DIR:PATH=%{_lib} \\\
  -DVTK_INSTALL_PACKAGE_DIR:PATH=%{_lib}/cmake/vtk \\\
 %if 0%{?fedora} >= 30 \
  -DVTK_PYTHON_VERSION=3 \\\
- -DVTK_INSTALL_PYTHON_MODULE_DIR:PATH=%{_lib}/python%{python3_version}/site-packages \\\
 %else \
  -DVTK_PYTHON_VERSION=2 \\\
- -DVTK_INSTALL_PYTHON_MODULE_DIR:PATH=%{_lib}/python%{python2_version}/site-packages \\\
 %endif \
 %if %{with qt5} \
  -DVTK_INSTALL_QT_DIR:PATH=%{_lib}/qt5/plugins/designer \\\
@@ -638,13 +601,11 @@ export JAVA_TOOL_OPTIONS=-Xmx2048m
  -DVTK_WRAP_JAVA:BOOL=OFF \\\
 %endif \
  -DVTK_WRAP_PYTHON:BOOL=ON \\\
- -DVTK_WRAP_PYTHON_SIP:BOOL=ON \\\
 %if 0%{?fedora} >= 30 \
  -DSIP_INCLUDE_DIR:PATH=/usr/include/python%{python3_version} \\\
 %else \
  -DSIP_INCLUDE_DIR:PATH=/usr/include/python%{python2_version} \\\
 %endif \
- -DVTK_WRAP_TCL:BOOL=ON \\\
  -DVTK_Group_Imaging:BOOL=ON \\\
  -DVTK_Group_Qt:BOOL=ON \\\
  -DVTK_Group_Rendering:BOOL=ON \\\
@@ -694,11 +655,6 @@ export CXX=mpic++
  -DVTK_INSTALL_ARCHIVE_DIR:PATH=lib \
  -DVTK_INSTALL_LIBRARY_DIR:PATH=lib \
  -DVTK_INSTALL_PACKAGE_DIR:PATH=lib/cmake \
-%if 0%{?fedora} >= 30
- -DVTK_INSTALL_PYTHON_MODULE_DIR:PATH=lib/python%{python3_version}/site-packages \
-%else
- -DVTK_INSTALL_PYTHON_MODULE_DIR:PATH=lib/python%{python2_version}/site-packages \
-%endif
 %if %{with qt5}
  -DVTK_INSTALL_QT_DIR:PATH=lib/qt5/plugins/designer \
 %else
@@ -727,11 +683,6 @@ export CXX=mpic++
  -DVTK_INSTALL_ARCHIVE_DIR:PATH=lib \
  -DVTK_INSTALL_LIBRARY_DIR:PATH=lib \
  -DVTK_INSTALL_PACKAGE_DIR:PATH=lib/cmake \
-%if 0%{?fedora} >= 30
- -DVTK_INSTALL_PYTHON_MODULE_DIR:PATH=lib/python%{python3_version}/site-packages \
-%else
- -DVTK_INSTALL_PYTHON_MODULE_DIR:PATH=lib/python%{python2_version}/site-packages \
-%endif
 %if %{with qt5}
  -DVTK_INSTALL_QT_DIR:PATH=lib/qt5/plugins/designer \
 %else
@@ -757,7 +708,7 @@ pushd build
 %make_install
 
 # Gather list of non-python/tcl libraries
-ls %{buildroot}%{_libdir}/vtk/*.so.* \
+ls %{buildroot}%{_libdir}/*.so.* \
   | grep -Ev '(Java|Qt|Python..D|TCL)' | sed -e's,^%{buildroot},,' > libs.list
 
 # List of executable examples
@@ -835,14 +786,6 @@ ls %{buildroot}%{_libdir}/openmpi/lib/*.so.* \
 popd
 %endif
 
-# ld config
-mkdir -p %{buildroot}%{_sysconfdir}/ld.so.conf.d
-echo %{_libdir}/vtk > %{buildroot}%{_sysconfdir}/ld.so.conf.d/vtk-%{_arch}.conf
-
-# Make scripts executable
-#chmod a+x %{buildroot}%{_libdir}/vtk/doxygen/*.pl
-#chmod a+x %{buildroot}%{_libdir}/vtk/testing/*.{py,tcl}
-
 # Remove exec bit from non-scripts and %%doc
 for file in `find %{buildroot} -type f -perm 0755 \
   | xargs -r file | grep ASCII | awk -F: '{print $1}'`; do
@@ -879,47 +822,31 @@ cat xorg.log
 %ldconfig_scriptlets python2-vtk
 %ldconfig_scriptlets python2-vtk-qt
 %ldconfig_scriptlets qt
-%ldconfig_scriptlets qt-tcl
-%ldconfig_scriptlets tcl
 %endif
 
 %files -f build/libs.list
 %license Copyright.txt
-%doc README.md vtkLogo.jpg vtkBanner.gif _docs/Wrapping
-%config(noreplace) %{_sysconfdir}/ld.so.conf.d/vtk-%{_arch}.conf
-%{_bindir}/vtkEncodeString
-%dir %{_libdir}/vtk
+%doc README.md _docs/Wrapping
 
 %files devel
 %doc Utilities/Upgrading
-%{_bindir}/vtkHashSource
 %{_bindir}/vtkWrapHierarchy
 %{_includedir}/vtk
-%{_libdir}/vtk/*.so
-%{_libdir}/vtk/libvtkWrappingTools.a
+%{_libdir}/*.so
+%{_libdir}/libvtkWrappingTools.a
 %{_libdir}/cmake/vtk/
-%{_docdir}/vtk-8.1/
-%{tcl_sitelib}/vtk/vtktcl.c
-
-%files tcl
-%{_libdir}/vtk/*TCL.so.*
-%exclude %{_libdir}/vtk/*QtTCL.so.*
-%{_bindir}/vtk
-%{_bindir}/vtkWrapTcl
-%{_bindir}/vtkWrapTclInit
-%{tcl_sitelib}/vtk/
-%exclude %{tcl_sitelib}/vtk/vtktcl.c
+%{_docdir}/vtk-8.2/
 
 %if 0%{?fedora} >= 30
 %files -n python%{python3_pkgversion}-vtk
 %{python3_sitearch}/*
-%{_libdir}/vtk/*Python3?D.so.*
-%exclude %{_libdir}/vtk/*QtPython3?D.so.*
+%{_libdir}/*Python3?D.so.*
+%exclude %{_libdir}/*QtPython3?D.so.*
 %else
 %files -n python2-vtk
 %{python2_sitearch}/*
-%{_libdir}/vtk/*Python27D.so.*
-%exclude %{_libdir}/vtk/*QtPython27D.so.*
+%{_libdir}/*Python27D.so.*
+%exclude %{_libdir}/*QtPython27D.so.*
 %endif
 %{_bindir}/vtkpython
 %{_bindir}/vtkWrapPython
@@ -927,54 +854,38 @@ cat xorg.log
 
 %if %{with java}
 %files java
-%{_libdir}/vtk/*Java.so.*
-%{_libdir}/vtk/vtk.jar
+%{_libdir}/*Java.so.*
+%{_libdir}/vtk.jar
 %{_bindir}/vtkParseJava
 %{_bindir}/vtkWrapJava
 %endif
 
 %files qt
-%{_libdir}/vtk/lib*Qt*.so.*
-%exclude %{_libdir}/vtk/*TCL.so.*
-%exclude %{_libdir}/vtk/*Python??D.so.*
+%{_libdir}/lib*Qt*.so.*
+%exclude %{_libdir}/*TCL.so.*
+%exclude %{_libdir}/*Python??D.so.*
 %{_libdir}/qt?/plugins/designer/libQVTKWidgetPlugin.so
 
 %if 0%{?fedora} >= 30
 %files -n python%{python3_pkgversion}-vtk-qt
-%{_libdir}/vtk/*QtPython3?D.so.*
+%{_libdir}/*QtPython3?D.so.*
 %else
 %files -n python2-vtk-qt
-%{_libdir}/vtk/*QtPython27D.so.*
+%{_libdir}/*QtPython27D.so.*
 %endif
-
-%files qt-tcl
-%{_libdir}/vtk/*QtTCL.so.*
 
 %if %{with mpich}
 %files mpich -f build-mpich/libs.list
 %license Copyright.txt
-%doc README.md vtkLogo.jpg vtkBanner.gif _docs/Wrapping
-%{_libdir}/mpich/bin/vtkEncodeString
+%doc README.md _docs/Wrapping
 
 %files mpich-devel
-%{_libdir}/mpich/bin/vtkHashSource
 %{_libdir}/mpich/bin/vtkWrapHierarchy
 %{_libdir}/mpich/include/
 %{_libdir}/mpich/lib/*.so
 %{_libdir}/mpich/lib/libvtkWrappingTools.a
 %{_libdir}/mpich/lib/cmake/
-%{_libdir}/mpich/share/doc/vtk-8.1/
-%{_libdir}/mpich/share/tcl%{tcl_version}/vtk/vtktcl.c
-
-%files mpich-tcl
-%{_libdir}/mpich/lib/*TCL.so.*
-%exclude %{_libdir}/mpich/lib/*QtTCL.so.*
-%{_libdir}/mpich/bin/pvtk
-%{_libdir}/mpich/bin/vtk
-%{_libdir}/mpich/bin/vtkWrapTcl
-%{_libdir}/mpich/bin/vtkWrapTclInit
-%{_libdir}/mpich/share/tcl%{tcl_version}/
-%exclude %{_libdir}/mpich/share/tcl%{tcl_version}/vtk/vtktcl.c
+%{_libdir}/mpich/share/doc/vtk-8.2/
 
 %if 0%{?fedora} >= 30
 %files -n python%{python3_pkgversion}-vtk-mpich
@@ -1012,36 +923,21 @@ cat xorg.log
 %files -n python2-vtk-mpich-qt
 %{_libdir}/mpich/lib/*QtPython27D.so.*
 %endif
-
-%files mpich-qt-tcl
-%{_libdir}/mpich/lib/*QtTCL.so.*
 %endif
 
 %if %{with openmpi}
 %files openmpi -f build-openmpi/libs.list
 %license Copyright.txt
-%doc README.md vtkLogo.jpg vtkBanner.gif _docs/Wrapping
-%{_libdir}/openmpi/bin/vtkEncodeString
+%doc README.md _docs/Wrapping
 
 %files openmpi-devel
-%{_libdir}/openmpi/bin/vtkHashSource
 %{_libdir}/openmpi/bin/vtkWrapHierarchy
 %{_libdir}/openmpi/include/
 %{_libdir}/openmpi/lib/*.so
 %{_libdir}/openmpi/lib/libvtkWrappingTools.a
 %{_libdir}/openmpi/lib/cmake/
-%{_libdir}/openmpi/share/doc/vtk-8.1/
-%{_libdir}/openmpi/share/tcl%{tcl_version}/vtk/vtktcl.c
+%{_libdir}/openmpi/share/doc/vtk-8.2/
 
-%files openmpi-tcl
-%{_libdir}/openmpi/lib/*TCL.so.*
-%exclude %{_libdir}/openmpi/lib/*QtTCL.so.*
-%{_libdir}/openmpi/bin/pvtk
-%{_libdir}/openmpi/bin/vtk
-%{_libdir}/openmpi/bin/vtkWrapTcl
-%{_libdir}/openmpi/bin/vtkWrapTclInit
-%{_libdir}/openmpi/share/tcl%{tcl_version}/
-%exclude %{_libdir}/openmpi/share/tcl%{tcl_version}/vtk/vtktcl.c
 
 %if 0%{fedora} >= 30
 %files -n python%{python3_pkgversion}-vtk-openmpi
@@ -1079,9 +975,6 @@ cat xorg.log
 %files -n python2-vtk-openmpi-qt
 %{_libdir}/openmpi/lib/*QtPython27D.so.*
 %endif
-
-%files openmpi-qt-tcl
-%{_libdir}/openmpi/lib/*QtTCL.so.*
 %endif
 
 %files data
