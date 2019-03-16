@@ -14,8 +14,6 @@
 %global vtk_use_system_gl2ps -DVTK_USE_SYSTEM_GL2PS:BOOL=OFF
 %endif
 
-%{!?tcl_version: %global tcl_version %(echo 'puts $tcl_version' | tclsh)}
-
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 8.2.0
@@ -137,16 +135,15 @@ Provides: bundled(kwsys-system)
 Provides: bundled(kwsys-systeminformation)
 Provides: bundled(kwsys-systemtools)
 # Other bundled libraries
-Provides: bundled(alglib)
-Provides: bundled(exodusII) = 2.0.0
 Provides: bundled(diy2)
+Provides: bundled(exodusII) = 2.0.0
 Provides: bundled(ftgl) = 1.32
 %if !%{with gl2ps}
 Provides: bundled(gl2ps) = 1.4.0
 %endif
 Provides: bundled(libharu)
 Provides: bundled(metaio)
-Provides: bundled(sqlite) = 3.6.22
+Provides: bundled(pugixml) = 1.8
 Provides: bundled(utf8cpp)
 Provides: bundled(verdict) = 1.2.0
 Provides: bundled(vpic)
@@ -184,11 +181,15 @@ Requires: python2-vtk-qt%{?_isa} = %{version}-%{release}
 %{?with_OSMesa:Requires: mesa-libOSMesa-devel%{?_isa}}
 Requires: cmake
 Requires: blas-devel%{?_isa}
+Requires: double-conversion-devel%{?_isa}
+# eigen3 is noarch
+Requires: eigen3-devel
+Requires: expat-devel%{?_isa}
+Requires: freetype-devel%{?_isa}
 %if %{with gl2ps}
 Requires: gl2ps-devel%{?_isa}
 %endif
-Requires: expat-devel%{?_isa}
-Requires: freetype-devel%{?_isa}
+Requires: glew-devel%{?_isa}
 Requires: hdf5-devel%{?_isa}
 Requires: lapack-devel%{?_isa}
 Requires: libjpeg-devel%{?_isa}
@@ -200,6 +201,10 @@ Requires: libtheora-devel%{?_isa}
 Requires: libtiff-devel%{?_isa}
 Requires: libxml2-devel%{?_isa}
 Requires: libpq-devel%{?_isa}
+Requires: PEGTL-devel%{?_isa}
+Requires: proj-devel%{?_isa}
+Requires: pugixml-devel%{?_isa}
+Requires: sqlite-devel%{?_isa}
 Requires: libXt-devel%{?_isa}
 Requires: mysql-devel%{?_isa}
 Requires: netcdf-cxx-devel%{?_isa}
@@ -531,17 +536,16 @@ programming languages.
 
 %prep
 %setup -q -b 1 -n VTK-%{version}
-#patch0 -p1 -b .py37
 # Remove included thirdparty sources just to be sure
-# TODO - alglib - http://www.vtk.org/Bug/view.php?id=15729
-# TODO - vtkexodusII - not yet packaged
-# TODO - vtksqlite - http://www.vtk.org/Bug/view.php?id=14154
+# TODO - diy2 - not yet packaged
+# TODO - exodusII - not yet packaged
+# TODO - pugixml - https://gitlab.kitware.com/vtk/vtk/issues/17538
 # TODO - utf8cpp(source) - http://www.vtk.org/Bug/view.php?id=15730
-# TODO - vtkverdict - not yet packaged
+# TODO - verdict - not yet packaged
 # TODO - VPIC - not yet packaged
-# TODO - vtkxdmf2 - not yet packaged
-# TODO - vtkxdmf3 - not yet packaged
-for x in vtk{doubleconversion,eigen,expat,freetype,%{?_with_gl2ps:gl2ps,}hdf5,jpeg,jsoncpp,libxml2,lz4,lzma,mpi4py,netcdf,ogg,pegtl,png,sqlite,theora,tiff,zlib}
+# TODO - xdmf2 - not yet packaged
+# TODO - xdmf3 - not yet packaged
+for x in vtk{doubleconversion,eigen,expat,freetype,%{?_with_gl2ps:gl2ps,}glew,hdf5,jpeg,jsoncpp,kissfft,libproj,libxml2,lz4,lzma,mpi4py,netcdf,ogg,pegtl,png,sqlite,theora,tiff,zfp,zlib}
 do
   rm -r ThirdParty/*/${x}
 done
@@ -587,7 +591,6 @@ export JAVA_TOOL_OPTIONS=-Xmx2048m
 %else \
  -DVTK_INSTALL_QT_DIR:PATH=%{_lib}/qt4/plugins/designer \\\
 %endif \
- -DVTK_INSTALL_TCL_DIR:PATH=share/tcl%{tcl_version}/vtk \\\
  -DTK_INTERNAL_PATH:PATH=/usr/include/tk-private/generic \\\
 %if %{with OSMesa} \
  -DVTK_OPENGL_HAS_OSMESA:BOOL=ON \\\
@@ -601,11 +604,6 @@ export JAVA_TOOL_OPTIONS=-Xmx2048m
  -DVTK_WRAP_JAVA:BOOL=OFF \\\
 %endif \
  -DVTK_WRAP_PYTHON:BOOL=ON \\\
-%if 0%{?fedora} >= 30 \
- -DSIP_INCLUDE_DIR:PATH=/usr/include/python%{python3_version} \\\
-%else \
- -DSIP_INCLUDE_DIR:PATH=/usr/include/python%{python2_version} \\\
-%endif \
  -DVTK_Group_Imaging:BOOL=ON \\\
  -DVTK_Group_Qt:BOOL=ON \\\
  -DVTK_Group_Rendering:BOOL=ON \\\
@@ -626,7 +624,6 @@ export JAVA_TOOL_OPTIONS=-Xmx2048m
  %{?vtk_use_system_gl2ps} \\\
  -DVTK_USE_SYSTEM_HDF5:BOOL=ON \\\
  -DVTK_USE_SYSTEM_LIBHARU=OFF \\\
- -DVTK_USE_SYSTEM_LIBPROJ4:BOOL=OFF \\\
  -DVTK_USE_SYSTEM_NETCDF:BOOL=ON
 # Commented old flags in case we'd like to reactive some of them
 # -DVTK_USE_DISPLAY:BOOL=OFF \ # This prevents building of graphics tests
@@ -987,6 +984,11 @@ cat xorg.log
 
 
 %changelog
+* Sat Mar 16 2019 Orion Poplawski <orion@nwra.com> - 8.2.0-1
+- Update to 8.2.0
+- TCL wrapping has been dropped upstream
+- Build with system glew
+
 * Fri Feb 15 2019 Orion Poplawski <orion@nwra.com> - 8.1.1-3
 - Rebuild for openmpi 3.1.3
 
