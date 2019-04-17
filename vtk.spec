@@ -17,7 +17,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 8.2.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -234,6 +234,7 @@ use VTK to do 3D visualization.
 Summary: Python 3 bindings for VTK
 Requires: vtk%{?_isa} = %{version}-%{release}
 %{?python_provide:%python_provide python%{python3_pkgversion}-vtk}
+Provides: %{py3_dist vtk} = %{version}
 
 %description -n python%{python3_pkgversion}-vtk
 Python 3 bindings for VTK.
@@ -984,6 +985,9 @@ cat xorg.log
 
 
 %changelog
+* Tue Apr 16 2019 Orion Poplawski <orion@nwra.com> - 8.2.0-2
+- Provide standard python 3 dist name (bugz#1700307)
+
 * Sat Mar 16 2019 Orion Poplawski <orion@nwra.com> - 8.2.0-1
 - Update to 8.2.0
 - TCL wrapping has been dropped upstream
