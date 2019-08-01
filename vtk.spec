@@ -17,7 +17,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 8.2.0
-Release: 5%{?dist}
+Release: 6%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -88,12 +88,12 @@ BuildRequires: R-devel
 BuildRequires: sip-devel
 BuildRequires: sqlite-devel
 BuildRequires: wget
-BuildRequires: %{_includedir}/Xm
 BuildRequires: blas-devel
 BuildRequires: lapack-devel
 # Requires patched libharu https://github.com/libharu/libharu/pull/157
 #BuildRequires: libharu-devel
 BuildRequires: lz4-devel
+BuildRequires: motif-devel
 %if %{with mpich}
 BuildRequires:  mpich-devel
 %if 0%{?fedora} >= 30
@@ -986,6 +986,9 @@ cat xorg.log
 
 
 %changelog
+* Wed Jul 31 2019 Orion Poplawski <orion@nwra.com> - 8.2.0-6
+- BR motif-devel instead of /usr/include/Xm (bugz#1731728)
+
 * Sat Jul 27 2019 Fedora Release Engineering <releng@fedoraproject.org> - 8.2.0-5
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_31_Mass_Rebuild
 
