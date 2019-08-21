@@ -17,7 +17,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 8.2.0
-Release: 7%{?dist}
+Release: 8%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -26,8 +26,8 @@ Source0: http://www.vtk.org/files/release/8.2/VTK-%{version}.tar.gz
 Source1: http://www.vtk.org/files/release/8.2/VTKData-%{version}.tar.gz
 Source2: xorg.conf
 Source3: FindPEGTL.cmake
-# Python 3.7 compat
-Patch0: https://gitlab.kitware.com/vtk/vtk/merge_requests/4490.patch
+# Python 3.8 support
+Patch0: https://gitlab.kitware.com/vtk/vtk/merge_requests/5883.patch
 
 URL: http://vtk.org/
 
@@ -538,6 +538,7 @@ programming languages.
 
 %prep
 %setup -q -b 1 -n VTK-%{version}
+%patch0 -p1 -b .py38
 # Remove included thirdparty sources just to be sure
 # TODO - diy2 - not yet packaged
 # TODO - exodusII - not yet packaged
@@ -986,6 +987,9 @@ cat xorg.log
 
 
 %changelog
+* Tue Aug 20 2019 Orion Poplawski <orion@nwra.com> - 8.2.0-8
+- Add upstream patch to support Python 3.8
+
 * Mon Aug 19 2019 Miro Hrončok <mhroncok@redhat.com> - 8.2.0-7
 - Rebuilt for Python 3.8
 
