@@ -17,7 +17,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 8.2.0
-Release: 8%{?dist}
+Release: 9%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -28,6 +28,8 @@ Source2: xorg.conf
 Source3: FindPEGTL.cmake
 # Python 3.8 support
 Patch0: https://gitlab.kitware.com/vtk/vtk/merge_requests/5883.patch
+# Proj 6 support
+Patch1: vtk-proj6.patch
 
 URL: http://vtk.org/
 
@@ -539,6 +541,7 @@ programming languages.
 %prep
 %setup -q -b 1 -n VTK-%{version}
 %patch0 -p1 -b .py38
+%patch1 -p1 -b .proj6
 # Remove included thirdparty sources just to be sure
 # TODO - diy2 - not yet packaged
 # TODO - exodusII - not yet packaged
@@ -569,6 +572,7 @@ find vtk-examples -type f | xargs chmod -R a-x
 %build
 export CFLAGS="%{optflags} -D_UNICODE -DHAVE_UINTPTR_T"
 export CXXFLAGS="%{optflags} -D_UNICODE -DHAVE_UINTPTR_T"
+export CPPFLAGS=-DACCEPT_USE_OF_DEPRECATED_PROJ_API_H
 %if %{with java}
 export JAVA_HOME=/usr/lib/jvm/java
 %ifarch %{arm} s390x
@@ -987,6 +991,10 @@ cat xorg.log
 
 
 %changelog
+* Mon Sep 09 2019 Orion Poplawski <orion@nwra.com> - 8.2.0-9
+- Rebuild for proj 6.2.0
+- Add patch and flags for proj 6 support
+
 * Tue Aug 20 2019 Orion Poplawski <orion@nwra.com> - 8.2.0-8
 - Add upstream patch to support Python 3.8
 

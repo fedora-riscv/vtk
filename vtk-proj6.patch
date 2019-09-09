@@ -1,0 +1,12 @@
+diff -up VTK-8.2.0/ThirdParty/libproj/vtk_libproj.h.in.proj6 VTK-8.2.0/ThirdParty/libproj/vtk_libproj.h.in
+--- VTK-8.2.0/ThirdParty/libproj/vtk_libproj.h.in.proj6	2019-01-30 10:15:13.000000000 -0700
++++ VTK-8.2.0/ThirdParty/libproj/vtk_libproj.h.in	2019-09-08 20:17:31.848988325 -0600
+@@ -18,7 +18,7 @@
+ /* Use the libproj library configured for VTK.  */
+ #cmakedefine VTK_USE_SYSTEM_LIBPROJ
+ #ifdef VTK_USE_SYSTEM_LIBPROJ
+-# include <projects.h>
++# define ACCEPT_USE_OF_DEPRECATED_PROJ_API_H
+ # include <proj_api.h>
+ # include <geodesic.h>
+ #else
