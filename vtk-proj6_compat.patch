@@ -1,0 +1,143 @@
+--- a/CMake/FindLibPROJ.cmake
++++ b/CMake/FindLibPROJ.cmake
+@@ -30,7 +30,7 @@ if ( NOT LibPROJ_INCLUDE_DIR OR NOT LibP
+   )
+ 
+   find_path( LibPROJ_INCLUDE_DIR
+-    NAMES proj_api.h
++    NAMES proj_api.h proj.h
+     HINTS
+       ${_LibPROJ_DIR}
+       ${_LibPROJ_DIR}/include
+--- a/Geovis/Core/vtkGeoProjection.cxx
++++ b/Geovis/Core/vtkGeoProjection.cxx
+@@ -72,6 +72,9 @@ public:
+   }
+ 
+   std::map< std::string, std::string > OptionalParameters;
++#if PROJ_VERSION_MAJOR >= 5
++  PJ_PROJ_INFO ProjInfo;
++#endif
+ };
+ 
+ //-----------------------------------------------------------------------------
+@@ -80,7 +83,7 @@ int vtkGeoProjection::GetNumberOfProject
+   if ( vtkGeoProjectionNumProj < 0 )
+   {
+     vtkGeoProjectionNumProj = 0;
+-    for ( const PJ_LIST* pj = pj_get_list_ref(); pj && pj->id; ++ pj )
++    for ( const PJ_LIST* pj = proj_list_operations(); pj && pj->id; ++ pj )
+       ++ vtkGeoProjectionNumProj;
+   }
+   return vtkGeoProjectionNumProj;
+@@ -91,7 +94,7 @@ const char* vtkGeoProjection::GetProject
+   if ( projection < 0 || projection >= vtkGeoProjection::GetNumberOfProjections() )
+     return nullptr;
+ 
+-  return pj_get_list_ref()[projection].id;
++  return proj_list_operations()[projection].id;
+ }
+ //-----------------------------------------------------------------------------
+ const char* vtkGeoProjection::GetProjectionDescription( int projection )
+@@ -99,7 +102,7 @@ const char* vtkGeoProjection::GetProject
+   if ( projection < 0 || projection >= vtkGeoProjection::GetNumberOfProjections() )
+     return nullptr;
+ 
+-  return pj_get_list_ref()[projection].descr[0];
++  return proj_list_operations()[projection].descr[0];
+ }
+ //-----------------------------------------------------------------------------
+ vtkGeoProjection::vtkGeoProjection()
+@@ -144,7 +147,7 @@ void vtkGeoProjection::PrintSelf( ostrea
+ int vtkGeoProjection::GetIndex()
+ {
+   int i = 0;
+-  for ( const PJ_LIST* proj = pj_get_list_ref(); proj && proj->id; ++ proj, ++ i )
++  for ( const PJ_LIST* proj = proj_list_operations(); proj && proj->id; ++ proj, ++ i )
+   {
+     if ( ! strcmp( proj->id, this->Name ) )
+     {
+@@ -161,7 +164,11 @@ const char* vtkGeoProjection::GetDescrip
+   {
+     return nullptr;
+   }
++#if PROJ_VERSION_MAJOR >= 5
++  return this->Internals->ProjInfo.description;
++#else
+   return this->Projection->descr;
++#endif
+ }
+ //-----------------------------------------------------------------------------
+ projPJ vtkGeoProjection::GetProjection()
+@@ -232,6 +239,9 @@ int vtkGeoProjection::UpdateProjection()
+   this->ProjectionMTime = this->GetMTime();
+   if ( this->Projection )
+   {
++#if PROJ_VERSION_MAJOR >= 5
++    this->Internals->ProjInfo = proj_pj_info(this->Projection);
++#endif
+     return 0;
+   }
+   return 1;
+--- a/Geovis/Core/vtkGeoTransform.cxx
++++ b/Geovis/Core/vtkGeoTransform.cxx
+@@ -167,9 +167,17 @@ void vtkGeoTransform::InternalTransformP
+     double* coord = x;
+     for ( vtkIdType i = 0; i < numPts; ++ i )
+     {
++#if PROJ_VERSION_MAJOR >= 5
++      xy.x = coord[0]; xy.y = coord[1];
++#else
+       xy.u = coord[0]; xy.v = coord[1];
++#endif
+       lp = pj_inv( xy, src );
++#if PROJ_VERSION_MAJOR >= 5
++      coord[0] = lp.lam; coord[1] = lp.phi;
++#else
+       coord[0] = lp.u; coord[1] = lp.v;
++#endif
+       coord += stride;
+     }
+   }
+@@ -191,9 +199,17 @@ void vtkGeoTransform::InternalTransformP
+     double* coord = x;
+     for ( vtkIdType i = 0; i < numPts; ++ i )
+     {
++#if PROJ_VERSION_MAJOR >= 5
++      lp.lam = coord[0]; lp.phi = coord[1];
++#else
+       lp.u = coord[0]; lp.v = coord[1];
++#endif
+       xy = pj_fwd( lp, dst );
++#if PROJ_VERSION_MAJOR >= 5
++      coord[0] = xy.x; coord[1] = xy.y;
++#else
+       coord[0] = xy.u; coord[1] = xy.v;
++#endif
+       coord += stride;
+     }
+   }
+--- a/ThirdParty/libproj/vtk_libproj.h.in
++++ b/ThirdParty/libproj/vtk_libproj.h.in
+@@ -15,10 +15,20 @@
+ #ifndef vtk_libproj_h
+ #define vtk_libproj_h
+ 
++#define VTK_LibPROJ_MAJOR_VERSION @LibPROJ_MAJOR_VERSION@
++
+ /* Use the libproj library configured for VTK.  */
+ #cmakedefine VTK_USE_SYSTEM_LIBPROJ
+ #ifdef VTK_USE_SYSTEM_LIBPROJ
+-# include <projects.h>
++# if VTK_LibPROJ_MAJOR_VERSION >= 5
++#  include <proj.h>
++# endif
++# if VTK_LibPROJ_MAJOR_VERSION < 6
++#  include <projects.h>
++# endif
++# if VTK_LibPROJ_MAJOR_VERSION >= 6
++#  define ACCEPT_USE_OF_DEPRECATED_PROJ_API_H 1
++# endif
+ # include <proj_api.h>
+ # include <geodesic.h>
+ #else
