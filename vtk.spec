@@ -631,8 +631,7 @@ export JAVA_TOOL_OPTIONS=-Xmx2048m
  %{?vtk_use_system_gl2ps} \\\
  -DVTK_USE_SYSTEM_HDF5:BOOL=ON \\\
  -DVTK_USE_SYSTEM_LIBHARU=OFF \\\
- -DVTK_USE_SYSTEM_NETCDF:BOOL=ON \\\
- -DLibPROJ_MAJOR_VERSION=6
+ -DVTK_USE_SYSTEM_NETCDF:BOOL=ON
 # Commented old flags in case we'd like to reactive some of them
 # -DVTK_USE_DISPLAY:BOOL=OFF \ # This prevents building of graphics tests
 
@@ -867,7 +866,6 @@ cat xorg.log
 
 %files qt
 %{_libdir}/lib*Qt*.so.*
-#exclude %{_libdir}/*TCL.so.*
 %exclude %{_libdir}/*Python??D.so.*
 %{_libdir}/qt?/plugins/designer/libQVTKWidgetPlugin.so
 
@@ -917,7 +915,6 @@ cat xorg.log
 
 %files mpich-qt
 %{_libdir}/mpich/lib/lib*Qt*.so.*
-#exclude %{_libdir}/mpich/lib/*TCL.so.*
 %exclude %{_libdir}/mpich/lib/*Python??D.so.*
 %{_libdir}/mpich/lib/qt?/
 
@@ -969,7 +966,6 @@ cat xorg.log
 
 %files openmpi-qt
 %{_libdir}/openmpi/lib/lib*Qt*.so.*
-#exclude %{_libdir}/openmpi/lib/*TCL.so.*
 %exclude %{_libdir}/openmpi/lib/*Python27D.so.*
 %{_libdir}/openmpi/lib/qt?/
 
