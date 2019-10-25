@@ -20,7 +20,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 8.1.1
-Release: 5%{?dist}
+Release: 6%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -641,11 +641,6 @@ export JAVA_TOOL_OPTIONS=-Xmx2048m
 %endif \
  -DVTK_WRAP_PYTHON:BOOL=ON \\\
  -DVTK_WRAP_PYTHON_SIP:BOOL=ON \\\
-%if 0%{?fedora} >= 30 \
- -DSIP_INCLUDE_DIR:PATH=/usr/include/python%{python3_version} \\\
-%else \
- -DSIP_INCLUDE_DIR:PATH=/usr/include/python%{python2_version} \\\
-%endif \
  -DVTK_WRAP_TCL:BOOL=ON \\\
  -DVTK_Group_Imaging:BOOL=ON \\\
  -DVTK_Group_Qt:BOOL=ON \\\
@@ -1096,6 +1091,9 @@ cat xorg.log
 
 
 %changelog
+* Thu Oct 24 2019 Orion Poplawski <orion@nwra.com> - 8.1.1-6
+- Drop unneed SIP_INCLUDE_DIR definition that breaks some dependencies (bz#1765109)
+
 * Thu Apr 18 2019 Orion Poplawski <orion@nwra.com> - 8.1.1-5
 - Provide starndard python 3.Y dist name (bugz#1700307)
 
