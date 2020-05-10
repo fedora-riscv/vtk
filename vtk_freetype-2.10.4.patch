@@ -1,23 +1,6 @@
-diff -rupN VTK-8.2.0/Rendering/FreeType/vtkFreeTypeTools.cxx VTK-8.2.0-new/Rendering/FreeType/vtkFreeTypeTools.cxx
---- VTK-8.2.0/Rendering/FreeType/vtkFreeTypeTools.cxx	2019-01-30 18:15:13.000000000 +0100
-+++ VTK-8.2.0-new/Rendering/FreeType/vtkFreeTypeTools.cxx	2020-11-06 00:21:07.259999338 +0100
-@@ -387,6 +387,13 @@ FTC_CMapCache* vtkFreeTypeTools::GetCMap
- }
- 
- //----------------------------------------------------------------------------
-+#ifndef FT_CALLBACK_DEF
-+#ifdef __cplusplus
-+#define FT_CALLBACK_DEF( x )  extern "C"  x
-+#else
-+#define FT_CALLBACK_DEF( x )  static  x
-+#endif
-+#endif /* FT_CALLBACK_DEF */
- FT_CALLBACK_DEF(FT_Error)
- vtkFreeTypeToolsFaceRequester(FTC_FaceID face_id,
-                               FT_Library lib,
-diff -rupN VTK-8.2.0/Rendering/FreeTypeFontConfig/vtkFontConfigFreeTypeTools.cxx VTK-8.2.0-new/Rendering/FreeTypeFontConfig/vtkFontConfigFreeTypeTools.cxx
---- VTK-8.2.0/Rendering/FreeTypeFontConfig/vtkFontConfigFreeTypeTools.cxx	2019-01-30 18:15:13.000000000 +0100
-+++ VTK-8.2.0-new/Rendering/FreeTypeFontConfig/vtkFontConfigFreeTypeTools.cxx	2020-11-06 00:21:25.588991839 +0100
+diff -up VTK-9.0.1/Rendering/FreeTypeFontConfig/vtkFontConfigFreeTypeTools.cxx.freetype VTK-9.0.1/Rendering/FreeTypeFontConfig/vtkFontConfigFreeTypeTools.cxx
+--- VTK-9.0.1/Rendering/FreeTypeFontConfig/vtkFontConfigFreeTypeTools.cxx.freetype	2021-01-23 17:24:14.600721579 -0700
++++ VTK-9.0.1/Rendering/FreeTypeFontConfig/vtkFontConfigFreeTypeTools.cxx	2021-01-23 17:25:05.457127603 -0700
 @@ -29,6 +29,13 @@ vtkStandardNewMacro(vtkFontConfigFreeTyp
  namespace
  {
@@ -30,5 +13,22 @@ diff -rupN VTK-8.2.0/Rendering/FreeTypeFontConfig/vtkFontConfigFreeTypeTools.cxx
 +#endif
 +#endif /* FT_CALLBACK_DEF */
  FT_CALLBACK_DEF(FT_Error)
- vtkFontConfigFreeTypeToolsFaceRequester(FTC_FaceID face_id,
-                                         FT_Library lib,
+ vtkFontConfigFreeTypeToolsFaceRequester(
+   FTC_FaceID face_id, FT_Library lib, FT_Pointer request_data, FT_Face* face)
+diff -up VTK-9.0.1/Rendering/FreeType/vtkFreeTypeTools.cxx.freetype VTK-9.0.1/Rendering/FreeType/vtkFreeTypeTools.cxx
+--- VTK-9.0.1/Rendering/FreeType/vtkFreeTypeTools.cxx.freetype	2021-01-23 17:24:14.600721579 -0700
++++ VTK-9.0.1/Rendering/FreeType/vtkFreeTypeTools.cxx	2021-01-23 17:25:49.546479602 -0700
+@@ -378,6 +378,13 @@ FTC_CMapCache* vtkFreeTypeTools::GetCMap
+ }
+ 
+ //----------------------------------------------------------------------------
++#ifndef FT_CALLBACK_DEF
++#ifdef __cplusplus
++#define FT_CALLBACK_DEF( x )  extern "C"  x
++#else
++#define FT_CALLBACK_DEF( x )  static  x
++#endif
++#endif /* FT_CALLBACK_DEF */
+ FT_CALLBACK_DEF(FT_Error)
+ vtkFreeTypeToolsFaceRequester(
+   FTC_FaceID face_id, FT_Library lib, FT_Pointer request_data, FT_Face* face)

@@ -5,11 +5,11 @@
 # '_ZZNSt8__detail18__to_chars_10_implIjEEvPcjT_E8__digits@@LLVM_11'
 %global _lto_cflags %{nil}
 
-# Disable OSMesa builds for now - see Bug 744434
-%bcond_without OSMesa
+# OSMesa and X support are mutually exclusive.
+# TODO - buid separate OSMesa version if desired
+%bcond_with OSMesa
 %bcond_without java
 %bcond_without mpich
-%bcond_without qt5
 %bcond_without openmpi
 # s390x on EL8 does not have xorg-x11-drv-dummy
 %if 0%{?rhel}
@@ -34,86 +34,90 @@
 
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
-Version: 8.2.0
-Release: 26%{?dist}
+Version: 9.0.1
+Release: 1%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
 License: BSD
-Source0: http://www.vtk.org/files/release/8.2/VTK-%{version}.tar.gz
-Source1: http://www.vtk.org/files/release/8.2/VTKData-%{version}.tar.gz
+Source0: https://www.vtk.org/files/release/9.0/VTK-%{version}.tar.gz
+Source1: https://www.vtk.org/files/release/9.0/VTKData-%{version}.tar.gz
 Source2: xorg.conf
-Source3: FindPEGTL.cmake
-# Python 3.8 support
-Patch0: https://gitlab.kitware.com/vtk/vtk/merge_requests/5883.patch
-# Proj 6 support
-Patch1: vtk-proj6_compat.patch
-# GCC 10 support based on:
-# https://gitlab.kitware.com/vtk/vtk/-/merge_requests/6420
-Patch2: vtk-gcc10.patch
-# Qt 5.15 support
-# https://gitlab.kitware.com/vtk/vtk/-/issues/18005
-Patch3: vtk-qt5.15.patch
+# Patch required libharu version (Fedora 33+ contains the needed VTK patches)
+Patch0: vtk-libharu.patch
+Patch1: vtk-limits.patch
+#Patch2: https://gitlab.kitware.com/vtk/vtk/-/merge_requests/7430.patch
+Patch2: vtk-includes.patch
+# Duplicate define conflict with Xutil, see:
+# https://gitlab.kitware.com/vtk/vtk/-/issues/18048
+Patch3: vtk-AllValues.patch
 # Temporary patch for building against freetype-2.10.4, which removed FT_CALLBACK_DEF,
 # but was later re-added in https://git.savannah.gnu.org/cgit/freetype/freetype2.git/commit/?id=b0667d2d36fb134d48030b2a560eaaa37810d6ba
 Patch4: vtk_freetype-2.10.4.patch
 
-URL: http://vtk.org/
+URL: https://vtk.org/
 
-BuildRequires: cmake
-BuildRequires: gcc-c++
+BuildRequires:  cmake
+BuildRequires:  gcc-c++
 %{?with_java:BuildRequires: java-devel}
-BuildRequires: libX11-devel, libXt-devel, libXext-devel
-BuildRequires: libICE-devel, libGL-devel
-%{?with_OSMesa:BuildRequires: mesa-libOSMesa-devel}
-BuildRequires: tk-devel, tcl-devel
-BuildRequires: python%{python3_pkgversion}-devel
-BuildRequires: expat-devel, freetype-devel, libjpeg-devel, libpng-devel
-%if 0%{with gl2ps}
-BuildRequires: gl2ps-devel
-%endif
-BuildRequires: libtiff-devel, zlib-devel
-BuildRequires: libxml2-devel
-%if %{with qt5}
-BuildRequires: cmake(Qt5)
-BuildRequires: cmake(Qt5UiPlugin)
-BuildRequires: cmake(Qt5X11Extras)
-BuildRequires: qt5-qtwebkit-devel
-BuildRequires: python%{python3_pkgversion}-qt5
-%else
-BuildRequires: PyQt4-devel
-BuildRequires: qt4-devel
-BuildRequires: qtwebkit-devel
-%endif
-BuildRequires: chrpath
-BuildRequires: doxygen, graphviz
-BuildRequires: gnuplot
-BuildRequires: boost-devel
-BuildRequires: double-conversion-devel
-BuildRequires: eigen3-devel
-BuildRequires: glew-devel
-BuildRequires: hdf5-devel
-BuildRequires: jsoncpp-devel
-BuildRequires: libtheora-devel
-BuildRequires: mariadb-connector-c-devel
-BuildRequires: netcdf-cxx-devel
-BuildRequires: libpq-devel
-BuildRequires: PEGTL-devel
-BuildRequires: proj-devel
-BuildRequires: pugixml-devel
-BuildRequires: R-devel
-BuildRequires: sqlite-devel
-BuildRequires: wget
 %if %{with flexiblas}
-BuildRequires: flexiblas-devel
+BuildRequires:  flexiblas-devel
 %else
-BuildRequires: blas-devel
-BuildRequires: lapack-devel
+BuildRequires:  blas-devel
+BuildRequires:  lapack-devel
 %endif
-# Requires patched libharu https://github.com/libharu/libharu/pull/157
-#BuildRequires: libharu-devel
-BuildRequires: lz4-devel
-BuildRequires: motif-devel
+BuildRequires:  boost-devel
+BuildRequires:  double-conversion-devel
+BuildRequires:  eigen3-devel
+BuildRequires:  expat-devel
+BuildRequires:  freetype-devel
+BuildRequires:  gdal-devel
+%if %{with gl2ps}
+BuildRequires:  gl2ps-devel
+%endif
+BuildRequires:  glew-devel
+BuildRequires:  hdf5-devel
+BuildRequires:  jsoncpp-devel
+BuildRequires:  libarchive-devel
+BuildRequires:  libGL-devel
+# Requires special patched version of libharu
+BuildRequires:  libharu-devel >= 2.3.0-9
+BuildRequires:  libICE-devel
+BuildRequires:  libjpeg-devel
+BuildRequires:  libpng-devel
+BuildRequires:  libpq-devel
+BuildRequires:  libtheora-devel
+BuildRequires:  libtiff-devel
+BuildRequires:  libxml2-devel
+BuildRequires:  libX11-devel
+BuildRequires:  libXext-devel
+BuildRequires:  libXt-devel
+BuildRequires:  lz4-devel
+BuildRequires:  mariadb-connector-c-devel
+%{?with_OSMesa:BuildRequires: mesa-libOSMesa-devel}
+BuildRequires:  motif-devel
+BuildRequires:  netcdf-cxx-devel
+BuildRequires:  openslide-devel
+BuildRequires:  PEGTL-devel
+BuildRequires:  proj-devel
+BuildRequires:  pugixml-devel
+BuildRequires:  python%{python3_pkgversion}-devel
+BuildRequires:  python%{python3_pkgversion}-qt5
+BuildRequires:  cmake(Qt5)
+BuildRequires:  cmake(Qt5UiPlugin)
+BuildRequires:  cmake(Qt5X11Extras)
+BuildRequires:  qt5-qtwebkit-devel
+BuildRequires:  R-devel
+BuildRequires:  sqlite-devel
+BuildRequires:  tcl-devel
+BuildRequires:  tk-devel
+BuildRequires:  utf8cpp-devel
+BuildRequires:  zlib-devel
+BuildRequires:  chrpath
+BuildRequires:  doxygen
+BuildRequires:  graphviz
+BuildRequires:  gnuplot
+BuildRequires:  wget
 %if %{with mpich}
 BuildRequires:  mpich-devel
 BuildRequires:  python%{?python3_pkgversion}-mpi4py-mpich
@@ -126,10 +130,70 @@ BuildRequires:  netcdf-openmpi-devel
 %endif
 # For %check
 %if %{with xdummy}
-BuildRequires: xorg-x11-drv-dummy
+BuildRequires:  xorg-x11-drv-dummy
+BuildRequires:  mesa-dri-drivers
 %endif
 %{!?with_java:Conflicts: vtk-java}
 Requires: hdf5 = %{_hdf5_version}
+
+# Almost every BR needs to be required by the -devel packages
+%global vtk_devel_requires \
+Requires: cmake \
+%if %{with flexiblas} \
+Requires: flexiblas-devel%{?_isa} \
+%else \
+Requires: blas-devel%{?_isa} \
+Requires: lapack-devel%{?_isa} \
+%endif \
+Requires: blas-devel%{?_isa} \
+Requires: boost-devel%{?_isa} \
+Requires: double-conversion-devel%{?_isa} \
+# eigen3 is noarch \
+Requires: eigen3-devel \
+Requires: expat-devel%{?_isa} \
+Requires: freetype-devel%{?_isa} \
+Requires: gdal-devel%{?_isa} \
+%if %{with gl2ps} \
+Requires: gl2ps-devel%{?_isa} \
+%endif \
+Requires: glew-devel%{?_isa} \
+%if %{with java} \
+Requires: java-devel \
+%endif \
+Requires: jsoncpp-devel%{?_isa} \
+Requires: lapack-devel%{?_isa} \
+Requires: libarchive-devel%{?_isa} \
+Requires: libGL-devel%{?_isa} \
+Requires: libharu-devel%{?_isa} >= 2.3.0-9 \
+Requires: libjpeg-devel%{?_isa} \
+Requires: libogg-devel%{?_isa} \
+Requires: libpng-devel%{?_isa} \
+Requires: libpq-devel%{?_isa} \
+Requires: libtheora-devel%{?_isa} \
+Requires: libtiff-devel%{?_isa} \
+Requires: libxml2-devel%{?_isa} \
+Requires: libX11-devel%{?_isa} \
+Requires: libXext-devel%{?_isa} \
+Requires: libXt-devel%{?_isa} \
+Requires: lz4-devel%{?_isa} \
+Requires: mariadb-connector-c-devel%{?_isa} \
+%if %{with OSMesa} \
+Requires: mesa-libOSMesa-devel%{?_isa} \
+%endif \
+Requires: netcdf-cxx-devel%{?_isa} \
+Requires: openslide-devel%{?_isa} \
+Requires: PEGTL-devel%{?_isa} \
+Requires: proj-devel%{?_isa} \
+Requires: pugixml-devel%{?_isa} \
+# bz #1183210 + #1183530 \
+Requires: python%{python3_pkgversion}-devel \
+Requires: sqlite-devel%{?_isa} \
+Requires: cmake(Qt5) \
+Requires: cmake(Qt5UiPlugin) \
+Requires: cmake(Qt5X11Extras) \
+Requires: qt5-qtwebkit-devel%{?_isa} \
+Requires: utf8cpp-devel \
+Requires: zlib-devel%{?_isa} \
 
 # Bundled KWSys
 # https://fedorahosted.org/fpc/ticket/555
@@ -155,10 +219,7 @@ Provides: bundled(ftgl) = 1.32
 %if !%{with gl2ps}
 Provides: bundled(gl2ps) = 1.4.0
 %endif
-Provides: bundled(libharu)
 Provides: bundled(metaio)
-Provides: bundled(pugixml) = 1.8
-Provides: bundled(utf8cpp)
 Provides: bundled(verdict) = 1.2.0
 Provides: bundled(vpic)
 Provides: bundled(xdmf2) = 2.1
@@ -184,76 +245,32 @@ Install the %{name}-openmpi package to get a version compiled with openmpi.
 
 %package devel
 Summary: VTK header files for building C++ code
-Requires: vtk%{?_isa} = %{version}-%{release}
-Requires: python%{python3_pkgversion}-vtk%{?_isa} = %{version}-%{release}
-Requires: python%{python3_pkgversion}-vtk-qt%{?_isa} = %{version}-%{release}
-%{?with_OSMesa:Requires: mesa-libOSMesa-devel%{?_isa}}
-Requires: cmake
-%if %{with flexiblas}
-Requires: flexiblas-devel%{?_isa}
-%else
-Requires: blas-devel%{?_isa}
-Requires: lapack-devel%{?_isa}
-%endif
-Requires: double-conversion-devel%{?_isa}
-# eigen3 is noarch
-Requires: eigen3-devel
-Requires: expat-devel%{?_isa}
-Requires: freetype-devel%{?_isa}
-%if %{with gl2ps}
-Requires: gl2ps-devel%{?_isa}
-%endif
-Requires: glew-devel%{?_isa}
+Requires: %{name}%{?_isa} = %{version}-%{release}
+Requires: python%{python3_pkgversion}-%{name}%{?_isa} = %{version}-%{release}
 Requires: hdf5-devel%{?_isa}
-Requires: libjpeg-devel%{?_isa}
-Requires: lz4-devel%{?_isa}
-Requires: libpng-devel%{?_isa}
-Requires: libogg-devel%{?_isa}
-Requires: libSM-devel%{?_isa}
-Requires: libtheora-devel%{?_isa}
-Requires: libtiff-devel%{?_isa}
-Requires: libxml2-devel%{?_isa}
-Requires: libpq-devel%{?_isa}
-Requires: PEGTL-devel%{?_isa}
-Requires: proj-devel%{?_isa}
-Requires: pugixml-devel%{?_isa}
-Requires: sqlite-devel%{?_isa}
-Requires: libX11-devel%{?_isa}
-Requires: libXext-devel%{?_isa}
-Requires: libXt-devel%{?_isa}
-Requires: mariadb-devel%{?_isa}
-Requires: netcdf-cxx-devel%{?_isa}
-%if %{with qt5}
-Requires: cmake(Qt5)
-Requires: cmake(Qt5UiPlugin)
-Requires: cmake(Qt5X11Extras)
-Requires: qt5-qtwebkit-devel%{?_isa}
-%else
-Requires: qt4-devel%{?_isa}
-Requires: qtwebkit-devel%{?_isa}
-%endif
-Requires: jsoncpp-devel%{?_isa}
-# bz #1183210 + #1183530
-Requires: python%{python3_pkgversion}-devel
+Requires: netcdf-mpich-devel%{?_isa}
+%{vtk_devel_requires}
 
-%description devel 
+%description devel
 This provides the VTK header files required to compile C++ programs that
 use VTK to do 3D visualization.
 
-%package -n python%{python3_pkgversion}-vtk
+%package -n python%{python3_pkgversion}-%{name}
 Summary: Python 3 bindings for VTK
 Requires: vtk%{?_isa} = %{version}-%{release}
 %{?python_provide:%python_provide python%{python3_pkgversion}-vtk}
 Provides: %{py3_dist vtk} = %{version}
 Provides: python%{python3_version}dist(vtk) = %{version}
+Obsoletes: python3-vtk-qt < 8.2.0-15
+Provides:  python%{python3_pkgversion}-vtk-qt = %{version}-%{release}
 
-%description -n python%{python3_pkgversion}-vtk
+%description -n python%{python3_pkgversion}-%{name}
 Python 3 bindings for VTK.
 
 %if %{with java}
 %package java
 Summary: Java bindings for VTK
-Requires: vtk%{?_isa} = %{version}-%{release}
+Requires: %{name}%{?_isa} = %{version}-%{release}
 
 %description java
 Java bindings for VTK.
@@ -261,18 +278,10 @@ Java bindings for VTK.
 
 %package qt
 Summary: Qt bindings for VTK
-Requires: vtk%{?_isa} = %{version}-%{release}
+Requires: %{name}%{?_isa} = %{version}-%{release}
 
 %description qt
 Qt bindings for VTK.
-
-%package -n python%{python3_pkgversion}-vtk-qt
-Summary: Qt Python 3 bindings for VTK
-Requires: vtk%{?_isa} = %{version}-%{release}
-%{?python_provide:%python_provide python%{python3_pkgversion}-vtk-qt}
-
-%description -n python%{python3_pkgversion}-vtk-qt
-Qt Python 3 bindings for VTK.
 
 %if %{with mpich}
 %package mpich
@@ -292,64 +301,31 @@ NOTE: The version in this package has been compiled with mpich support.
 
 %package mpich-devel
 Summary: VTK header files for building C++ code with mpich
-Requires: vtk-mpich%{?_isa} = %{version}-%{release}
-#Requires: python2-vtk%{?_isa} = %{version}-%{release}
-#Requires: python2-vtk-qt%{?_isa} = %{version}-%{release}
-%{?with_OSMesa:Requires: mesa-libOSMesa-devel%{?_isa}}
-Requires: cmake
+Requires: %{name}-mpich%{?_isa} = %{version}-%{release}
+Requires: python%{python3_pkgversion}-%{name}-mpich%{?_isa} = %{version}-%{release}
 Requires: mpich-devel
-%if %{with flexiblas}
-Requires: flexiblas-devel%{?_isa}
-%else
-Requires: blas-devel%{?_isa}
-Requires: lapack-devel%{?_isa}
-%endif
-%if 0%{with gl2ps}
-Requires: gl2ps-devel%{?_isa}
-%endif
-Requires: expat-devel%{?_isa}
-Requires: freetype-devel%{?_isa}
 Requires: hdf5-mpich-devel%{?_isa}
-Requires: libjpeg-devel%{?_isa}
-Requires: libpng-devel%{?_isa}
-Requires: libogg-devel%{?_isa}
-Requires: libtheora-devel%{?_isa}
-Requires: libtiff-devel%{?_isa}
-Requires: libxml2-devel%{?_isa}
-Requires: libpq-devel%{?_isa}
-Requires: mariadb-devel%{?_isa}
-Requires: netcdf-cxx-devel%{?_isa}
-Requires: netcdf-mpich-devel%{?_isa}
-%if %{with qt5}
-Requires: cmake(Qt5)
-Requires: cmake(Qt5UiPlugin)
-Requires: cmake(Qt5X11Extras)
-Requires: qt5-qtwebkit-devel%{?_isa}
-%else
-Requires: qt4-devel%{?_isa}
-Requires: qtwebkit-devel%{?_isa}
-%endif
-Requires: jsoncpp-devel%{?_isa}
-# bz #1183210 + #1183530
-Requires: python%{python3_pkgversion}-devel
+%{vtk_devel_requires}
 
-%description mpich-devel 
+%description mpich-devel
 This provides the VTK header files required to compile C++ programs that
 use VTK to do 3D visualization.
 
 NOTE: The version in this package has been compiled with mpich support.
 
-%package -n python%{python3_pkgversion}-vtk-mpich
+%package -n python%{python3_pkgversion}-%{name}-mpich
 Summary: Python 3 bindings for VTK with mpich
-Requires: vtk-mpich%{?_isa} = %{version}-%{release}
+Requires: %{name}-mpich%{?_isa} = %{version}-%{release}
+Obsoletes: python3-vtk-mpich-qt < 8.2.0-15
+Provides:  python%{python3_pkgversion}-vtk-mpich-qt = %{version}-%{release}
 
-%description -n python%{python3_pkgversion}-vtk-mpich
+%description -n python%{python3_pkgversion}-%{name}-mpich
 python 3 bindings for VTK with mpich.
 
 %if %{with java}
 %package mpich-java
 Summary: Java bindings for VTK with mpich
-Requires: vtk-mpich%{?_isa} = %{version}-%{release}
+Requires: %{name}-mpich%{?_isa} = %{version}-%{release}
 
 %description mpich-java
 Java bindings for VTK with mpich.
@@ -357,17 +333,10 @@ Java bindings for VTK with mpich.
 
 %package mpich-qt
 Summary: Qt bindings for VTK with mpich
-Requires: vtk-mpich%{?_isa} = %{version}-%{release}
+Requires: %{name}-mpich%{?_isa} = %{version}-%{release}
 
 %description mpich-qt
 Qt bindings for VTK with mpich.
-
-%package -n python%{python3_pkgversion}-vtk-mpich-qt
-Summary: Qt Python 3 bindings for VTK with mpich
-Requires: vtk-mpich%{?_isa} = %{version}-%{release}
-
-%description -n python%{python3_pkgversion}-vtk-mpich-qt
-Qt Python 3 bindings for VTK with mpich.
 %endif
 
 %if %{with openmpi}
@@ -388,64 +357,32 @@ NOTE: The version in this package has been compiled with openmpi support.
 
 %package openmpi-devel
 Summary: VTK header files for building C++ code with openmpi
-Requires: vtk-openmpi%{?_isa} = %{version}-%{release}
-#Requires: python2-vtk%{?_isa} = %{version}-%{release}
-#Requires: python2-vtk-qt%{?_isa} = %{version}-%{release}
-%{?with_OSMesa:Requires: mesa-libOSMesa-devel%{?_isa}}
-Requires: cmake
+Requires: %{name}-openmpi%{?_isa} = %{version}-%{release}
+Requires: python%{python3_pkgversion}-%{name}-openmpi%{?_isa} = %{version}-%{release}
 Requires: openmpi-devel
-%if %{with flexiblas}
-Requires: flexiblas-devel%{?_isa}
-%else
-Requires: blas-devel%{?_isa}
-Requires: lapack-devel%{?_isa}
-%endif
-%if 0%{with gl2ps}
-Requires: gl2ps-devel%{?_isa}
-%endif
-Requires: expat-devel%{?_isa}
-Requires: freetype-devel%{?_isa}
 Requires: hdf5-openmpi-devel%{?_isa}
-Requires: libjpeg-devel%{?_isa}
-Requires: libpng-devel%{?_isa}
-Requires: libogg-devel%{?_isa}
-Requires: libtheora-devel%{?_isa}
-Requires: libtiff-devel%{?_isa}
-Requires: libxml2-devel%{?_isa}
-Requires: libpq-devel%{?_isa}
-Requires: mariadb-devel%{?_isa}
-Requires: netcdf-cxx-devel%{?_isa}
 Requires: netcdf-openmpi-devel%{?_isa}
-%if %{with qt5}
-Requires: cmake(Qt5)
-Requires: cmake(Qt5UiPlugin)
-Requires: cmake(Qt5X11Extras)
-Requires: qt5-qtwebkit-devel%{?_isa}
-%else
-Requires: qt4-devel%{?_isa}
-Requires: qtwebkit-devel%{?_isa}
-%endif
-Requires: jsoncpp-devel%{?_isa}
-# bz #1183210 + #1183530
-Requires: python%{python3_pkgversion}-devel
+%{vtk_devel_requires}
 
-%description openmpi-devel 
+%description openmpi-devel
 This provides the VTK header files required to compile C++ programs that
 use VTK to do 3D visualization.
 
 NOTE: The version in this package has been compiled with openmpi support.
 
-%package -n python%{python3_pkgversion}-vtk-openmpi
+%package -n python%{python3_pkgversion}-%{name}-openmpi
 Summary: Python 3 bindings for VTK with openmpi
-Requires: vtk-openmpi%{?_isa} = %{version}-%{release}
+Requires: %{name}-openmpi%{?_isa} = %{version}-%{release}
+Obsoletes: python3-vtk-openmpi-qt < 8.2.0-15
+Provides:  python%{python3_pkgversion}-vtk-openmpi-qt = %{version}-%{release}
 
-%description -n python%{python3_pkgversion}-vtk-openmpi
+%description -n python%{python3_pkgversion}-%{name}-openmpi
 Python 3 bindings for VTK with openmpi.
 
 %if %{with java}
 %package openmpi-java
 Summary: Java bindings for VTK with openmpi
-Requires: vtk-openmpi%{?_isa} = %{version}-%{release}
+Requires: %{name}-openmpi%{?_isa} = %{version}-%{release}
 %endif
 
 %description openmpi-java
@@ -453,17 +390,10 @@ Java bindings for VTK with openmpi.
 
 %package openmpi-qt
 Summary: Qt bindings for VTK with openmpi
-Requires: vtk-openmpi%{?_isa} = %{version}-%{release}
+Requires: %{name}-openmpi%{?_isa} = %{version}-%{release}
 
 %description openmpi-qt
 Qt bindings for VTK with openmpi.
-
-%package -n python%{python3_pkgversion}-vtk-openmpi-qt
-Summary: Qt Python 3 bindings for VTK with openmpi
-Requires: vtk-openmpi%{?_isa} = %{version}-%{release}
-
-%description -n python%{python3_pkgversion}-vtk-openmpi-qt
-Qt Python 3 bindings for VTK with openmpi.
 %endif
 
 %package data
@@ -476,14 +406,14 @@ VTK data files for tests and examples.
 
 %package testing
 Summary: Testing programs for VTK
-Requires: vtk%{?_isa} = %{version}-%{release}, vtk-data = %{version}
+Requires: %{name}%{?_isa} = %{version}-%{release}, %{name}-data = %{version}
 
 %description testing
 Testing programs for VTK
 
 %package examples
 Summary: Examples for VTK
-Requires: vtk%{?_isa} = %{version}-%{release}, vtk-data = %{version}
+Requires: %{name}%{?_isa} = %{version}-%{release}, %{name}-data = %{version}
 
 %description examples
 This package contains many well-commented examples showing how to use
@@ -493,27 +423,22 @@ programming languages.
 
 %prep
 %setup -q -b 1 -n VTK-%{version}
-%patch0 -p1 -b .py38
-%patch1 -p1 -b .proj6
-%patch2 -p1 -b .gcc10
-%patch3 -p1 -b .qt5.15
+%patch0 -p1 -b .libharu
+%patch1 -p1 -b .limits
+%patch2 -p1 -b .includes
+%patch3 -p1 -b .AllValues
 %patch4 -p1 -b .freetype
 # Remove included thirdparty sources just to be sure
 # TODO - diy2 - not yet packaged
 # TODO - exodusII - not yet packaged
-# TODO - pugixml - https://gitlab.kitware.com/vtk/vtk/issues/17538
-# TODO - utf8cpp(source) - http://www.vtk.org/Bug/view.php?id=15730
 # TODO - verdict - not yet packaged
 # TODO - VPIC - not yet packaged
 # TODO - xdmf2 - not yet packaged
 # TODO - xdmf3 - not yet packaged
-for x in vtk{doubleconversion,eigen,expat,freetype,%{?_with_gl2ps:gl2ps,}glew,hdf5,jpeg,jsoncpp,kissfft,libproj,libxml2,lz4,lzma,mpi4py,netcdf,ogg,pegtl,png,sqlite,theora,tiff,zfp,zlib}
+for x in vtk{doubleconversion,eigen,expat,freetype,%{?with_gl2ps:gl2ps,}glew,hdf5,jpeg,jsoncpp,kissfft,libharu,libproj,libxml2,lz4,lzma,mpi4py,netcdf,ogg,pegtl,png,pugixml,sqlite,theora,tiff,utf8,zfp,zlib}
 do
   rm -r ThirdParty/*/${x}
 done
-
-# Needed to find PEGTL
-cp %SOURCE3 CMake/FindPEGTL.cmake
 
 # Remove unused KWSys items
 find Utilities/KWSys/vtksys/ -name \*.[ch]\* | grep -vE '^Utilities/KWSys/vtksys/([a-z].*|Configure|SharedForward|String\.hxx|Base64|CommandLineArguments|Directory|DynamicLoader|Encoding|FStream|FundamentalType|Glob|MD5|Process|RegularExpression|System|SystemInformation|SystemTools)(C|CXX|UNIX)?\.' | xargs rm
@@ -524,6 +449,7 @@ cp -a Examples vtk-examples
 # Don't ship Win32 examples
 rm -r vtk-examples/Examples/GUI/Win32
 find vtk-examples -type f | xargs chmod -R a-x
+
 
 %build
 export CFLAGS="%{optflags} -D_UNICODE -DHAVE_UINTPTR_T"
@@ -538,19 +464,30 @@ export JAVA_TOOL_OPTIONS=-Xmx2048m
 %endif
 
 %global vtk_cmake_options \\\
+ -DCMAKE_INSTALL_DOCDIR=share/doc/%{name} \\\
+ -DCMAKE_INSTALL_JARDIR=share/java \\\
+ -DCMAKE_INSTALL_LIBDIR:PATH=%{_lib} \\\
+ -DCMAKE_INSTALL_JNILIBDIR:PATH=%{_lib}/%{name} \\\
+ -DCMAKE_INSTALL_LICENSEDIR:PATH=share/licenses/%{name} \\\
  -DVTK_CUSTOM_LIBRARY_SUFFIX="" \\\
- -DVTK_INSTALL_ARCHIVE_DIR:PATH=%{_lib} \\\
- -DVTK_INSTALL_DATA_DIR=share/vtk \\\
- -DVTK_INSTALL_INCLUDE_DIR:PATH=include/vtk \\\
- -DVTK_INSTALL_LIBRARY_DIR:PATH=%{_lib} \\\
- -DVTK_INSTALL_PACKAGE_DIR:PATH=%{_lib}/cmake/vtk \\\
+ -DVTK_INSTALL_DATA_DIR=share/%{name} \\\
+ -DVTK_INSTALL_INCLUDE_DIR:PATH=include/%{name} \\\
+ -DVTK_INSTALL_PACKAGE_DIR:PATH=%{_lib}/cmake/%{name} \\\
+ -DVTK_VERSIONED_INSTALL:BOOL=OFF \\\
+ -DVTK_GROUP_ENABLE_Imaging:STRING=YES \\\
+ -DVTK_GROUP_ENABLE_Qt:STRING=YES \\\
+ -DVTK_GROUP_ENABLE_Rendering:STRING=YES \\\
+ -DVTK_GROUP_ENABLE_StandAlone:STRING=YES \\\
+ -DVTK_GROUP_ENABLE_Views:STRING=YES \\\
+ -DVTK_GROUP_ENABLE_Web:STRING=YES \\\
+ -DVTK_MODULE_ENABLE_VTK_CommonArchive:STRING=YES \\\
+ -DVTK_MODULE_ENABLE_VTK_DomainsMicroscopy:STRING=YES \\\
+ -DVTK_MODULE_ENABLE_VTK_GeovisGDAL:STRING=YES \\\
+ -DVTK_MODULE_ENABLE_VTK_ImagingOpenGL2:STRING=YES \\\
+ -DVTK_MODULE_ENABLE_VTK_InfovisBoost:STRING=YES \\\
+ -DVTK_MODULE_ENABLE_VTK_InfovisBoostGraphAlgorithms:STRING=YES \\\
+ -DVTK_MODULE_ENABLE_VTK_IOMySQL:STRING=YES \\\
  -DVTK_PYTHON_VERSION=3 \\\
-%if %{with qt5} \
- -DVTK_INSTALL_QT_DIR:PATH=%{_lib}/qt5/plugins/designer \\\
-%else \
- -DVTK_INSTALL_QT_DIR:PATH=%{_lib}/qt4/plugins/designer \\\
-%endif \
- -DTK_INTERNAL_PATH:PATH=/usr/include/tk-private/generic \\\
 %if %{with OSMesa} \
  -DVTK_OPENGL_HAS_OSMESA:BOOL=ON \\\
 %endif \
@@ -563,62 +500,38 @@ export JAVA_TOOL_OPTIONS=-Xmx2048m
  -DVTK_WRAP_JAVA:BOOL=OFF \\\
 %endif \
  -DVTK_WRAP_PYTHON:BOOL=ON \\\
- -DVTK_Group_Imaging:BOOL=ON \\\
- -DVTK_Group_Qt:BOOL=ON \\\
- -DVTK_Group_Rendering:BOOL=ON \\\
- -DVTK_Group_StandAlone:BOOL=ON \\\
- -DVTK_Group_Tk:BOOL=ON \\\
- -DVTK_Group_Views:BOOL=ON \\\
- -DModule_vtkIOExportOpenGL2:BOOL=ON \\\
- -DModule_vtkIOMySQL:BOOL=ON \\\
- -DModule_vtkIOPostgreSQL:BOOL=ON \\\
- -DModule_vtkRenderingParallel:BOOL=ON \\\
- -DModule_vtkTestingCore:BOOL=ON \\\
- -DModule_vtkTestingRendering:BOOL=ON \\\
-%if %{with qt5} \
- -DVTK_QT_VERSION:STRING="5" \\\
-%endif \
  -DVTK_USE_OGGTHEORA_ENCODER=ON \\\
- -DVTK_USE_SYSTEM_LIBRARIES=ON \\\
- %{?vtk_use_system_gl2ps} \\\
- -DVTK_USE_SYSTEM_HDF5:BOOL=ON \\\
- -DVTK_USE_SYSTEM_LIBHARU=OFF \\\
- -DVTK_USE_SYSTEM_NETCDF:BOOL=ON
-# Commented old flags in case we'd like to reactive some of them
-# -DVTK_USE_DISPLAY:BOOL=OFF \ # This prevents building of graphics tests
+ -DVTK_USE_EXTERNAL=ON \\\
+%if !%{with gl2ps} \
+ -DVTK_MODULE_USE_EXTERNAL_VTK_gl2ps:BOOL=OFF \\\
+%endif \
+ -DVTK_USE_TK=ON
+# https://gitlab.kitware.com/cmake/cmake/issues/17223
+#-DVTK_MODULE_ENABLE_VTK_IOPostgreSQL:STRING=YES \\\
 
 %global _vpath_builddir build
 %cmake \
  %{vtk_cmake_options} \
  %{?with_flexiblas:-DBLAS_LIBRARIES=-lflexiblas} \
- -DBUILD_DOCUMENTATION:BOOL=ON \
- -DBUILD_EXAMPLES:BOOL=ON \
- -DBUILD_TESTING:BOOL=ON
+ -DVTK_BUILD_DOCUMENTATION:BOOL=ON \
+ -DVTK_BUILD_EXAMPLES:BOOL=ON \
+ -DVTK_BUILD_TESTING:BOOL=ON
 %cmake_build
-%cmake_build --target DoxygenDoc vtkMyDoxygenDoc
+%cmake_build --target DoxygenDoc
 
 %if %{with mpich}
 %global _vpath_builddir build-mpich
 %_mpich_load
-export CC=mpicc
-export CXX=mpic++
+%define __cc mpicc
+%define __cxx mpic++
 %cmake \
  %{vtk_cmake_options} \
  -DCMAKE_PREFIX_PATH:PATH=$MPI_HOME \
  -DCMAKE_INSTALL_PREFIX:PATH=$MPI_HOME \
- -DVTK_INSTALL_ARCHIVE_DIR:PATH=lib \
- -DVTK_INSTALL_LIBRARY_DIR:PATH=lib \
+ -DCMAKE_INSTALL_LIBDIR:PATH=lib \
+ -DCMAKE_INSTALL_JNILIBDIR:PATH=lib/%{name} \
  -DVTK_INSTALL_PACKAGE_DIR:PATH=lib/cmake \
-%if %{with qt5}
- -DVTK_INSTALL_QT_DIR:PATH=lib/qt5/plugins/designer \
-%else
- -DVTK_INSTALL_QT_DIR:PATH=lib/qt4/plugins/designer \
-%endif
- -DVTK_Group_MPI:BOOL=ON \
- -DModule_vtkRenderingParallel:BOOL=ON \
- -DVTK_USE_PARALLEL:BOOL=ON \
- -DVTK_USE_SYSTEM_DIY2:BOOL=OFF \
- -DVTK_USE_SYSTEM_MPI4PY:BOOL=ON
+ -DVTK_USE_MPI:BOOL=ON
 %cmake_build
 %_mpich_unload
 %endif
@@ -626,25 +539,16 @@ export CXX=mpic++
 %if %{with openmpi}
 %global _vpath_builddir build-openmpi
 %_openmpi_load
-export CC=mpicc
-export CXX=mpic++
+%define __cc mpicc
+%define __cxx mpic++
 %cmake \
  %{vtk_cmake_options} \
  -DCMAKE_PREFIX_PATH:PATH=$MPI_HOME \
  -DCMAKE_INSTALL_PREFIX:PATH=$MPI_HOME \
- -DVTK_INSTALL_ARCHIVE_DIR:PATH=lib \
- -DVTK_INSTALL_LIBRARY_DIR:PATH=lib \
+ -DCMAKE_INSTALL_LIBDIR:PATH=lib \
+ -DCMAKE_INSTALL_JNILIBDIR:PATH=lib/%{name} \
  -DVTK_INSTALL_PACKAGE_DIR:PATH=lib/cmake \
-%if %{with qt5}
- -DVTK_INSTALL_QT_DIR:PATH=lib/qt5/plugins/designer \
-%else
- -DVTK_INSTALL_QT_DIR:PATH=lib/qt4/plugins/designer \
-%endif
- -DVTK_Group_MPI:BOOL=ON \
- -DModule_vtkRenderingParallel:BOOL=ON \
- -DVTK_USE_PARALLEL:BOOL=ON \
- -DVTK_USE_SYSTEM_DIY2:BOOL=OFF \
- -DVTK_USE_SYSTEM_MPI4PY:BOOL=ON
+ -DVTK_USE_MPI:BOOL=ON
 %cmake_build
 %_openmpi_unload
 %endif
@@ -659,59 +563,31 @@ find . -name \*.c -or -name \*.cxx -or -name \*.h -or -name \*.hxx -or \
 %cmake_install
 
 pushd build
-# Gather list of non-python/tcl libraries
+# Gather list of non-java/python/qt libraries
 ls %{buildroot}%{_libdir}/*.so.* \
-  | grep -Ev '(Java|Qt|Python..D|TCL)' | sed -e's,^%{buildroot},,' > libs.list
-
-# List of executable examples
-cat > examples.list << EOF
-HierarchicalBoxPipeline
-MultiBlock
-Arrays
-Cube
-RGrid
-SGrid
-Medical1
-Medical2
-Medical3
-finance
-AmbientSpheres
-Cylinder
-DiffuseSpheres
-SpecularSpheres
-Cone
-Cone2
-Cone3
-Cone4
-Cone5
-Cone6
-EOF
+  | grep -Ev '(Java|Qt|Python)' | sed -e's,^%{buildroot},,' > libs.list
 
 # List of executable test binaries
 find bin \( -name \*Tests -o -name Test\* -o -name VTKBenchMark \) \
          -printf '%f\n' > testing.list
 
 # Install examples too
-for filelist in examples.list testing.list; do
+for filelist in testing.list; do
   for file in `cat $filelist`; do
     install -p bin/$file %{buildroot}%{_bindir}
   done
 done
 
 # Fix up filelist paths
-for filelist in examples.list testing.list; do
+for filelist in testing.list; do
   perl -pi -e's,^,%{_bindir}/,' $filelist
 done
 
 # Remove any remnants of rpaths on files we install
 # Seems to be some kind of java path
-for file in `cat examples.list testing.list`; do
+for file in `cat testing.list`; do
   chrpath -d %{buildroot}$file
 done
-chrpath -d  %{buildroot}%{_libdir}/qt?/plugins/designer/libQVTKWidgetPlugin.so
-
-# Main package contains utils and core libs
-cat libs.list
 popd
 
 %if %{with mpich}
@@ -719,9 +595,12 @@ popd
 %global _vpath_builddir build-mpich
 %cmake_install
 
-# Gather list of non-python/tcl libraries
+# Gather list of non-java/pythonl/qt libraries
 ls %{buildroot}%{_libdir}/mpich/lib/*.so.* \
-  | grep -Ev '(Java|Qt|Python..D|TCL)' | sed -e's,^%{buildroot},,' > build-mpich/libs.list
+  | grep -Ev '(Java|Python|Qt)' | sed -e's,^%{buildroot},,' > build-mpich/libs.list
+
+# Move licenses since we cannot install them outside of CMAKE_INSTALL_PREFIX (MPI_HOME)
+mv %{buildroot}%{_libdir}/mpich/share/licenses/vtk %{buildroot}%{_defaultlicensedir}/%{name}-mpich
 %_mpich_unload
 %endif
 
@@ -730,9 +609,12 @@ ls %{buildroot}%{_libdir}/mpich/lib/*.so.* \
 %global _vpath_builddir build-openmpi
 %cmake_install
 
-# Gather list of non-python/tcl libraries
+# Gather list of non-java/python//qt libraries
 ls %{buildroot}%{_libdir}/openmpi/lib/*.so.* \
-  | grep -Ev '(Java|Qt|Python..D|TCL)' | sed -e's,^%{buildroot},,' > build-openmpi/libs.list
+  | grep -Ev '(Java|Python|Qt)' | sed -e's,^%{buildroot},,' > build-openmpi/libs.list
+
+# Move licenses since we cannot install them outside of CMAKE_INSTALL_PREFIX (MPI_HOME)
+mv %{buildroot}%{_libdir}/openmpi/share/licenses/vtk %{buildroot}%{_defaultlicensedir}/%{name}-openmpi
 %_openmpi_unload
 %endif
 
@@ -746,11 +628,12 @@ find Utilities/Upgrading -type f -print0 | xargs -0 chmod -x
 
 # Setup Wrapping docs tree
 mkdir -p _docs
-cp -pr --parents Wrapping/*/README* _docs/ 
+cp -pr --parents Wrapping/*/README* _docs/
 
 #Install data
 mkdir -p %{buildroot}%{_datadir}/vtkdata
 cp -alL build/ExternalData/* %{buildroot}%{_datadir}/vtkdata/
+
 
 %check
 cp %SOURCE2 .
@@ -773,22 +656,23 @@ cat xorg.log
 
 
 %files -f build/libs.list
-%license Copyright.txt
+%license %{_defaultlicensedir}/%{name}/
 %doc README.md _docs/Wrapping
 
 %files devel
 %doc Utilities/Upgrading
+%{_bindir}/vtkProbeOpenGLVersion
 %{_bindir}/vtkWrapHierarchy
-%{_includedir}/vtk
+%{_includedir}/%{name}
 %{_libdir}/*.so
-%{_libdir}/libvtkWrappingTools.a
-%{_libdir}/cmake/vtk/
-%{_docdir}/vtk-8.2/
+%{_libdir}/cmake/%{name}/
+%dir %{_libdir}/%{name}
+%{_libdir}/%{name}/hierarchy/
+%{_docdir}/%{name}-9.0/
 
 %files -n python%{python3_pkgversion}-vtk
 %{python3_sitearch}/*
-%{_libdir}/*Python%{python3_version_nodots}D.so.*
-%exclude %{_libdir}/*QtPython%{python3_version_nodots}D.so.*
+%{_libdir}/*Python*.so.*
 %{_bindir}/vtkpython
 %{_bindir}/vtkWrapPython
 %{_bindir}/vtkWrapPythonInit
@@ -796,36 +680,34 @@ cat xorg.log
 %if %{with java}
 %files java
 %{_libdir}/*Java.so.*
-%{_libdir}/vtk.jar
+%dir %{_libdir}/%{name}
+%{_libdir}/%{name}/*Java.so
+%{_javadir}/vtk.jar
 %{_bindir}/vtkParseJava
 %{_bindir}/vtkWrapJava
 %endif
 
 %files qt
 %{_libdir}/lib*Qt*.so.*
-%exclude %{_libdir}/*Python%{python3_version_nodots}D.so.*
-%{_libdir}/qt?/plugins/designer/libQVTKWidgetPlugin.so
-
-%files -n python%{python3_pkgversion}-vtk-qt
-%{_libdir}/*QtPython%{python3_version_nodots}D.so.*
+%exclude %{_libdir}/*Python*.so.*
 
 %if %{with mpich}
 %files mpich -f build-mpich/libs.list
-%license Copyright.txt
+%license %{_defaultlicensedir}/%{name}-mpich/
 %doc README.md _docs/Wrapping
 
 %files mpich-devel
+%{_libdir}/mpich/bin/vtkProbeOpenGLVersion
 %{_libdir}/mpich/bin/vtkWrapHierarchy
 %{_libdir}/mpich/include/
 %{_libdir}/mpich/lib/*.so
-%{_libdir}/mpich/lib/libvtkWrappingTools.a
 %{_libdir}/mpich/lib/cmake/
-%{_libdir}/mpich/share/doc/vtk-8.2/
+%dir %{_libdir}/mpich/lib/%{name}
+%{_libdir}/mpich/lib/%{name}/hierarchy/
 
 %files -n python%{python3_pkgversion}-vtk-mpich
 %{_libdir}/mpich/lib/python%{python3_version}/
-%{_libdir}/mpich/lib/*Python%{python3_version_nodots}D.so.*
-%exclude %{_libdir}/mpich/lib/*QtPython%{python3_version_nodots}D.so.*
+%{_libdir}/mpich/lib/*Python*.so.*
 %{_libdir}/mpich/bin/pvtkpython
 %{_libdir}/mpich/bin/vtkpython
 %{_libdir}/mpich/bin/vtkWrapPython
@@ -834,38 +716,35 @@ cat xorg.log
 %if %{with java}
 %files mpich-java
 %{_libdir}/mpich/lib/*Java.so.*
-%{_libdir}/mpich/lib/vtk.jar
+%dir %{_libdir}/mpich/lib/%{name}
+%{_libdir}/mpich/lib/%{name}/*Java.so
+%{_libdir}/mpich/share/java/vtk.jar
 %{_libdir}/mpich/bin/vtkParseJava
 %{_libdir}/mpich/bin/vtkWrapJava
 %endif
 
 %files mpich-qt
 %{_libdir}/mpich/lib/lib*Qt*.so.*
-%exclude %{_libdir}/mpich/lib/*Python%{python3_version_nodots}D.so.*
-%{_libdir}/mpich/lib/qt?/
-
-%files -n python%{python3_pkgversion}-vtk-mpich-qt
-%{_libdir}/mpich/lib/*QtPython%{python3_version_nodots}D.so.*
+%exclude %{_libdir}/mpich/lib/*Python*.so.*
 %endif
 
 %if %{with openmpi}
 %files openmpi -f build-openmpi/libs.list
-%license Copyright.txt
+%license %{_defaultlicensedir}/%{name}-openmpi/
 %doc README.md _docs/Wrapping
 
 %files openmpi-devel
+%{_libdir}/openmpi/bin/vtkProbeOpenGLVersion
 %{_libdir}/openmpi/bin/vtkWrapHierarchy
 %{_libdir}/openmpi/include/
 %{_libdir}/openmpi/lib/*.so
-%{_libdir}/openmpi/lib/libvtkWrappingTools.a
 %{_libdir}/openmpi/lib/cmake/
-%{_libdir}/openmpi/share/doc/vtk-8.2/
-
+%dir %{_libdir}/openmpi/lib/%{name}
+%{_libdir}/openmpi/lib/%{name}/hierarchy/
 
 %files -n python%{python3_pkgversion}-vtk-openmpi
 %{_libdir}/openmpi/lib/python%{python3_version}/
-%{_libdir}/openmpi/lib/*Python%{python3_version_nodots}D.so.*
-%exclude %{_libdir}/openmpi/lib/*QtPython%{python3_version_nodots}D.so.*
+%{_libdir}/openmpi/lib/*Python*.so.*
 %{_libdir}/openmpi/bin/pvtkpython
 %{_libdir}/openmpi/bin/vtkpython
 %{_libdir}/openmpi/bin/vtkWrapPython
@@ -874,18 +753,16 @@ cat xorg.log
 %if %{with java}
 %files openmpi-java
 %{_libdir}/openmpi/lib/*Java.so.*
-%{_libdir}/openmpi/lib/vtk.jar
+%dir %{_libdir}/openmpi/lib/%{name}
+%{_libdir}/openmpi/lib/%{name}/*Java.so
+%{_libdir}/openmpi/share/java/vtk.jar
 %{_libdir}/openmpi/bin/vtkParseJava
 %{_libdir}/openmpi/bin/vtkWrapJava
 %endif
 
 %files openmpi-qt
 %{_libdir}/openmpi/lib/lib*Qt*.so.*
-%exclude %{_libdir}/openmpi/lib/*Python27D.so.*
-%{_libdir}/openmpi/lib/qt?/
-
-%files -n python%{python3_pkgversion}-vtk-openmpi-qt
-%{_libdir}/openmpi/lib/*QtPython%{python3_version_nodots}D.so.*
+%exclude %{_libdir}/openmpi/lib/*Python*.so.*
 %endif
 
 %files data
@@ -893,11 +770,21 @@ cat xorg.log
 
 %files testing -f build/testing.list
 
-%files examples -f build/examples.list
+%files examples
 %doc vtk-examples/Examples
 
 
 %changelog
+* Sat Jan 30 2021 Orion Poplawski <orion@nwra.com> - 9.0.1-1
+- Update to 9.0.1
+- Disable OSMesa - conflicts with X support
+- Build against Fedora gl2ps, libharu, utf8cpp
+- Drop python3-vtk-qt packages
+- No longer ship compiled examples
+- Install jar file into /usr/share/java
+- Fix JNI install location
+- Drop Qt4 build option
+
 * Wed Jan 27 2021 Fedora Release Engineering <releng@fedoraproject.org> - 8.2.0-26
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_34_Mass_Rebuild
 
@@ -1430,11 +1317,11 @@ cat xorg.log
 * Sun Jan 11 2004 Intrinsic Spin <spin@freakbait.com>
 - Built against a reasonably good (according to dashboard) CVS version so-as
  to get GL2PS support.
-- Rearranged. Cleaned up. Added some comments. 
+- Rearranged. Cleaned up. Added some comments.
 
 * Sat Jan 10 2004 Intrinsic Spin <spin@freakbait.com>
 - Blatently stole this spec file for my own nefarious purposes.
-- Removed Java (for now). Merged the Python and Tcl stuff into 
+- Removed Java (for now). Merged the Python and Tcl stuff into
  the main rpm.
 
 * Fri Dec 05 2003 Fabrice Bellet <Fabrice.Bellet@creatis.insa-lyon.fr>
