@@ -209,6 +209,8 @@ Requires: PEGTL-devel%{?_isa}
 Requires: proj-devel%{?_isa}
 Requires: pugixml-devel%{?_isa}
 Requires: sqlite-devel%{?_isa}
+Requires: libX11-devel%{?_isa}
+Requires: libXext-devel%{?_isa}
 Requires: libXt-devel%{?_isa}
 Requires: mysql-devel%{?_isa}
 Requires: netcdf-cxx-devel%{?_isa}
