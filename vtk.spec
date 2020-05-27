@@ -17,7 +17,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 8.2.0
-Release: 13%{?dist}
+Release: 14%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -30,6 +30,9 @@ Source3: FindPEGTL.cmake
 Patch0: https://gitlab.kitware.com/vtk/vtk/merge_requests/5883.patch
 # Proj 6 support
 Patch1: vtk-proj6_compat.patch
+# GCC 10 support based on:
+# https://gitlab.kitware.com/vtk/vtk/-/merge_requests/6420
+Patch2: vtk-gcc10.patch
 
 URL: http://vtk.org/
 
@@ -541,6 +544,7 @@ programming languages.
 %setup -q -b 1 -n VTK-%{version}
 %patch0 -p1 -b .py38
 %patch1 -p1 -b .proj6
+%patch2 -p1 -b .gcc10
 # Remove included thirdparty sources just to be sure
 # TODO - diy2 - not yet packaged
 # TODO - exodusII - not yet packaged
@@ -987,6 +991,9 @@ cat xorg.log
 
 
 %changelog
+* Wed May 27 2020 Orion Poplawski <orion@nwra.com> - 8.2.0-14
+- Add patch to fix building with GCC 10 (bz#1800240)
+
 * Fri Jan 31 2020 Fedora Release Engineering <releng@fedoraproject.org> - 8.2.0-13
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_32_Mass_Rebuild
 
