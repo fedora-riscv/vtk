@@ -1,7 +1,3 @@
-# This package depends on automagic byte compilation
-# https://fedoraproject.org/wiki/Changes/No_more_automagic_Python_bytecompilation_phase_2
-%global _python_bytecompile_extra 1
-
 # Disable OSMesa builds for now - see Bug 744434
 %bcond_without OSMesa
 %bcond_without java
@@ -17,7 +13,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 8.2.0
-Release: 15%{?dist}
+Release: 16%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -43,11 +39,7 @@ BuildRequires: libX11-devel, libXt-devel, libXext-devel
 BuildRequires: libICE-devel, libGL-devel
 %{?with_OSMesa:BuildRequires: mesa-libOSMesa-devel}
 BuildRequires: tk-devel, tcl-devel
-%if 0%{?fedora} >= 30
 BuildRequires: python%{python3_pkgversion}-devel
-%else
-BuildRequires: python2-devel
-%endif
 BuildRequires: expat-devel, freetype-devel, libjpeg-devel, libpng-devel
 %if 0%{with gl2ps}
 BuildRequires: gl2ps-devel
@@ -59,11 +51,7 @@ BuildRequires: cmake(Qt5)
 BuildRequires: cmake(Qt5UiPlugin)
 BuildRequires: cmake(Qt5X11Extras)
 BuildRequires: qt5-qtwebkit-devel
-%if 0%{?fedora} >= 30
 BuildRequires: python%{python3_pkgversion}-qt5
-%else
-BuildRequires: python-qt5
-%endif
 %else
 BuildRequires: PyQt4-devel
 BuildRequires: qt4-devel
@@ -79,11 +67,7 @@ BuildRequires: glew-devel
 BuildRequires: hdf5-devel
 BuildRequires: jsoncpp-devel
 BuildRequires: libtheora-devel
-%if 0%{?fedora} >= 28
-BuildRequires:  mariadb-connector-c-devel
-%else
-BuildRequires: mysql-devel
-%endif
+BuildRequires: mariadb-connector-c-devel
 BuildRequires: netcdf-cxx-devel
 BuildRequires: libpq-devel
 BuildRequires: PEGTL-devel
@@ -100,20 +84,12 @@ BuildRequires: lz4-devel
 BuildRequires: motif-devel
 %if %{with mpich}
 BuildRequires:  mpich-devel
-%if 0%{?fedora} >= 30
 BuildRequires:  python%{?python3_pkgversion}-mpi4py-mpich
-%else
-BuildRequires:  python2-mpi4py-mpich
-%endif
 BuildRequires:  netcdf-mpich-devel
 %endif
 %if %{with openmpi}
 BuildRequires:  openmpi-devel
-%if 0%{?fedora} >= 30
 BuildRequires:  python%{?python3_pkgversion}-mpi4py-openmpi
-%else
-BuildRequires:  python2-mpi4py-openmpi
-%endif
 BuildRequires:  netcdf-openmpi-devel
 %endif
 # For %check
@@ -175,13 +151,8 @@ Install the %{name}-openmpi package to get a version compiled with openmpi.
 %package devel
 Summary: VTK header files for building C++ code
 Requires: vtk%{?_isa} = %{version}-%{release}
-%if 0%{?fedora} >= 30
 Requires: python%{python3_pkgversion}-vtk%{?_isa} = %{version}-%{release}
 Requires: python%{python3_pkgversion}-vtk-qt%{?_isa} = %{version}-%{release}
-%else
-Requires: python2-vtk%{?_isa} = %{version}-%{release}
-Requires: python2-vtk-qt%{?_isa} = %{version}-%{release}
-%endif
 %{?with_OSMesa:Requires: mesa-libOSMesa-devel%{?_isa}}
 Requires: cmake
 Requires: blas-devel%{?_isa}
@@ -225,17 +196,12 @@ Requires: qtwebkit-devel%{?_isa}
 %endif
 Requires: jsoncpp-devel%{?_isa}
 # bz #1183210 + #1183530
-%if 0%{?fedora} >= 30
 Requires: python%{python3_pkgversion}-devel
-%else
-Requires: python2-devel
-%endif
 
 %description devel 
 This provides the VTK header files required to compile C++ programs that
 use VTK to do 3D visualization.
 
-%if 0%{?fedora} >= 30
 %package -n python%{python3_pkgversion}-vtk
 Summary: Python 3 bindings for VTK
 Requires: vtk%{?_isa} = %{version}-%{release}
@@ -245,15 +211,6 @@ Provides: python%{python3_version}dist(vtk) = %{version}
 
 %description -n python%{python3_pkgversion}-vtk
 Python 3 bindings for VTK.
-%else
-%package -n python2-vtk
-Summary: Python 2 bindings for VTK
-Requires: vtk%{?_isa} = %{version}-%{release}
-%{?python_provide:%python_provide python2-vtk}
-
-%description -n python2-vtk
-Python 2 bindings for VTK.
-%endif
 
 %if %{with java}
 %package java
@@ -271,7 +228,6 @@ Requires: vtk%{?_isa} = %{version}-%{release}
 %description qt
 Qt bindings for VTK.
 
-%if 0%{?fedora} >= 30
 %package -n python%{python3_pkgversion}-vtk-qt
 Summary: Qt Python 3 bindings for VTK
 Requires: vtk%{?_isa} = %{version}-%{release}
@@ -279,15 +235,6 @@ Requires: vtk%{?_isa} = %{version}-%{release}
 
 %description -n python%{python3_pkgversion}-vtk-qt
 Qt Python 3 bindings for VTK.
-%else
-%package -n python2-vtk-qt
-Summary: Qt Python 2 bindings for VTK
-Requires: vtk%{?_isa} = %{version}-%{release}
-%{?python_provide:%python_provide python2-vtk-qt}
-
-%description -n python2-vtk-qt
-Qt Python 2 bindings for VTK.
-%endif
 
 %if %{with mpich}
 %package mpich
@@ -342,11 +289,7 @@ Requires: qtwebkit-devel%{?_isa}
 %endif
 Requires: jsoncpp-devel%{?_isa}
 # bz #1183210 + #1183530
-%if 0%{?fedora} >= 30
 Requires: python%{python3_pkgversion}-devel
-%else
-Requires: python2-devel
-%endif
 
 %description mpich-devel 
 This provides the VTK header files required to compile C++ programs that
@@ -354,21 +297,12 @@ use VTK to do 3D visualization.
 
 NOTE: The version in this package has been compiled with mpich support.
 
-%if 0%{?fedora} >= 30
 %package -n python%{python3_pkgversion}-vtk-mpich
 Summary: Python 3 bindings for VTK with mpich
 Requires: vtk-mpich%{?_isa} = %{version}-%{release}
 
 %description -n python%{python3_pkgversion}-vtk-mpich
 python 3 bindings for VTK with mpich.
-%else
-%package -n python2-vtk-mpich
-Summary: Python 2 bindings for VTK with mpich
-Requires: vtk-mpich%{?_isa} = %{version}-%{release}
-
-%description -n python2-vtk-mpich
-python 2 bindings for VTK with mpich.
-%endif
 
 %if %{with java}
 %package mpich-java
@@ -386,21 +320,12 @@ Requires: vtk-mpich%{?_isa} = %{version}-%{release}
 %description mpich-qt
 Qt bindings for VTK with mpich.
 
-%if 0%{?fedora} >= 30
 %package -n python%{python3_pkgversion}-vtk-mpich-qt
 Summary: Qt Python 3 bindings for VTK with mpich
 Requires: vtk-mpich%{?_isa} = %{version}-%{release}
 
 %description -n python%{python3_pkgversion}-vtk-mpich-qt
 Qt Python 3 bindings for VTK with mpich.
-%else
-%package -n python2-vtk-mpich-qt
-Summary: Qt Python 2 bindings for VTK with mpich
-Requires: vtk-mpich%{?_isa} = %{version}-%{release}
-
-%description -n python2-vtk-mpich-qt
-Qt Python 2 bindings for VTK with mpich.
-%endif
 %endif
 
 %if %{with openmpi}
@@ -456,11 +381,7 @@ Requires: qtwebkit-devel%{?_isa}
 %endif
 Requires: jsoncpp-devel%{?_isa}
 # bz #1183210 + #1183530
-%if 0%{?fedora} >= 30
 Requires: python%{python3_pkgversion}-devel
-%else
-Requires: python2-devel
-%endif
 
 %description openmpi-devel 
 This provides the VTK header files required to compile C++ programs that
@@ -468,21 +389,12 @@ use VTK to do 3D visualization.
 
 NOTE: The version in this package has been compiled with openmpi support.
 
-%if 0%{?fedora} >= 30
 %package -n python%{python3_pkgversion}-vtk-openmpi
 Summary: Python 3 bindings for VTK with openmpi
 Requires: vtk-openmpi%{?_isa} = %{version}-%{release}
 
 %description -n python%{python3_pkgversion}-vtk-openmpi
 Python 3 bindings for VTK with openmpi.
-%else
-%package -n python2-vtk-openmpi
-Summary: Python 2 bindings for VTK with openmpi
-Requires: vtk-openmpi%{?_isa} = %{version}-%{release}
-
-%description -n python2-vtk-openmpi
-Python 2 bindings for VTK with openmpi.
-%endif
 
 %if %{with java}
 %package openmpi-java
@@ -500,21 +412,12 @@ Requires: vtk-openmpi%{?_isa} = %{version}-%{release}
 %description openmpi-qt
 Qt bindings for VTK with openmpi.
 
-%if 0%{?fedora} >= 30
 %package -n python%{python3_pkgversion}-vtk-openmpi-qt
 Summary: Qt Python 3 bindings for VTK with openmpi
 Requires: vtk-openmpi%{?_isa} = %{version}-%{release}
 
 %description -n python%{python3_pkgversion}-vtk-openmpi-qt
 Qt Python 3 bindings for VTK with openmpi.
-%else
-%package -n python2-vtk-openmpi-qt
-Summary: Qt Python 2 bindings for VTK with openmpi
-Requires: vtk-openmpi%{?_isa} = %{version}-%{release}
-
-%description -n python2-vtk-openmpi-qt
-Qt Python 2 bindings for VTK with openmpi.
-%endif
 %endif
 
 %package data
@@ -593,11 +496,7 @@ export JAVA_TOOL_OPTIONS=-Xmx2048m
  -DVTK_INSTALL_INCLUDE_DIR:PATH=include/vtk \\\
  -DVTK_INSTALL_LIBRARY_DIR:PATH=%{_lib} \\\
  -DVTK_INSTALL_PACKAGE_DIR:PATH=%{_lib}/cmake/vtk \\\
-%if 0%{?fedora} >= 30 \
  -DVTK_PYTHON_VERSION=3 \\\
-%else \
- -DVTK_PYTHON_VERSION=2 \\\
-%endif \
 %if %{with qt5} \
  -DVTK_INSTALL_QT_DIR:PATH=%{_lib}/qt5/plugins/designer \\\
 %else \
@@ -825,13 +724,6 @@ ctest %{_smp_mflags} -V || :
 kill %1 || :
 cat xorg.log
 
-%if 0%{?fedora} < 28
-%ldconfig_scriptlets
-%ldconfig_scriptlets java
-%ldconfig_scriptlets python2-vtk
-%ldconfig_scriptlets python2-vtk-qt
-%ldconfig_scriptlets qt
-%endif
 
 %files -f build/libs.list
 %license Copyright.txt
@@ -846,17 +738,10 @@ cat xorg.log
 %{_libdir}/cmake/vtk/
 %{_docdir}/vtk-8.2/
 
-%if 0%{?fedora} >= 30
 %files -n python%{python3_pkgversion}-vtk
 %{python3_sitearch}/*
 %{_libdir}/*Python3?D.so.*
 %exclude %{_libdir}/*QtPython3?D.so.*
-%else
-%files -n python2-vtk
-%{python2_sitearch}/*
-%{_libdir}/*Python27D.so.*
-%exclude %{_libdir}/*QtPython27D.so.*
-%endif
 %{_bindir}/vtkpython
 %{_bindir}/vtkWrapPython
 %{_bindir}/vtkWrapPythonInit
@@ -874,13 +759,8 @@ cat xorg.log
 %exclude %{_libdir}/*Python??D.so.*
 %{_libdir}/qt?/plugins/designer/libQVTKWidgetPlugin.so
 
-%if 0%{?fedora} >= 30
 %files -n python%{python3_pkgversion}-vtk-qt
 %{_libdir}/*QtPython3?D.so.*
-%else
-%files -n python2-vtk-qt
-%{_libdir}/*QtPython27D.so.*
-%endif
 
 %if %{with mpich}
 %files mpich -f build-mpich/libs.list
@@ -895,15 +775,9 @@ cat xorg.log
 %{_libdir}/mpich/lib/cmake/
 %{_libdir}/mpich/share/doc/vtk-8.2/
 
-%if 0%{?fedora} >= 30
 %files -n python%{python3_pkgversion}-vtk-mpich
 %{_libdir}/mpich/lib/python%{python3_version}/
 %{_libdir}/mpich/lib/*Python3?D.so.*
-%else
-%files -n python2-vtk-mpich
-%{_libdir}/mpich/lib/python%{python2_version}/
-%{_libdir}/mpich/lib/*Python27D.so.*
-%endif
 %exclude %{_libdir}/mpich/lib/*QtPython??D.so.*
 %{_libdir}/mpich/bin/pvtkpython
 %{_libdir}/mpich/bin/vtkpython
@@ -923,13 +797,8 @@ cat xorg.log
 %exclude %{_libdir}/mpich/lib/*Python??D.so.*
 %{_libdir}/mpich/lib/qt?/
 
-%if 0%{fedora} >= 30
 %files -n python%{python3_pkgversion}-vtk-mpich-qt
 %{_libdir}/mpich/lib/*QtPython3?D.so.*
-%else
-%files -n python2-vtk-mpich-qt
-%{_libdir}/mpich/lib/*QtPython27D.so.*
-%endif
 %endif
 
 %if %{with openmpi}
@@ -946,15 +815,9 @@ cat xorg.log
 %{_libdir}/openmpi/share/doc/vtk-8.2/
 
 
-%if 0%{fedora} >= 30
 %files -n python%{python3_pkgversion}-vtk-openmpi
 %{_libdir}/openmpi/lib/python%{python3_version}/
 %{_libdir}/openmpi/lib/*Python3?D.so.*
-%else
-%files -n python2-vtk-openmpi
-%{_libdir}/openmpi/lib/python%{python2_version}/
-%{_libdir}/openmpi/lib/*Python27D.so.*
-%endif
 %exclude %{_libdir}/openmpi/lib/*QtPython??D.so.*
 %{_libdir}/openmpi/bin/pvtkpython
 %{_libdir}/openmpi/bin/vtkpython
@@ -974,13 +837,8 @@ cat xorg.log
 %exclude %{_libdir}/openmpi/lib/*Python27D.so.*
 %{_libdir}/openmpi/lib/qt?/
 
-%if 0%{fedora} >= 30
 %files -n python%{python3_pkgversion}-vtk-openmpi-qt
 %{_libdir}/openmpi/lib/*QtPython3?D.so.*
-%else
-%files -n python2-vtk-openmpi-qt
-%{_libdir}/openmpi/lib/*QtPython27D.so.*
-%endif
 %endif
 
 %files data
@@ -993,6 +851,9 @@ cat xorg.log
 
 
 %changelog
+* Sat Jun 20 2020 Orion Poplawski <orion@nwra.com> - 8.2.0-16
+- Drop _python_bytecompile_extra, python2 conditionals
+
 * Sat May 30 2020 Björn Esser <besser82@fedoraproject.org> - 8.2.0-15
 - Rebuild (jsoncpp)
 
