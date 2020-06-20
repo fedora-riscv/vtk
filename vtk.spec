@@ -4,6 +4,17 @@
 %bcond_without mpich
 %bcond_without qt5
 %bcond_without openmpi
+# s390x on EL8 does not have xorg-x11-drv-dummy
+%if 0%{?rhel}
+%ifarch s390x
+%bcond_with    xdummy
+%else
+%bcond_without xdummy
+%endif
+%else
+%bcond_without xdummy
+%endif
+
 # VTK currently is carrying local modifications to gl2ps
 %bcond_with gl2ps
 %if !%{with gl2ps}
@@ -93,7 +104,9 @@ BuildRequires:  python%{?python3_pkgversion}-mpi4py-openmpi
 BuildRequires:  netcdf-openmpi-devel
 %endif
 # For %check
+%if %{with xdummy}
 BuildRequires: xorg-x11-drv-dummy
+%endif
 %{!?with_java:Conflicts: vtk-java}
 Requires: hdf5 = %{_hdf5_version}
 
@@ -713,6 +726,7 @@ cp -al build/ExternalData/* %{buildroot}%{_datadir}/vtkdata/
 %check
 cd build
 cp %SOURCE2 .
+%if %{with xdummy}
 if [ -x /usr/libexec/Xorg ]; then
    Xorg=/usr/libexec/Xorg
 else
@@ -720,9 +734,12 @@ else
 fi
 $Xorg -noreset +extension GLX +extension RANDR +extension RENDER -logfile ./xorg.log -config ./xorg.conf -configdir . :99 &
 export DISPLAY=:99
+%endif
 ctest %{_smp_mflags} -V || :
+%if %{with xdummy}
 kill %1 || :
 cat xorg.log
+%endif
 
 
 %files -f build/libs.list
