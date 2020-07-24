@@ -1,3 +1,5 @@
+%global __cmake_in_source_build 1
+
 # Disable OSMesa builds for now - see Bug 744434
 %bcond_without OSMesa
 %bcond_without java
@@ -24,7 +26,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 8.2.0
-Release: 18%{?dist}
+Release: 19%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -868,6 +870,9 @@ cat xorg.log
 
 
 %changelog
+* Fri Jul 24 2020 Jeff Law <law@redhat.com> - 8.2.0-19
+- Use __cmake_in_source_build
+
 * Sat Jul 11 2020 Jiri Vanek <jvanek@redhat.com> - 8.2.0-18
 - Rebuilt for JDK-11, see https://fedoraproject.org/wiki/Changes/Java11
 
