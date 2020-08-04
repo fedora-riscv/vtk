@@ -1,4 +1,4 @@
-%global __cmake_in_source_build 1
+%undefine __cmake_in_source_build
 
 # Disable OSMesa builds for now - see Bug 744434
 %bcond_without OSMesa
@@ -26,7 +26,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 8.2.0
-Release: 20%{?dist}
+Release: 21%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -554,24 +554,21 @@ export JAVA_TOOL_OPTIONS=-Xmx2048m
 # Commented old flags in case we'd like to reactive some of them
 # -DVTK_USE_DISPLAY:BOOL=OFF \ # This prevents building of graphics tests
 
-mkdir build
-pushd build
-%cmake .. \
+%global _vpath_builddir build
+%cmake \
  %{vtk_cmake_options} \
  -DBUILD_DOCUMENTATION:BOOL=ON \
  -DBUILD_EXAMPLES:BOOL=ON \
  -DBUILD_TESTING:BOOL=ON
-%make_build
-%make_build DoxygenDoc vtkMyDoxygenDoc
-popd
+%cmake_build
+%cmake_build --target DoxygenDoc vtkMyDoxygenDoc
 
 %if %{with mpich}
-mkdir build-mpich
-pushd build-mpich
+%global _vpath_builddir build-mpich
 %_mpich_load
 export CC=mpicc
 export CXX=mpic++
-%cmake .. \
+%cmake \
  %{vtk_cmake_options} \
  -DCMAKE_PREFIX_PATH:PATH=$MPI_HOME \
  -DCMAKE_INSTALL_PREFIX:PATH=$MPI_HOME \
@@ -588,18 +585,16 @@ export CXX=mpic++
  -DVTK_USE_PARALLEL:BOOL=ON \
  -DVTK_USE_SYSTEM_DIY2:BOOL=OFF \
  -DVTK_USE_SYSTEM_MPI4PY:BOOL=ON
-%make_build
+%cmake_build
 %_mpich_unload
-popd
 %endif
 
 %if %{with openmpi}
-mkdir build-openmpi
-pushd build-openmpi
+%global _vpath_builddir build-openmpi
 %_openmpi_load
 export CC=mpicc
 export CXX=mpic++
-%cmake .. \
+%cmake \
  %{vtk_cmake_options} \
  -DCMAKE_PREFIX_PATH:PATH=$MPI_HOME \
  -DCMAKE_INSTALL_PREFIX:PATH=$MPI_HOME \
@@ -616,9 +611,8 @@ export CXX=mpic++
  -DVTK_USE_PARALLEL:BOOL=ON \
  -DVTK_USE_SYSTEM_DIY2:BOOL=OFF \
  -DVTK_USE_SYSTEM_MPI4PY:BOOL=ON
-%make_build
+%cmake_build
 %_openmpi_unload
-popd
 %endif
 
 # Remove executable bits from sources (some of which are generated)
@@ -627,9 +621,10 @@ find . -name \*.c -or -name \*.cxx -or -name \*.h -or -name \*.hxx -or \
 
 
 %install
-pushd build
-%make_install
+%global _vpath_builddir build
+%cmake_install
 
+pushd build
 # Gather list of non-python/tcl libraries
 ls %{buildroot}%{_libdir}/*.so.* \
   | grep -Ev '(Java|Qt|Python..D|TCL)' | sed -e's,^%{buildroot},,' > libs.list
@@ -686,27 +681,25 @@ cat libs.list
 popd
 
 %if %{with mpich}
-pushd build-mpich
 %_mpich_load
-%make_install
+%global _vpath_builddir build-mpich
+%cmake_install
 
 # Gather list of non-python/tcl libraries
 ls %{buildroot}%{_libdir}/mpich/lib/*.so.* \
-  | grep -Ev '(Java|Qt|Python..D|TCL)' | sed -e's,^%{buildroot},,' > libs.list
-popd
+  | grep -Ev '(Java|Qt|Python..D|TCL)' | sed -e's,^%{buildroot},,' > build-mpich/libs.list
 %_mpich_unload
 %endif
 
 %if %{with openmpi}
-pushd build-openmpi
 %_openmpi_load
-%make_install
+%global _vpath_builddir build-openmpi
+%cmake_install
 
 # Gather list of non-python/tcl libraries
 ls %{buildroot}%{_libdir}/openmpi/lib/*.so.* \
-  | grep -Ev '(Java|Qt|Python..D|TCL)' | sed -e's,^%{buildroot},,' > libs.list
+  | grep -Ev '(Java|Qt|Python..D|TCL)' | sed -e's,^%{buildroot},,' > build-openmpi/libs.list
 %_openmpi_unload
-popd
 %endif
 
 # Remove exec bit from non-scripts and %%doc
@@ -726,7 +719,6 @@ mkdir -p %{buildroot}%{_datadir}/vtkdata
 cp -al build/ExternalData/* %{buildroot}%{_datadir}/vtkdata/
 
 %check
-cd build
 cp %SOURCE2 .
 %if %{with xdummy}
 if [ -x /usr/libexec/Xorg ]; then
@@ -737,7 +729,8 @@ fi
 $Xorg -noreset +extension GLX +extension RANDR +extension RENDER -logfile ./xorg.log -config ./xorg.conf -configdir . :99 &
 export DISPLAY=:99
 %endif
-ctest %{_smp_mflags} -V || :
+%global _vpath_builddir build
+%ctest --verbose || :
 %if %{with xdummy}
 kill %1 || :
 cat xorg.log
@@ -870,6 +863,9 @@ cat xorg.log
 
 
 %changelog
+* Tue Aug  4 2020 Orion Poplawski <orion@nwra.com> - 8.2.0-21
+- Use new cmake macros
+
 * Wed Jul 29 2020 Fedora Release Engineering <releng@fedoraproject.org> - 8.2.0-20
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_33_Mass_Rebuild
 
