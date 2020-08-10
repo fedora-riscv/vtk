@@ -26,7 +26,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 8.2.0
-Release: 21%{?dist}
+Release: 22%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -716,7 +716,7 @@ cp -pr --parents Wrapping/*/README* _docs/
 
 #Install data
 mkdir -p %{buildroot}%{_datadir}/vtkdata
-cp -al build/ExternalData/* %{buildroot}%{_datadir}/vtkdata/
+cp -alL build/ExternalData/* %{buildroot}%{_datadir}/vtkdata/
 
 %check
 cp %SOURCE2 .
@@ -863,6 +863,9 @@ cat xorg.log
 
 
 %changelog
+* Sun Aug  9 2020 Orion Poplawski <orion@nwra.com> - 8.2.0-22
+- Fix ExternalData in vtk-data (bz#1783622)
+
 * Tue Aug  4 2020 Orion Poplawski <orion@nwra.com> - 8.2.0-21
 - Use new cmake macros
 
