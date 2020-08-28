@@ -17,6 +17,10 @@
 %bcond_without xdummy
 %endif
 
+%if 0%{?fedora} >= 33 || 0%{?rhel} >= 9
+%bcond_without flexiblas
+%endif
+
 # VTK currently is carrying local modifications to gl2ps
 %bcond_with gl2ps
 %if !%{with gl2ps}
@@ -26,7 +30,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 8.2.0
-Release: 22%{?dist}
+Release: 23%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -89,8 +93,12 @@ BuildRequires: pugixml-devel
 BuildRequires: R-devel
 BuildRequires: sqlite-devel
 BuildRequires: wget
+%if %{with flexiblas}
+BuildRequires: flexiblas-devel
+%else
 BuildRequires: blas-devel
 BuildRequires: lapack-devel
+%endif
 # Requires patched libharu https://github.com/libharu/libharu/pull/157
 #BuildRequires: libharu-devel
 BuildRequires: lz4-devel
@@ -170,7 +178,12 @@ Requires: python%{python3_pkgversion}-vtk%{?_isa} = %{version}-%{release}
 Requires: python%{python3_pkgversion}-vtk-qt%{?_isa} = %{version}-%{release}
 %{?with_OSMesa:Requires: mesa-libOSMesa-devel%{?_isa}}
 Requires: cmake
+%if %{with flexiblas}
+Requires: flexiblas-devel%{?_isa}
+%else
 Requires: blas-devel%{?_isa}
+Requires: lapack-devel%{?_isa}
+%endif
 Requires: double-conversion-devel%{?_isa}
 # eigen3 is noarch
 Requires: eigen3-devel
@@ -181,7 +194,6 @@ Requires: gl2ps-devel%{?_isa}
 %endif
 Requires: glew-devel%{?_isa}
 Requires: hdf5-devel%{?_isa}
-Requires: lapack-devel%{?_isa}
 Requires: libjpeg-devel%{?_isa}
 Requires: lz4-devel%{?_isa}
 Requires: libpng-devel%{?_isa}
@@ -275,14 +287,18 @@ Requires: vtk-mpich%{?_isa} = %{version}-%{release}
 %{?with_OSMesa:Requires: mesa-libOSMesa-devel%{?_isa}}
 Requires: cmake
 Requires: mpich-devel
+%if %{with flexiblas}
+Requires: flexiblas-devel%{?_isa}
+%else
 Requires: blas-devel%{?_isa}
+Requires: lapack-devel%{?_isa}
+%endif
 %if 0%{with gl2ps}
 Requires: gl2ps-devel%{?_isa}
 %endif
 Requires: expat-devel%{?_isa}
 Requires: freetype-devel%{?_isa}
 Requires: hdf5-mpich-devel%{?_isa}
-Requires: lapack-devel%{?_isa}
 Requires: libjpeg-devel%{?_isa}
 Requires: libpng-devel%{?_isa}
 Requires: libogg-devel%{?_isa}
@@ -367,14 +383,18 @@ Requires: vtk-openmpi%{?_isa} = %{version}-%{release}
 %{?with_OSMesa:Requires: mesa-libOSMesa-devel%{?_isa}}
 Requires: cmake
 Requires: openmpi-devel
+%if %{with flexiblas}
+Requires: flexiblas-devel%{?_isa}
+%else
 Requires: blas-devel%{?_isa}
+Requires: lapack-devel%{?_isa}
+%endif
 %if 0%{with gl2ps}
 Requires: gl2ps-devel%{?_isa}
 %endif
 Requires: expat-devel%{?_isa}
 Requires: freetype-devel%{?_isa}
 Requires: hdf5-openmpi-devel%{?_isa}
-Requires: lapack-devel%{?_isa}
 Requires: libjpeg-devel%{?_isa}
 Requires: libpng-devel%{?_isa}
 Requires: libogg-devel%{?_isa}
@@ -557,6 +577,7 @@ export JAVA_TOOL_OPTIONS=-Xmx2048m
 %global _vpath_builddir build
 %cmake \
  %{vtk_cmake_options} \
+ %{?with_flexiblas:-DBLAS_LIBRARIES=-lflexiblas} \
  -DBUILD_DOCUMENTATION:BOOL=ON \
  -DBUILD_EXAMPLES:BOOL=ON \
  -DBUILD_TESTING:BOOL=ON
@@ -730,6 +751,7 @@ $Xorg -noreset +extension GLX +extension RANDR +extension RENDER -logfile ./xorg
 export DISPLAY=:99
 %endif
 %global _vpath_builddir build
+export FLEXIBLAS=netlib
 %ctest --verbose || :
 %if %{with xdummy}
 kill %1 || :
@@ -863,6 +885,9 @@ cat xorg.log
 
 
 %changelog
+* Thu Aug 27 2020 Iñaki Úcar <iucar@fedoraproject.org> - 8.2.0-23
+- https://fedoraproject.org/wiki/Changes/FlexiBLAS_as_BLAS/LAPACK_manager
+
 * Sun Aug  9 2020 Orion Poplawski <orion@nwra.com> - 8.2.0-22
 - Fix ExternalData in vtk-data (bz#1783622)
 
