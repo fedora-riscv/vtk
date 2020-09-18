@@ -30,7 +30,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 8.2.0
-Release: 23%{?dist}
+Release: 24%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -46,6 +46,9 @@ Patch1: vtk-proj6_compat.patch
 # GCC 10 support based on:
 # https://gitlab.kitware.com/vtk/vtk/-/merge_requests/6420
 Patch2: vtk-gcc10.patch
+# Qt 5.15 support
+# https://gitlab.kitware.com/vtk/vtk/-/issues/18005
+Patch3: vtk-qt5.15.patch
 
 URL: http://vtk.org/
 
@@ -485,6 +488,7 @@ programming languages.
 %patch0 -p1 -b .py38
 %patch1 -p1 -b .proj6
 %patch2 -p1 -b .gcc10
+%patch3 -p1 -b .qt5.15
 # Remove included thirdparty sources just to be sure
 # TODO - diy2 - not yet packaged
 # TODO - exodusII - not yet packaged
@@ -885,6 +889,9 @@ cat xorg.log
 
 
 %changelog
+* Thu Sep 17 2020 Orion Poplawski <orion@nwra.com> - 8.2.0-24
+- Add patch to fix build with Qt 5.15
+
 * Thu Aug 27 2020 Iñaki Úcar <iucar@fedoraproject.org> - 8.2.0-23
 - https://fedoraproject.org/wiki/Changes/FlexiBLAS_as_BLAS/LAPACK_manager
 

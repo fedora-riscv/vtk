@@ -1,0 +1,11 @@
+diff -up VTK-8.2.0/Rendering/Qt/vtkQtLabelRenderStrategy.cxx.qt5.15 VTK-8.2.0/Rendering/Qt/vtkQtLabelRenderStrategy.cxx
+--- VTK-8.2.0/Rendering/Qt/vtkQtLabelRenderStrategy.cxx.qt5.15	2019-01-30 10:15:13.000000000 -0700
++++ VTK-8.2.0/Rendering/Qt/vtkQtLabelRenderStrategy.cxx	2020-09-17 21:36:06.985605614 -0600
+@@ -41,6 +41,7 @@
+ #include <QImage>
+ #include <QMap>
+ #include <QPainter>
++#include <QPainterPath>
+ #include <QPair>
+ #include <QPixmap>
+ #include <QTextDocument>
