@@ -778,8 +778,8 @@ cat xorg.log
 
 %files -n python%{python3_pkgversion}-vtk
 %{python3_sitearch}/*
-%{_libdir}/*Python3?D.so.*
-%exclude %{_libdir}/*QtPython3?D.so.*
+%{_libdir}/*Python%{python3_version_nodots}D.so.*
+%exclude %{_libdir}/*QtPython%{python3_version_nodots}D.so.*
 %{_bindir}/vtkpython
 %{_bindir}/vtkWrapPython
 %{_bindir}/vtkWrapPythonInit
@@ -798,7 +798,7 @@ cat xorg.log
 %{_libdir}/qt?/plugins/designer/libQVTKWidgetPlugin.so
 
 %files -n python%{python3_pkgversion}-vtk-qt
-%{_libdir}/*QtPython3?D.so.*
+%{_libdir}/*QtPython%{python3_version_nodots}D.so.*
 
 %if %{with mpich}
 %files mpich -f build-mpich/libs.list
@@ -815,7 +815,7 @@ cat xorg.log
 
 %files -n python%{python3_pkgversion}-vtk-mpich
 %{_libdir}/mpich/lib/python%{python3_version}/
-%{_libdir}/mpich/lib/*Python3?D.so.*
+%{_libdir}/mpich/lib/*Python%{python3_version_nodots}D.so.*
 %exclude %{_libdir}/mpich/lib/*QtPython%{python3_version_nodots}D.so.*
 %{_libdir}/mpich/bin/pvtkpython
 %{_libdir}/mpich/bin/vtkpython
@@ -836,7 +836,7 @@ cat xorg.log
 %{_libdir}/mpich/lib/qt?/
 
 %files -n python%{python3_pkgversion}-vtk-mpich-qt
-%{_libdir}/mpich/lib/*QtPython3?D.so.*
+%{_libdir}/mpich/lib/*QtPython%{python3_version_nodots}D.so.*
 %endif
 
 %if %{with openmpi}
@@ -855,7 +855,7 @@ cat xorg.log
 
 %files -n python%{python3_pkgversion}-vtk-openmpi
 %{_libdir}/openmpi/lib/python%{python3_version}/
-%{_libdir}/openmpi/lib/*Python3?D.so.*
+%{_libdir}/openmpi/lib/*Python%{python3_version_nodots}D.so.*
 %exclude %{_libdir}/openmpi/lib/*QtPython%{python3_version_nodots}D.so.*
 %{_libdir}/openmpi/bin/pvtkpython
 %{_libdir}/openmpi/bin/vtkpython
@@ -876,7 +876,7 @@ cat xorg.log
 %{_libdir}/openmpi/lib/qt?/
 
 %files -n python%{python3_pkgversion}-vtk-openmpi-qt
-%{_libdir}/openmpi/lib/*QtPython3?D.so.*
+%{_libdir}/openmpi/lib/*QtPython%{python3_version_nodots}D.so.*
 %endif
 
 %files data
