@@ -1,5 +1,10 @@
 %undefine __cmake_in_source_build
 
+# State Nov 11 2020, LTO causes
+# TestXMLHyperTreeGridIO.cxx.o (symbol from plugin): undefined reference to symbol
+# '_ZZNSt8__detail18__to_chars_10_implIjEEvPcjT_E8__digits@@LLVM_11'
+%global _lto_cflags %{nil}
+
 # Disable OSMesa builds for now - see Bug 744434
 %bcond_without OSMesa
 %bcond_without java
