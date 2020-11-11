@@ -54,6 +54,9 @@ Patch2: vtk-gcc10.patch
 # Qt 5.15 support
 # https://gitlab.kitware.com/vtk/vtk/-/issues/18005
 Patch3: vtk-qt5.15.patch
+# Temporary patch for building against freetype-2.10.4, which removed FT_CALLBACK_DEF,
+# but was later re-added in https://git.savannah.gnu.org/cgit/freetype/freetype2.git/commit/?id=b0667d2d36fb134d48030b2a560eaaa37810d6ba
+Patch4: vtk_freetype-2.10.4.patch
 
 URL: http://vtk.org/
 
@@ -494,6 +497,7 @@ programming languages.
 %patch1 -p1 -b .proj6
 %patch2 -p1 -b .gcc10
 %patch3 -p1 -b .qt5.15
+%patch4 -p1 -b .freetype
 # Remove included thirdparty sources just to be sure
 # TODO - diy2 - not yet packaged
 # TODO - exodusII - not yet packaged
