@@ -317,7 +317,7 @@ Requires: libtheora-devel%{?_isa}
 Requires: libtiff-devel%{?_isa}
 Requires: libxml2-devel%{?_isa}
 Requires: libpq-devel%{?_isa}
-Requires: mysql-devel%{?_isa}
+Requires: mariadb-devel%{?_isa}
 Requires: netcdf-cxx-devel%{?_isa}
 Requires: netcdf-mpich-devel%{?_isa}
 %if %{with qt5}
@@ -413,7 +413,7 @@ Requires: libtheora-devel%{?_isa}
 Requires: libtiff-devel%{?_isa}
 Requires: libxml2-devel%{?_isa}
 Requires: libpq-devel%{?_isa}
-Requires: mysql-devel%{?_isa}
+Requires: mariadb-devel%{?_isa}
 Requires: netcdf-cxx-devel%{?_isa}
 Requires: netcdf-openmpi-devel%{?_isa}
 %if %{with qt5}
