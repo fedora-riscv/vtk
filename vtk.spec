@@ -35,7 +35,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 9.0.1
-Release: 1%{?dist}
+Release: 2%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -775,6 +775,9 @@ cat xorg.log
 
 
 %changelog
+* Mon Feb 08 2021 Pavel Raiskup <praiskup@redhat.com> - 9.0.1-2
+- rebuild for libpq ABI fix rhbz#1908268
+
 * Sat Jan 30 2021 Orion Poplawski <orion@nwra.com> - 9.0.1-1
 - Update to 9.0.1
 - Disable OSMesa - conflicts with X support
