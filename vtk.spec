@@ -35,7 +35,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 9.0.1
-Release: 2%{?dist}
+Release: 3%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -261,7 +261,7 @@ Requires: vtk%{?_isa} = %{version}-%{release}
 %{?python_provide:%python_provide python%{python3_pkgversion}-vtk}
 Provides: %{py3_dist vtk} = %{version}
 Provides: python%{python3_version}dist(vtk) = %{version}
-Obsoletes: python3-vtk-qt < 8.2.0-15
+Obsoletes: python3-vtk-qt < 8.2.0-27
 Provides:  python%{python3_pkgversion}-vtk-qt = %{version}-%{release}
 
 %description -n python%{python3_pkgversion}-%{name}
@@ -775,6 +775,9 @@ cat xorg.log
 
 
 %changelog
+* Mon Feb 15 2021 Orion Poplawski <orion@nwra.com> - 9.0.1-3
+- Bump python3-vtk-qt obsoletes
+
 * Mon Feb 08 2021 Pavel Raiskup <praiskup@redhat.com> - 9.0.1-2
 - rebuild for libpq ABI fix rhbz#1908268
 
