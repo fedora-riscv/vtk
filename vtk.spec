@@ -54,6 +54,8 @@ Patch3: vtk-AllValues.patch
 # Temporary patch for building against freetype-2.10.4, which removed FT_CALLBACK_DEF,
 # but was later re-added in https://git.savannah.gnu.org/cgit/freetype/freetype2.git/commit/?id=b0667d2d36fb134d48030b2a560eaaa37810d6ba
 Patch4: vtk_freetype-2.10.4.patch
+# Proj 5 support - backport https://gitlab.kitware.com/vtk/vtk/-/merge_requests/7731
+Patch5: vtk-proj5.patch
 
 URL: https://vtk.org/
 
@@ -428,6 +430,7 @@ programming languages.
 %patch2 -p1 -b .includes
 %patch3 -p1 -b .AllValues
 %patch4 -p1 -b .freetype
+%patch5 -p1 -b .proj5
 # Remove included thirdparty sources just to be sure
 # TODO - diy2 - not yet packaged
 # TODO - exodusII - not yet packaged
@@ -775,6 +778,9 @@ cat xorg.log
 
 
 %changelog
+* Sat Mar 13 2021 Orion Poplawski <orion@nwra.com> - 9.0.1-4
+- Add upstream patch for proj 5 support
+
 * Sun Mar 07 2021 Sandro Mani <manisandro@gmail.com> - 9.0.1-4
 - Rebuild (proj)
 
