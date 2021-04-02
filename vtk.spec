@@ -35,7 +35,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 9.0.1
-Release: 4%{?dist}
+Release: 5%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -248,6 +248,9 @@ Install the %{name}-openmpi package to get a version compiled with openmpi.
 %package devel
 Summary: VTK header files for building C++ code
 Requires: %{name}%{?_isa} = %{version}-%{release}
+%if %{with java}
+Requires: %{name}-java%{?_isa} = %{version}-%{release}
+%endif
 Requires: python%{python3_pkgversion}-%{name}%{?_isa} = %{version}-%{release}
 Requires: hdf5-devel%{?_isa}
 Requires: netcdf-mpich-devel%{?_isa}
@@ -778,6 +781,9 @@ cat xorg.log
 
 
 %changelog
+* Fri Apr 02 2021 Orion Poplawski <orion@nwra.com> - 9.0.1-5
+- Make vtk-devel package require vtk-java
+
 * Sat Mar 13 2021 Orion Poplawski <orion@nwra.com> - 9.0.1-4
 - Add upstream patch for proj 5 support
 
