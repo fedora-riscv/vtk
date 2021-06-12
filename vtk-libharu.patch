@@ -1,0 +1,12 @@
+diff -up VTK-9.0.0/ThirdParty/libharu/CMakeLists.txt.libharu VTK-9.0.0/ThirdParty/libharu/CMakeLists.txt
+--- VTK-9.0.0/ThirdParty/libharu/CMakeLists.txt.libharu	2020-05-01 13:29:00.000000000 -0600
++++ VTK-9.0.0/ThirdParty/libharu/CMakeLists.txt	2020-05-12 16:47:18.298133406 -0600
+@@ -8,7 +8,7 @@ vtk_module_third_party(
+     # Unreleased. Requires these PRs:
+     # https://github.com/libharu/libharu/pull/157
+     # https://github.com/libharu/libharu/pull/187
+-    VERSION 2.4.0
++    VERSION 2.3.0
+     TARGETS LibHaru::LibHaru
+     STANDARD_INCLUDE_DIRS)
+ 
