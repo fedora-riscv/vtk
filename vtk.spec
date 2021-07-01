@@ -45,8 +45,8 @@
 
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
-Version: 9.0.1
-Release: 9%{?dist}
+Version: 9.0.2
+Release: 1%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -62,9 +62,6 @@ Patch2: vtk-includes.patch
 # Duplicate define conflict with Xutil, see:
 # https://gitlab.kitware.com/vtk/vtk/-/issues/18048
 Patch3: vtk-AllValues.patch
-# Temporary patch for building against freetype-2.10.4, which removed FT_CALLBACK_DEF,
-# but was later re-added in https://git.savannah.gnu.org/cgit/freetype/freetype2.git/commit/?id=b0667d2d36fb134d48030b2a560eaaa37810d6ba
-Patch4: vtk_freetype-2.10.4.patch
 # Proj 5 support - backport https://gitlab.kitware.com/vtk/vtk/-/merge_requests/7731
 Patch5: vtk-proj5.patch
 
@@ -443,7 +440,6 @@ programming languages.
 %patch1 -p1 -b .limits
 %patch2 -p1 -b .includes
 %patch3 -p1 -b .AllValues
-%patch4 -p1 -b .freetype
 %patch5 -p1 -b .proj5
 # Remove included thirdparty sources just to be sure
 # TODO - diy2 - not yet packaged
@@ -792,6 +788,9 @@ cat xorg.log
 
 
 %changelog
+* Thu Jul 01 2021 Orion Poplawski <orion@nwra.com> - 9.0.2-1
+- Update to 9.0.2
+
 * Fri Jun 04 2021 Python Maint <python-maint@redhat.com> - 9.0.1-9
 - Rebuilt for Python 3.10
 
