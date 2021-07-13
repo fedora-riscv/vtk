@@ -46,7 +46,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 9.0.2
-Release: 1%{?dist}
+Release: 2%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -518,14 +518,14 @@ export JAVA_TOOL_OPTIONS=-Xmx2048m
 %if !%{with gl2ps} \
  -DVTK_MODULE_USE_EXTERNAL_VTK_gl2ps:BOOL=OFF \\\
 %endif \
- -DVTK_USE_TK=ON
+ -DVTK_USE_TK=ON \\\
+  %{?with_flexiblas:-DBLA_VENDOR=FlexiBLAS}
 # https://gitlab.kitware.com/cmake/cmake/issues/17223
 #-DVTK_MODULE_ENABLE_VTK_IOPostgreSQL:STRING=YES \\\
 
 %global _vpath_builddir build
 %cmake \
  %{vtk_cmake_options} \
- %{?with_flexiblas:-DBLAS_LIBRARIES=-lflexiblas} \
  -DVTK_BUILD_DOCUMENTATION:BOOL=ON \
  -DVTK_BUILD_EXAMPLES:BOOL=ON \
  -DVTK_BUILD_TESTING:BOOL=ON
@@ -788,6 +788,9 @@ cat xorg.log
 
 
 %changelog
+* Tue Jul 13 2021 Björn Esser <besser82@fedoraproject.org> - 9.0.2-2
+- Properly set BLA_VENDOR to FlexiBLAS for cmake >= 3.19
+
 * Thu Jul 01 2021 Orion Poplawski <orion@nwra.com> - 9.0.2-1
 - Update to 9.0.2
 
