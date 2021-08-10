@@ -46,7 +46,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 9.0.2
-Release: 4%{?dist}
+Release: 5%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -599,8 +599,18 @@ done
 # Remove any remnants of rpaths on files we install
 # Seems to be some kind of java path
 for file in `cat testing.list`; do
-  chrpath -d %{buildroot}$file
+  chrpath -l -d %{buildroot}$file
 done
+%if %{with mpich}
+chrpath -l -d %{buildroot}%{_libdir}/mpich/bin/pvtkpython
+chrpath -l -d %{buildroot}%{_libdir}/mpich/lib/python%{python3_version}/site-packages/vtkmodules/vtk*.so
+chrpath -l -d %{buildroot}%{_libdir}/mpich/lib/vtk/libvtk{FiltersParallelGeometryJava,IOExodusJava,ParallelMPIJava}.so
+%endif
+%if %{with openmpi}
+chrpath -l -d %{buildroot}%{_libdir}/openmpi/bin/pvtkpython
+chrpath -l -d %{buildroot}%{_libdir}/openmpi/lib/python%{python3_version}/site-packages/vtkmodules/vtk*.so
+chrpath -l -d %{buildroot}%{_libdir}/openmpi/lib/vtk/libvtk{FiltersParallelGeometryJava,IOExodusJava,ParallelMPIJava}.so
+%endif
 popd
 
 %if %{with mpich}
@@ -788,6 +798,9 @@ cat xorg.log
 
 
 %changelog
+* Tue Aug 10 2021 Orion Poplawski <orion@nwra.com> - 9.0.2-5
+- More rpath cleanup
+
 * Sat Aug 07 2021 Jonathan Wakely <jwakely@redhat.com> - 9.0.2-4
 - Rebuilt for Boost 1.76
 
