@@ -601,16 +601,17 @@ done
 for file in `cat testing.list`; do
   chrpath -l -d %{buildroot}$file
 done
-%if %{with mpich}
-chrpath -l -d %{buildroot}%{_libdir}/mpich/bin/pvtkpython
-chrpath -l -d %{buildroot}%{_libdir}/mpich/lib/python%{python3_version}/site-packages/vtkmodules/vtk*.so
-chrpath -l -d %{buildroot}%{_libdir}/mpich/lib/vtk/libvtk{FiltersParallelGeometryJava,IOExodusJava,ParallelMPIJava}.so
-%endif
-%if %{with openmpi}
-chrpath -l -d %{buildroot}%{_libdir}/openmpi/bin/pvtkpython
-chrpath -l -d %{buildroot}%{_libdir}/openmpi/lib/python%{python3_version}/site-packages/vtkmodules/vtk*.so
-chrpath -l -d %{buildroot}%{_libdir}/openmpi/lib/vtk/libvtk{FiltersParallelGeometryJava,IOExodusJava,ParallelMPIJava}.so
-%endif
+# TODO - get proper list of files
+#if %{with mpich}
+#hrpath -l -d %{buildroot}%{_libdir}/mpich/bin/pvtkpython
+#hrpath -l -d %{buildroot}%{_libdir}/mpich/lib/python%{python3_version}/site-packages/vtkmodules/vtk*.so
+#hrpath -l -d %{buildroot}%{_libdir}/mpich/lib/vtk/libvtk{FiltersParallelGeometryJava,IOExodusJava,ParallelMPIJava}.so
+#endif
+#if %{with openmpi}
+#hrpath -l -d %{buildroot}%{_libdir}/openmpi/bin/pvtkpython
+#hrpath -l -d %{buildroot}%{_libdir}/openmpi/lib/python%{python3_version}/site-packages/vtkmodules/vtk*.so
+#hrpath -l -d %{buildroot}%{_libdir}/openmpi/lib/vtk/libvtk{FiltersParallelGeometryJava,IOExodusJava,ParallelMPIJava}.so
+#endif
 popd
 
 %if %{with mpich}
