@@ -474,6 +474,10 @@ export JAVA_HOME=/usr/lib/jvm/java
 # getting "java.lang.OutOfMemoryError: Java heap space" during the build
 export JAVA_TOOL_OPTIONS=-Xmx2048m
 %endif
+%ifarch %{arm}
+# Likely running out of memory during build
+%global _smp_ncpus_max 3
+%endif
 %endif
 
 %global vtk_cmake_options \\\
