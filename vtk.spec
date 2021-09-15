@@ -45,8 +45,8 @@
 
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
-Version: 9.0.2
-Release: 6%{?dist}
+Version: 9.0.3
+Release: 1%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -62,6 +62,9 @@ Patch2: vtk-includes.patch
 # Duplicate define conflict with Xutil, see:
 # https://gitlab.kitware.com/vtk/vtk/-/issues/18048
 Patch3: vtk-AllValues.patch
+# Upstream fix for openslidereader initialization that causes Mayavi to crash
+# https://bugzilla.redhat.com/show_bug.cgi?id=1966135
+Patch4: vtk-openslidereader.patch
 # Proj 5 support - backport https://gitlab.kitware.com/vtk/vtk/-/merge_requests/7731
 Patch5: vtk-proj5.patch
 
@@ -440,6 +443,7 @@ programming languages.
 %patch1 -p1 -b .limits
 %patch2 -p1 -b .includes
 %patch3 -p1 -b .AllValues
+%patch4 -p1 -b .openslidereader
 %patch5 -p1 -b .proj5
 # Remove included thirdparty sources just to be sure
 # TODO - diy2 - not yet packaged
@@ -803,6 +807,10 @@ cat xorg.log
 
 
 %changelog
+* Wed Sep 15 2021 Orion Poplawski <orion@nwra.com> - 9.0.3-1
+- Update to 9.0.3
+- Add upstream patch to fix Mayavi crash (bz#1966135)
+
 * Tue Aug 10 2021 Orion Poplawski <orion@nwra.com> - 9.0.2-6
 - Rebuild for hdf5 1.10.7/netcdf 4.8.0
 
