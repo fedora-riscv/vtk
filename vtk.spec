@@ -5,17 +5,6 @@
 # '_ZZNSt8__detail18__to_chars_10_implIjEEvPcjT_E8__digits@@LLVM_11'
 %global _lto_cflags %{nil}
 
-# https://fedoraproject.org/wiki/Changes/Broken_RPATH_will_fail_rpmbuild
-# https://bugzilla.redhat.com/show_bug.cgi?id=1902729
-# ERROR   0008: file '/usr/lib64/mpich/lib/vtk/libvtkFiltersParallelGeometryJava.so'
-# ERROR   0008: file '/usr/lib64/mpich/lib/vtk/libvtkFiltersParallelGeometryJava.so'
-# ERROR   0008: file '/usr/lib64/mpich/lib/vtk/libvtkParallelMPIJava.so'
-# ERROR   0008: file '/usr/lib64/mpich/lib/vtk/libvtkParallelMPIJava.so'
-#  contains the $ORIGIN runpath specifier at the wrong position in [/usr/lib64/mpich/lib:$ORIGIN:$ORIGIN/../]
-# TODO fix or investigate
-%global __brp_check_rpaths %{nil}
-
-
 # OSMesa and X support are mutually exclusive.
 # TODO - buid separate OSMesa version if desired
 %bcond_with OSMesa
@@ -46,7 +35,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 9.0.3
-Release: 1%{?dist}
+Release: 2%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -592,34 +581,15 @@ ls %{buildroot}%{_libdir}/*.so.* \
 find bin \( -name \*Tests -o -name Test\* -o -name VTKBenchMark \) \
          -printf '%f\n' > testing.list
 
-# Install examples too
-for filelist in testing.list; do
-  for file in `cat $filelist`; do
-    install -p bin/$file %{buildroot}%{_bindir}
-  done
+# Install examples too, need to remove buildtime runpath manually
+for file in `cat testing.list`; do
+  install -p bin/$file %{buildroot}%{_bindir}
+  chrpath -l -d %{buildroot}%{_bindir}/$file
 done
 
 # Fix up filelist paths
-for filelist in testing.list; do
-  perl -pi -e's,^,%{_bindir}/,' $filelist
-done
+perl -pi -e's,^,%{_bindir}/,' testing.list
 
-# Remove any remnants of rpaths on files we install
-# Seems to be some kind of java path
-for file in `cat testing.list`; do
-  chrpath -l -d %{buildroot}$file
-done
-# TODO - get proper list of files
-#if %{with mpich}
-#hrpath -l -d %{buildroot}%{_libdir}/mpich/bin/pvtkpython
-#hrpath -l -d %{buildroot}%{_libdir}/mpich/lib/python%{python3_version}/site-packages/vtkmodules/vtk*.so
-#hrpath -l -d %{buildroot}%{_libdir}/mpich/lib/vtk/libvtk{FiltersParallelGeometryJava,IOExodusJava,ParallelMPIJava}.so
-#endif
-#if %{with openmpi}
-#hrpath -l -d %{buildroot}%{_libdir}/openmpi/bin/pvtkpython
-#hrpath -l -d %{buildroot}%{_libdir}/openmpi/lib/python%{python3_version}/site-packages/vtkmodules/vtk*.so
-#hrpath -l -d %{buildroot}%{_libdir}/openmpi/lib/vtk/libvtk{FiltersParallelGeometryJava,IOExodusJava,ParallelMPIJava}.so
-#endif
 popd
 
 %if %{with mpich}
@@ -665,6 +635,13 @@ cp -pr --parents Wrapping/*/README* _docs/
 #Install data
 mkdir -p %{buildroot}%{_datadir}/vtkdata
 cp -alL build/ExternalData/* %{buildroot}%{_datadir}/vtkdata/
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1902729
+#  contains the $ORIGIN runpath specifier at the wrong position in [/usr/lib64/mpich/lib:$ORIGIN:$ORIGIN/../]
+#  0x0008 ... the special '$ORIGIN' RPATHs are appearing after other
+#             RPATHs; this is just a minor issue but usually unwanted
+# The paths are equivalent and "this is just a minor issue", so we are allowing it below
+export QA_RPATHS=8
 
 
 %check
@@ -807,6 +784,9 @@ cat xorg.log
 
 
 %changelog
+* Sun Sep 26 2021 Orion Poplawski <orion@nwra.com> - 9.0.3-2
+- Cleanup rpath handling (bz#1902729)
+
 * Wed Sep 15 2021 Orion Poplawski <orion@nwra.com> - 9.0.3-1
 - Update to 9.0.3
 - Add upstream patch to fix Mayavi crash (bz#1966135)
