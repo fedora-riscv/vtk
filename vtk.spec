@@ -28,34 +28,26 @@
 
 # VTK currently is carrying local modifications to gl2ps
 %bcond_with gl2ps
-%if !%{with gl2ps}
-%global vtk_use_system_gl2ps -DVTK_USE_SYSTEM_GL2PS:BOOL=OFF
-%endif
+
+# VTK currently requires unreleased fmt 8.1.0
+%bcond_with fmt
 
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
-Version: 9.0.3
-Release: 4%{?dist}
+Version: 9.1.0
+Release: 1%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
 License: BSD
-Source0: https://www.vtk.org/files/release/9.0/VTK-%{version}.tar.gz
-Source1: https://www.vtk.org/files/release/9.0/VTKData-%{version}.tar.gz
+Source0: https://www.vtk.org/files/release/9.1/VTK-%{version}.tar.gz
+Source1: https://www.vtk.org/files/release/9.1/VTKData-%{version}.tar.gz
 Source2: xorg.conf
 # Patch required libharu version (Fedora 33+ contains the needed VTK patches)
 Patch0: vtk-libharu.patch
-Patch1: vtk-limits.patch
-#Patch2: https://gitlab.kitware.com/vtk/vtk/-/merge_requests/7430.patch
-Patch2: vtk-includes.patch
 # Duplicate define conflict with Xutil, see:
 # https://gitlab.kitware.com/vtk/vtk/-/issues/18048
 Patch3: vtk-AllValues.patch
-# Upstream fix for openslidereader initialization that causes Mayavi to crash
-# https://bugzilla.redhat.com/show_bug.cgi?id=1966135
-Patch4: vtk-openslidereader.patch
-# Proj 5 support - backport https://gitlab.kitware.com/vtk/vtk/-/merge_requests/7731
-Patch5: vtk-proj5.patch
 
 URL: https://vtk.org/
 
@@ -69,9 +61,14 @@ BuildRequires:  blas-devel
 BuildRequires:  lapack-devel
 %endif
 BuildRequires:  boost-devel
+BuildRequires:  cgnslib-devel
+BuildRequires:  cli11-devel
 BuildRequires:  double-conversion-devel
 BuildRequires:  eigen3-devel
 BuildRequires:  expat-devel
+%if %{with fmt}
+BuildRequires:  fmt-devel >= 8.1.0
+%endif
 BuildRequires:  freetype-devel
 BuildRequires:  gdal-devel
 %if %{with gl2ps}
@@ -149,10 +146,16 @@ Requires: lapack-devel%{?_isa} \
 %endif \
 Requires: blas-devel%{?_isa} \
 Requires: boost-devel%{?_isa} \
+Requires: cgnslib-devel%{?_isa} \
+# cli11 is noarch and header-only \
+Requires: cli11-static \
 Requires: double-conversion-devel%{?_isa} \
-# eigen3 is noarch \
-Requires: eigen3-devel \
+# eigen3 is noarch and header-only \
+Requires: eigen3-static \
 Requires: expat-devel%{?_isa} \
+%if %{with fmt} \
+Requires: fmt-devel%{?_isa} \
+%endif \
 Requires: freetype-devel%{?_isa} \
 Requires: gdal-devel%{?_isa} \
 %if %{with gl2ps} \
@@ -211,16 +214,23 @@ Provides: bundled(kwsys-glob)
 Provides: bundled(kwsys-md5)
 Provides: bundled(kwsys-process)
 Provides: bundled(kwsys-regularexpression)
+Provides: bundled(kwsys-status)
 Provides: bundled(kwsys-system)
 Provides: bundled(kwsys-systeminformation)
 Provides: bundled(kwsys-systemtools)
 # Other bundled libraries
 Provides: bundled(diy2)
 Provides: bundled(exodusII) = 2.0.0
+Provides: bundled(exprtk) = 2.71
+%if !%{with fmt}
+Provides: bundled(fmt) = 8.1.0
+%endif
 Provides: bundled(ftgl) = 1.32
 %if !%{with gl2ps}
 Provides: bundled(gl2ps) = 1.4.0
 %endif
+Provides: bundled(ioss) = 20210512
+Provides: bundled(kissfft)
 Provides: bundled(metaio)
 Provides: bundled(verdict) = 1.2.0
 Provides: bundled(vpic)
@@ -429,11 +439,7 @@ programming languages.
 %prep
 %setup -q -b 1 -n VTK-%{version}
 %patch0 -p1 -b .libharu
-%patch1 -p1 -b .limits
-%patch2 -p1 -b .includes
 %patch3 -p1 -b .AllValues
-%patch4 -p1 -b .openslidereader
-%patch5 -p1 -b .proj5
 # Remove included thirdparty sources just to be sure
 # TODO - diy2 - not yet packaged
 # TODO - exodusII - not yet packaged
@@ -441,19 +447,17 @@ programming languages.
 # TODO - VPIC - not yet packaged
 # TODO - xdmf2 - not yet packaged
 # TODO - xdmf3 - not yet packaged
-for x in vtk{doubleconversion,eigen,expat,freetype,%{?with_gl2ps:gl2ps,}glew,hdf5,jpeg,jsoncpp,kissfft,libharu,libproj,libxml2,lz4,lzma,mpi4py,netcdf,ogg,pegtl,png,pugixml,sqlite,theora,tiff,utf8,zfp,zlib}
+for x in vtk{cli11,doubleconversion,eigen,expat,%{?with_fmt:fmt,}freetype,%{?with_gl2ps:gl2ps,}glew,hdf5,jpeg,jsoncpp,libharu,libproj,libxml2,lz4,lzma,mpi4py,netcdf,ogg,pegtl,png,pugixml,sqlite,theora,tiff,utf8,zfp,zlib}
 do
   rm -r ThirdParty/*/${x}
 done
 
 # Remove unused KWSys items
-find Utilities/KWSys/vtksys/ -name \*.[ch]\* | grep -vE '^Utilities/KWSys/vtksys/([a-z].*|Configure|SharedForward|String\.hxx|Base64|CommandLineArguments|Directory|DynamicLoader|Encoding|FStream|FundamentalType|Glob|MD5|Process|RegularExpression|System|SystemInformation|SystemTools)(C|CXX|UNIX)?\.' | xargs rm
+find Utilities/KWSys/vtksys/ -name \*.[ch]\* | grep -vE '^Utilities/KWSys/vtksys/([a-z].*|Configure|SharedForward|Status|String\.hxx|Base64|CommandLineArguments|Directory|DynamicLoader|Encoding|FStream|FundamentalType|Glob|MD5|Process|RegularExpression|System|SystemInformation|SystemTools)(C|CXX|UNIX)?\.' | xargs rm
 
 # Save an unbuilt copy of the Example's sources for %doc
 mkdir vtk-examples
 cp -a Examples vtk-examples
-# Don't ship Win32 examples
-rm -r vtk-examples/Examples/GUI/Win32
 find vtk-examples -type f | xargs chmod -R a-x
 
 
@@ -479,10 +483,8 @@ export JAVA_TOOL_OPTIONS=-Xmx2048m
  -DCMAKE_INSTALL_LIBDIR:PATH=%{_lib} \\\
  -DCMAKE_INSTALL_JNILIBDIR:PATH=%{_lib}/%{name} \\\
  -DCMAKE_INSTALL_LICENSEDIR:PATH=share/licenses/%{name} \\\
+ -DCMAKE_INSTALL_QMLDIR:PATH=%{_lib}/qt5/qml \\\
  -DVTK_CUSTOM_LIBRARY_SUFFIX="" \\\
- -DVTK_INSTALL_DATA_DIR=share/%{name} \\\
- -DVTK_INSTALL_INCLUDE_DIR:PATH=include/%{name} \\\
- -DVTK_INSTALL_PACKAGE_DIR:PATH=%{_lib}/cmake/%{name} \\\
  -DVTK_VERSIONED_INSTALL:BOOL=OFF \\\
  -DVTK_GROUP_ENABLE_Imaging:STRING=YES \\\
  -DVTK_GROUP_ENABLE_Qt:STRING=YES \\\
@@ -510,11 +512,15 @@ export JAVA_TOOL_OPTIONS=-Xmx2048m
  -DVTK_WRAP_JAVA:BOOL=OFF \\\
 %endif \
  -DVTK_WRAP_PYTHON:BOOL=ON \\\
- -DVTK_USE_OGGTHEORA_ENCODER=ON \\\
  -DVTK_USE_EXTERNAL=ON \\\
+%if !%{with fmt} \
+ -DVTK_MODULE_USE_EXTERNAL_VTK_fmt:BOOL=OFF \\\
+%endif \
 %if !%{with gl2ps} \
  -DVTK_MODULE_USE_EXTERNAL_VTK_gl2ps:BOOL=OFF \\\
 %endif \
+ -DVTK_MODULE_USE_EXTERNAL_VTK_exprtk:BOOL=OFF \\\
+ -DVTK_MODULE_USE_EXTERNAL_VTK_ioss:BOOL=OFF \\\
  -DVTK_USE_TK=ON \\\
   %{?with_flexiblas:-DBLA_VENDOR=FlexiBLAS}
 # https://gitlab.kitware.com/cmake/cmake/issues/17223
@@ -540,7 +546,7 @@ export JAVA_TOOL_OPTIONS=-Xmx2048m
  -DCMAKE_INSTALL_PREFIX:PATH=$MPI_HOME \
  -DCMAKE_INSTALL_LIBDIR:PATH=lib \
  -DCMAKE_INSTALL_JNILIBDIR:PATH=lib/%{name} \
- -DVTK_INSTALL_PACKAGE_DIR:PATH=lib/cmake \
+ -DCMAKE_INSTALL_QMLDIR:PATH=lib/qt5/qml \
  -DVTK_USE_MPI:BOOL=ON
 %cmake_build
 %_mpich_unload
@@ -557,7 +563,7 @@ export JAVA_TOOL_OPTIONS=-Xmx2048m
  -DCMAKE_INSTALL_PREFIX:PATH=$MPI_HOME \
  -DCMAKE_INSTALL_LIBDIR:PATH=lib \
  -DCMAKE_INSTALL_JNILIBDIR:PATH=lib/%{name} \
- -DVTK_INSTALL_PACKAGE_DIR:PATH=lib/cmake \
+ -DCMAKE_INSTALL_QMLDIR:PATH=lib/qt5/qml \
  -DVTK_USE_MPI:BOOL=ON
 %cmake_build
 %_openmpi_unload
@@ -677,7 +683,7 @@ cat xorg.log
 %{_libdir}/cmake/%{name}/
 %dir %{_libdir}/%{name}
 %{_libdir}/%{name}/hierarchy/
-%{_docdir}/%{name}-9.0/
+%{_docdir}/%{name}/
 
 %files -n python%{python3_pkgversion}-vtk
 %{python3_sitearch}/*
@@ -699,6 +705,7 @@ cat xorg.log
 %files qt
 %{_libdir}/lib*Qt*.so.*
 %exclude %{_libdir}/*Python*.so.*
+%{_libdir}/qt5/qml/*
 
 %if %{with mpich}
 %files mpich -f build-mpich/libs.list
@@ -735,6 +742,7 @@ cat xorg.log
 %files mpich-qt
 %{_libdir}/mpich/lib/lib*Qt*.so.*
 %exclude %{_libdir}/mpich/lib/*Python*.so.*
+%{_libdir}/mpich/lib/qt5/
 %endif
 
 %if %{with openmpi}
@@ -772,6 +780,7 @@ cat xorg.log
 %files openmpi-qt
 %{_libdir}/openmpi/lib/lib*Qt*.so.*
 %exclude %{_libdir}/openmpi/lib/*Python*.so.*
+%{_libdir}/openmpi/lib/qt5/
 %endif
 
 %files data
@@ -784,6 +793,9 @@ cat xorg.log
 
 
 %changelog
+* Sun Nov 21 2021 Orion Poplawski <orion@nwra.com> - 9.1.0-1
+- Update to 9.1.0
+
 * Thu Nov 11 2021 Sandro Mani <manisandro@gmail.com> - 9.0.3-4
 - Rebuild (gdal)
 
