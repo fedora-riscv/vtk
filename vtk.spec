@@ -477,7 +477,7 @@ export JAVA_TOOL_OPTIONS=-Xmx2048m
 %endif
 %ifarch x86_64
 # Parallel build issue https://gitlab.kitware.com/vtk/vtk/-/issues/18394
-%global _smp_ncpus_max 3
+%global _smp_ncpus_max 2
 %endif
 %endif
 
