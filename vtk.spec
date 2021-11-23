@@ -475,6 +475,10 @@ export JAVA_TOOL_OPTIONS=-Xmx2048m
 # Likely running out of memory during build
 %global _smp_ncpus_max 3
 %endif
+%ifarch x86_64
+# Parallel build issue https://gitlab.kitware.com/vtk/vtk/-/issues/18394
+%global _smp_ncpus_max 3
+%endif
 %endif
 
 %global vtk_cmake_options \\\
