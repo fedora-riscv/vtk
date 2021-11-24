@@ -52,6 +52,15 @@ Patch3: vtk-AllValues.patch
 URL: https://vtk.org/
 
 BuildRequires:  cmake
+# Fails with make on x86_64 for some reason, but otherwise make appears to be faster
+# and ninja seems to fail on ppc64le
+# https://gitlab.kitware.com/vtk/vtk/-/issues/18394
+%ifarch x86_64
+BuildRequires:  ninja-build
+%global cmake_gen -GNinja
+%else
+%global cmake_gen %{nil}
+%endif
 BuildRequires:  gcc-c++
 %{?with_java:BuildRequires: java-devel}
 %if %{with flexiblas}
@@ -475,10 +484,6 @@ export JAVA_TOOL_OPTIONS=-Xmx2048m
 # Likely running out of memory during build
 %global _smp_ncpus_max 3
 %endif
-%ifarch x86_64
-# Parallel build issue https://gitlab.kitware.com/vtk/vtk/-/issues/18394
-%global _smp_ncpus_max 2
-%endif
 %endif
 
 %global vtk_cmake_options \\\
@@ -531,7 +536,7 @@ export JAVA_TOOL_OPTIONS=-Xmx2048m
 #-DVTK_MODULE_ENABLE_VTK_IOPostgreSQL:STRING=YES \\\
 
 %global _vpath_builddir build
-%cmake \
+%cmake %{cmake_gen} \
  %{vtk_cmake_options} \
  -DVTK_BUILD_DOCUMENTATION:BOOL=ON \
  -DVTK_BUILD_EXAMPLES:BOOL=ON \
@@ -544,7 +549,7 @@ export JAVA_TOOL_OPTIONS=-Xmx2048m
 %_mpich_load
 %define __cc mpicc
 %define __cxx mpic++
-%cmake \
+%cmake %{cmake_gen} \
  %{vtk_cmake_options} \
  -DCMAKE_PREFIX_PATH:PATH=$MPI_HOME \
  -DCMAKE_INSTALL_PREFIX:PATH=$MPI_HOME \
@@ -561,7 +566,7 @@ export JAVA_TOOL_OPTIONS=-Xmx2048m
 %_openmpi_load
 %define __cc mpicc
 %define __cxx mpic++
-%cmake \
+%cmake %{cmake_gen} \
  %{vtk_cmake_options} \
  -DCMAKE_PREFIX_PATH:PATH=$MPI_HOME \
  -DCMAKE_INSTALL_PREFIX:PATH=$MPI_HOME \
