@@ -35,7 +35,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 9.1.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -171,9 +171,6 @@ Requires: gdal-devel%{?_isa} \
 Requires: gl2ps-devel%{?_isa} \
 %endif \
 Requires: glew-devel%{?_isa} \
-%if %{with java} \
-Requires: java-devel \
-%endif \
 Requires: jsoncpp-devel%{?_isa} \
 Requires: lapack-devel%{?_isa} \
 Requires: libarchive-devel%{?_isa} \
@@ -298,6 +295,14 @@ Requires: %{name}%{?_isa} = %{version}-%{release}
 
 %description java
 Java bindings for VTK.
+
+%package java-devel
+Summary: Java development for VTK
+Requires: %{name}-java%{?_isa} = %{version}-%{release}
+Requires: java-devel
+
+%description java-devel
+Java development for VTK.
 %endif
 
 %package qt
@@ -353,6 +358,14 @@ Requires: %{name}-mpich%{?_isa} = %{version}-%{release}
 
 %description mpich-java
 Java bindings for VTK with mpich.
+
+%package mpich-java-devel
+Summary: Java development for VTK with mpich
+Requires: %{name}-mpich-java%{?_isa} = %{version}-%{release}
+Requires: java-devel
+
+%description mpich-java-devel
+Java development for VTK with mpich.
 %endif
 
 %package mpich-qt
@@ -407,10 +420,18 @@ Python 3 bindings for VTK with openmpi.
 %package openmpi-java
 Summary: Java bindings for VTK with openmpi
 Requires: %{name}-openmpi%{?_isa} = %{version}-%{release}
-%endif
 
 %description openmpi-java
 Java bindings for VTK with openmpi.
+
+%package openmpi-java-devel
+Summary: Java development for VTK with openmpi
+Requires: %{name}-openmpi-java%{?_isa} = %{version}-%{release}
+Requires: java-devel
+
+%description openmpi-java-devel
+Java development for VTK with openmpi.
+%endif
 
 %package openmpi-qt
 Summary: Qt bindings for VTK with openmpi
@@ -802,6 +823,9 @@ cat xorg.log
 
 
 %changelog
+* Fri Jan 07 2022 Orion Poplawski <orion@nwra.com> - 9.1.0-2
+- Make java-devel only be brought in by vtk-java-devel
+
 * Sun Nov 21 2021 Orion Poplawski <orion@nwra.com> - 9.1.0-1
 - Update to 9.1.0
 
