@@ -35,7 +35,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 9.1.0
-Release: 2%{?dist}
+Release: 3%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -568,8 +568,8 @@ export JAVA_TOOL_OPTIONS=-Xmx2048m
 %if %{with mpich}
 %global _vpath_builddir build-mpich
 %_mpich_load
-%define __cc mpicc
-%define __cxx mpic++
+%global __cc mpicc
+%global __cxx mpic++
 %cmake %{cmake_gen} \
  %{vtk_cmake_options} \
  -DCMAKE_PREFIX_PATH:PATH=$MPI_HOME \
@@ -585,8 +585,8 @@ export JAVA_TOOL_OPTIONS=-Xmx2048m
 %if %{with openmpi}
 %global _vpath_builddir build-openmpi
 %_openmpi_load
-%define __cc mpicc
-%define __cxx mpic++
+%global __cc mpicc
+%global __cxx mpic++
 %cmake %{cmake_gen} \
  %{vtk_cmake_options} \
  -DCMAKE_PREFIX_PATH:PATH=$MPI_HOME \
@@ -823,6 +823,9 @@ cat xorg.log
 
 
 %changelog
+* Thu Jan 20 2022 Orion Poplawski <orion@nwra.com> - 9.1.0-3
+- Use %%global to define __cc/__cxx
+
 * Fri Jan 07 2022 Orion Poplawski <orion@nwra.com> - 9.1.0-2
 - Make java-devel only be brought in by vtk-java-devel
 
