@@ -568,8 +568,8 @@ export JAVA_TOOL_OPTIONS=-Xmx2048m
 %if %{with mpich}
 %global _vpath_builddir build-mpich
 %_mpich_load
-%global __cc mpicc
-%global __cxx mpic++
+export CC=mpicc
+export CXX=mpic++
 %cmake %{cmake_gen} \
  %{vtk_cmake_options} \
  -DCMAKE_PREFIX_PATH:PATH=$MPI_HOME \
@@ -585,8 +585,8 @@ export JAVA_TOOL_OPTIONS=-Xmx2048m
 %if %{with openmpi}
 %global _vpath_builddir build-openmpi
 %_openmpi_load
-%global __cc mpicc
-%global __cxx mpic++
+export CC=mpicc
+export CXX=mpic++
 %cmake %{cmake_gen} \
  %{vtk_cmake_options} \
  -DCMAKE_PREFIX_PATH:PATH=$MPI_HOME \
@@ -823,6 +823,9 @@ cat xorg.log
 
 
 %changelog
+* Sat Jan 29 2022 Orion Poplawski <orion@nwra.com> - 9.1.0-4
+- Use export CC/CXX to set MPI compiler
+
 * Sat Jan 22 2022 Fedora Release Engineering <releng@fedoraproject.org> - 9.1.0-4
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_36_Mass_Rebuild
 
