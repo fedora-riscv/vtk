@@ -52,15 +52,9 @@ Patch3: vtk-AllValues.patch
 URL: https://vtk.org/
 
 BuildRequires:  cmake
-# Fails with make on x86_64 for some reason, but otherwise make appears to be faster
-# and ninja seems to fail on ppc64le
-# https://gitlab.kitware.com/vtk/vtk/-/issues/18394
-%ifarch x86_64
-BuildRequires:  ninja-build
-%global cmake_gen -GNinja
-%else
+# Allow for testing with different cmake generators.
+# make still seems to be faster than ninja, but has failed at times.
 %global cmake_gen %{nil}
-%endif
 BuildRequires:  gcc-c++
 %{?with_java:BuildRequires: java-devel}
 %if %{with flexiblas}
@@ -677,7 +671,10 @@ cp -alL build/ExternalData/* %{buildroot}%{_datadir}/vtkdata/
 #  0x0008 ... the special '$ORIGIN' RPATHs are appearing after other
 #             RPATHs; this is just a minor issue but usually unwanted
 # The paths are equivalent and "this is just a minor issue", so we are allowing it below
-export QA_RPATHS=8
+#  0x0010 ... the RPATH is empty; there is no reason for such RPATHs
+#             and they cause unneeded work while loading libraries
+# This is appearing on mpi libraries, no idea why.
+export QA_RPATHS=18
 
 
 %check
