@@ -497,7 +497,7 @@ export JAVA_TOOL_OPTIONS=-Xmx2048m
 %endif
 %ifarch %{arm}
 # Likely running out of memory during build
-%global _smp_ncpus_max 3
+%global _smp_ncpus_max 2
 %endif
 %endif
 
