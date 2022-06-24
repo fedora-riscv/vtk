@@ -35,7 +35,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 9.1.0
-Release: 11%{?dist}
+Release: 12%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -523,6 +523,7 @@ export JAVA_TOOL_OPTIONS=-Xmx2048m
  -DVTK_MODULE_ENABLE_VTK_InfovisBoost:STRING=YES \\\
  -DVTK_MODULE_ENABLE_VTK_InfovisBoostGraphAlgorithms:STRING=YES \\\
  -DVTK_MODULE_ENABLE_VTK_IOMySQL:STRING=YES \\\
+ -DVTK_PYTHON_OPTIONAL_LINK:BOOL=OFF \\\
  -DVTK_PYTHON_VERSION=3 \\\
 %if %{with OSMesa} \
  -DVTK_OPENGL_HAS_OSMESA:BOOL=ON \\\
@@ -820,6 +821,9 @@ cat xorg.log
 
 
 %changelog
+* Fri Jun 24 2022 Orion Poplawski <orion@nwra.com> - 9.1.0-12
+- Set VTK_PYTHON_OPTIONAL_LINK=OFF (bz#1979611)
+
 * Mon Jun 13 2022 Python Maint <python-maint@redhat.com> - 9.1.0-11
 - Rebuilt for Python 3.11
 
