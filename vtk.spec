@@ -45,6 +45,8 @@ Source1: https://www.vtk.org/files/release/9.1/VTKData-%{version}.tar.gz
 Source2: xorg.conf
 # Patch required libharu version (Fedora 33+ contains the needed VTK patches)
 Patch0: vtk-libharu.patch
+# Upstream patch to link kissfft with libm
+Patch1: vtk-kissfft-libm.patch
 # Duplicate define conflict with Xutil, see:
 # https://gitlab.kitware.com/vtk/vtk/-/issues/18048
 Patch3: vtk-AllValues.patch
@@ -463,6 +465,7 @@ programming languages.
 %prep
 %setup -q -b 1 -n VTK-%{version}
 %patch0 -p1 -b .libharu
+%patch1 -p1 -b .kissfft-libm
 %patch3 -p1 -b .AllValues
 # Remove included thirdparty sources just to be sure
 # TODO - diy2 - not yet packaged
@@ -823,6 +826,7 @@ cat xorg.log
 %changelog
 * Fri Jun 24 2022 Orion Poplawski <orion@nwra.com> - 9.1.0-12
 - Set VTK_PYTHON_OPTIONAL_LINK=OFF (bz#1979611)
+- Link libvtkkissfft.so.1 against libm (bz#2100573)
 
 * Mon Jun 13 2022 Python Maint <python-maint@redhat.com> - 9.1.0-11
 - Rebuilt for Python 3.11
