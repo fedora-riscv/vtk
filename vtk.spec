@@ -35,7 +35,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 9.1.0
-Release: 12%{?dist}
+Release: 13%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -47,6 +47,9 @@ Source2: xorg.conf
 Patch0: vtk-libharu.patch
 # Upstream patch to link kissfft with libm
 Patch1: vtk-kissfft-libm.patch
+# Upstream patch to support netcdf 4.9.0
+# https://gitlab.kitware.com/vtk/vtk/-/issues/18576
+Patch2: vtk-netcdf.patch
 # Duplicate define conflict with Xutil, see:
 # https://gitlab.kitware.com/vtk/vtk/-/issues/18048
 Patch3: vtk-AllValues.patch
@@ -463,10 +466,7 @@ programming languages.
 
 
 %prep
-%setup -q -b 1 -n VTK-%{version}
-%patch0 -p1 -b .libharu
-%patch1 -p1 -b .kissfft-libm
-%patch3 -p1 -b .AllValues
+%autosetup -p1 -b 1 -n VTK-%{version}
 # Remove included thirdparty sources just to be sure
 # TODO - diy2 - not yet packaged
 # TODO - exodusII - not yet packaged
@@ -824,6 +824,9 @@ cat xorg.log
 
 
 %changelog
+* Tue Jun 28 2022 Orion Poplawski <orion@nwra.com> - 9.1.0-13
+- Add patch to support netcdf 4.9.0
+
 * Fri Jun 24 2022 Orion Poplawski <orion@nwra.com> - 9.1.0-12
 - Set VTK_PYTHON_OPTIONAL_LINK=OFF (bz#1979611)
 - Link libvtkkissfft.so.1 against libm (bz#2100573)
