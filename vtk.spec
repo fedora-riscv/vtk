@@ -8,7 +8,12 @@
 # OSMesa and X support are mutually exclusive.
 # TODO - buid separate OSMesa version if desired
 %bcond_with OSMesa
+# No more Java on i686
+%ifarch %{java_arches}
 %bcond_without java
+%else
+%bcond_with java
+%endif
 %bcond_without mpich
 %bcond_without openmpi
 # s390x on EL8 does not have xorg-x11-drv-dummy
@@ -35,7 +40,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 9.1.0
-Release: 13%{?dist}
+Release: 14%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -61,7 +66,12 @@ BuildRequires:  cmake
 # make still seems to be faster than ninja, but has failed at times.
 %global cmake_gen %{nil}
 BuildRequires:  gcc-c++
-%{?with_java:BuildRequires: java-devel}
+%if %{with java}
+BuildRequires: java-devel
+%else
+Obsoletes:     %{name}-java < %{version}-%{release}
+Obsoletes:     %{name}-java-devel < %{version}-%{release}
+%endif
 %if %{with flexiblas}
 BuildRequires:  flexiblas-devel
 %else
@@ -140,7 +150,6 @@ BuildRequires:  netcdf-openmpi-devel
 BuildRequires:  xorg-x11-drv-dummy
 BuildRequires:  mesa-dri-drivers
 %endif
-%{!?with_java:Conflicts: vtk-java}
 Requires: hdf5 = %{_hdf5_version}
 
 # Almost every BR needs to be required by the -devel packages
@@ -317,6 +326,10 @@ Summary: The Visualization Toolkit - mpich version
 
 Obsoletes: %{name}-mpich-tcl < 8.2.0-1
 Obsoletes: %{name}-mpich-qt-tcl < 8.2.0-1
+%if %{without java}
+Obsoletes:     %{name}-mpich-java < %{version}-%{release}
+Obsoletes:     %{name}-mpich-java-devel < %{version}-%{release}
+%endif
 
 %description mpich
 VTK is an open-source software system for image processing, 3D
@@ -381,6 +394,10 @@ Summary: The Visualization Toolkit - openmpi version
 
 Obsoletes: %{name}-openmpi-tcl < 8.2.0-1
 Obsoletes: %{name}-openmpi-qt-tcl < 8.2.0-1
+%if %{without java}
+Obsoletes:     %{name}-mpich-java < %{version}-%{release}
+Obsoletes:     %{name}-mpich-java-devel < %{version}-%{release}
+%endif
 
 %description openmpi
 VTK is an open-source software system for image processing, 3D
@@ -824,6 +841,9 @@ cat xorg.log
 
 
 %changelog
+* Sun Jul 10 2022 Orion Poplawski <orion@nwra.com> - 9.1.0-14
+- Drop java for i686 (bz#2104109)
+
 * Tue Jun 28 2022 Orion Poplawski <orion@nwra.com> - 9.1.0-13
 - Add patch to support netcdf 4.9.0
 
