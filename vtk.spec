@@ -724,8 +724,10 @@ cat xorg.log
 
 %files devel
 %doc Utilities/Upgrading
+%{_bindir}/vtkParseJava
 %{_bindir}/vtkProbeOpenGLVersion
 %{_bindir}/vtkWrapHierarchy
+%{_bindir}/vtkWrapJava
 %{_includedir}/%{name}
 %{_libdir}/*.so
 %{_libdir}/cmake/%{name}/
@@ -746,8 +748,6 @@ cat xorg.log
 %dir %{_libdir}/%{name}
 %{_libdir}/%{name}/*Java.so
 %{_javadir}/vtk.jar
-%{_bindir}/vtkParseJava
-%{_bindir}/vtkWrapJava
 %endif
 
 %files qt
@@ -761,8 +761,10 @@ cat xorg.log
 %doc README.md _docs/Wrapping
 
 %files mpich-devel
+%{_libdir}/mpich/bin/vtkParseJava
 %{_libdir}/mpich/bin/vtkProbeOpenGLVersion
 %{_libdir}/mpich/bin/vtkWrapHierarchy
+%{_libdir}/mpich/bin/vtkWrapJava
 %{_libdir}/mpich/include/
 %{_libdir}/mpich/lib/*.so
 %{_libdir}/mpich/lib/cmake/
@@ -783,8 +785,6 @@ cat xorg.log
 %dir %{_libdir}/mpich/lib/%{name}
 %{_libdir}/mpich/lib/%{name}/*Java.so
 %{_libdir}/mpich/share/java/vtk.jar
-%{_libdir}/mpich/bin/vtkParseJava
-%{_libdir}/mpich/bin/vtkWrapJava
 %endif
 
 %files mpich-qt
@@ -799,8 +799,10 @@ cat xorg.log
 %doc README.md _docs/Wrapping
 
 %files openmpi-devel
+%{_libdir}/openmpi/bin/vtkParseJava
 %{_libdir}/openmpi/bin/vtkProbeOpenGLVersion
 %{_libdir}/openmpi/bin/vtkWrapHierarchy
+%{_libdir}/openmpi/bin/vtkWrapJava
 %{_libdir}/openmpi/include/
 %{_libdir}/openmpi/lib/*.so
 %{_libdir}/openmpi/lib/cmake/
@@ -821,8 +823,6 @@ cat xorg.log
 %dir %{_libdir}/openmpi/lib/%{name}
 %{_libdir}/openmpi/lib/%{name}/*Java.so
 %{_libdir}/openmpi/share/java/vtk.jar
-%{_libdir}/openmpi/bin/vtkParseJava
-%{_libdir}/openmpi/bin/vtkWrapJava
 %endif
 
 %files openmpi-qt
