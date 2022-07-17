@@ -683,9 +683,11 @@ find Utilities/Upgrading -type f -print0 | xargs -0 chmod -x
 mkdir -p _docs
 cp -pr --parents Wrapping/*/README* _docs/
 
-#Install data
+# Install data
 mkdir -p %{buildroot}%{_datadir}/vtkdata
 cp -alL build/ExternalData/* %{buildroot}%{_datadir}/vtkdata/
+# Make noarch data sub-package the same on all arches
+rm -rf %{buildroot}%{_datadir}/vtkdata/Wrapping/Java/Testing
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1902729
 #  contains the $ORIGIN runpath specifier at the wrong position in [/usr/lib64/mpich/lib:$ORIGIN:$ORIGIN/../]
