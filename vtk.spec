@@ -40,7 +40,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 9.1.0
-Release: 15%{?dist}
+Release: 16%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -459,7 +459,9 @@ Qt bindings for VTK with openmpi.
 
 %package data
 Summary: VTK data files for tests/examples
-BuildArch: noarch
+# FIXME due to java removal on i686, data file list differs on i686
+# FIXME make this arch-dependent for now
+#BuildArch: noarch
 Obsoletes: vtkdata < 6.1.0-3
 
 %description data
@@ -843,6 +845,10 @@ cat xorg.log
 
 
 %changelog
+* Thu Jul 28 2022 Mamoru TASAKA <mtasaka@fedoraproject.org> - 9.1.0-16
+- Make -data subpackage arch-dependent for now due to
+  java removal (bz#2104109)
+
 * Sat Jul 23 2022 Fedora Release Engineering <releng@fedoraproject.org> - 9.1.0-15
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_37_Mass_Rebuild
 
