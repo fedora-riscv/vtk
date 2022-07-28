@@ -40,7 +40,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 9.1.0
-Release: 16%{?dist}
+Release: 17%{?dist}
 # This is a variant BSD license, a cross between BSD and ZLIB.
 # For all intents, it has the same rights and restrictions as BSD.
 # http://fedoraproject.org/wiki/Licensing/BSD#VTKBSDVariant
@@ -459,9 +459,7 @@ Qt bindings for VTK with openmpi.
 
 %package data
 Summary: VTK data files for tests/examples
-# FIXME due to java removal on i686, data file list differs on i686
-# FIXME make this arch-dependent for now
-#BuildArch: noarch
+BuildArch: noarch
 Obsoletes: vtkdata < 6.1.0-3
 
 %description data
@@ -689,7 +687,8 @@ cp -pr --parents Wrapping/*/README* _docs/
 mkdir -p %{buildroot}%{_datadir}/vtkdata
 cp -alL build/ExternalData/* %{buildroot}%{_datadir}/vtkdata/
 # Make noarch data sub-package the same on all arches
-rm -rf %{buildroot}%{_datadir}/vtkdata/Wrapping/Java/Testing
+# At the moment this only contains Java/Testing/Data/Baseline
+rm -rf %{buildroot}%{_datadir}/vtkdata/Wrapping
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1902729
 #  contains the $ORIGIN runpath specifier at the wrong position in [/usr/lib64/mpich/lib:$ORIGIN:$ORIGIN/../]
@@ -845,6 +844,9 @@ cat xorg.log
 
 
 %changelog
+* Thu Jul 28 2022 Orion Poplawski <orion@nwra.com> - 9.1.0-17
+- Remove all of vtkdata/Wrapping to keep vtk-data noarch
+
 * Thu Jul 28 2022 Mamoru TASAKA <mtasaka@fedoraproject.org> - 9.1.0-16
 - Make -data subpackage arch-dependent for now due to
   java removal (bz#2104109)
