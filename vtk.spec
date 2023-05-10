@@ -5,6 +5,11 @@
 # '_ZZNSt8__detail18__to_chars_10_implIjEEvPcjT_E8__digits@@LLVM_11'
 %global _lto_cflags %{nil}
 
+# atomic cannot be linked automatically with riscv64 toolchain
+%ifarch riscv64
+%global optflags %(echo %optflags -pthread)
+%endif
+
 # OSMesa and X support are mutually exclusive.
 # TODO - buid separate OSMesa version if desired
 %bcond_with OSMesa
@@ -40,7 +45,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 9.2.5
-Release: 2%{?dist}
+Release: 2.rv64%{?dist}
 License: BSD-3-Clause
 Source0: https://www.vtk.org/files/release/9.2/VTK-%{version}.tar.gz
 Source1: https://www.vtk.org/files/release/9.2/VTKData-%{version}.tar.gz
@@ -842,6 +847,9 @@ cat xorg.log
 
 
 %changelog
+* Wed May 10 2023 Liu Yang <Yang.Liu.sn@gmail.com> - 9.2.5-2.rv64
+- Fix build on riscv64.
+
 * Sat Jan 21 2023 Fedora Release Engineering <releng@fedoraproject.org> - 9.2.5-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_38_Mass_Rebuild
 
