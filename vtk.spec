@@ -45,7 +45,7 @@
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
 Version: 9.2.6
-Release: 9%{?dist}
+Release: 10%{?dist}
 License: BSD-3-Clause
 Source0: https://www.vtk.org/files/release/9.2/VTK-%{version}.tar.gz
 Source1: https://www.vtk.org/files/release/9.2/VTKData-%{version}.tar.gz
@@ -472,6 +472,13 @@ Obsoletes: vtkdata < 6.1.0-3
 %description data
 VTK data files for tests and examples.
 
+%package doc
+Summary: API documentation for VTK
+BuildArch: noarch
+
+%description doc
+Generated API documentation for VTK
+
 %package testing
 Summary: Testing programs for VTK
 Requires: %{name}%{?_isa} = %{version}-%{release}, %{name}-data = %{version}
@@ -716,7 +723,6 @@ cat xorg.log
 %{_libdir}/cmake/%{name}/
 %dir %{_libdir}/%{name}
 %{_libdir}/%{name}/hierarchy/
-%{_docdir}/%{name}/
 
 %files -n python%{python3_pkgversion}-vtk
 %{python3_sitearch}/*
@@ -817,6 +823,9 @@ cat xorg.log
 %files data
 %{_datadir}/vtkdata
 
+%files doc
+%{_docdir}/%{name}/
+
 %files testing -f %{_vendor}-%{_target_os}-build-serial/testing.list
 
 %files examples
@@ -824,6 +833,9 @@ cat xorg.log
 
 
 %changelog
+* Thu Nov 02 2023 Philip Matura <pfed@tura-home.de> - 9.2.6-10
+- Move API docs to separate doc sub-package (bz#2247327)
+
 * Wed Oct 11 2023 Orion Poplawski <orion@nwra.com> - 9.2.6-9
 - Rebuild for openslide 4.0.0
 
