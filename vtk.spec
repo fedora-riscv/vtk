@@ -19,7 +19,16 @@
 %bcond_with openmpi
 %else
 %bcond_without mpich
+# No openmpi on i668 with openmpi 5 in Fedora 40+
+%if 0%{?fedora} >= 40
+%ifarch %{ix86}
+%bcond_with openmpi
+%else
 %bcond_without openmpi
+%endif
+%else
+%bcond_without openmpi
+%endif
 %endif
 # s390x on EL8 does not have xorg-x11-drv-dummy
 %if 0%{?rhel}
