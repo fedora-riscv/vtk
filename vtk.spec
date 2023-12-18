@@ -19,8 +19,13 @@
 %else
 %bcond_with java
 %endif
+%if 0%{?flatpak}
+%bcond_with mpich
+%bcond_with openmpi
+%else
 %bcond_without mpich
 %bcond_without openmpi
+%endif
 # s390x on EL8 does not have xorg-x11-drv-dummy
 %if 0%{?rhel}
 %ifarch s390x
@@ -44,8 +49,8 @@
 
 Summary: The Visualization Toolkit - A high level 3D visualization library
 Name: vtk
-Version: 9.2.5
-Release: 2.rv64%{?dist}
+Version: 9.2.6
+Release: 7.rv64%{?dist}
 License: BSD-3-Clause
 Source0: https://www.vtk.org/files/release/9.2/VTK-%{version}.tar.gz
 Source1: https://www.vtk.org/files/release/9.2/VTKData-%{version}.tar.gz
@@ -279,7 +284,7 @@ Requires: %{name}-java%{?_isa} = %{version}-%{release}
 %endif
 Requires: python%{python3_pkgversion}-%{name}%{?_isa} = %{version}-%{release}
 Requires: hdf5-devel%{?_isa}
-Requires: netcdf-mpich-devel%{?_isa}
+Requires: netcdf-cxx-devel%{?_isa}
 %{vtk_devel_requires}
 
 %description devel
@@ -348,6 +353,7 @@ Requires: %{name}-mpich%{?_isa} = %{version}-%{release}
 Requires: python%{python3_pkgversion}-%{name}-mpich%{?_isa} = %{version}-%{release}
 Requires: mpich-devel
 Requires: hdf5-mpich-devel%{?_isa}
+Requires: netcdf-mpich-devel%{?_isa}
 %{vtk_devel_requires}
 
 %description mpich-devel
@@ -847,6 +853,27 @@ cat xorg.log
 
 
 %changelog
+* Sun Sep 10 2023 Orion Poplawski <orion@nwra.com> - 9.2.6-7
+- Fix -devel deps on netcdf-*-devel
+
+* Sat Jul 22 2023 Fedora Release Engineering <releng@fedoraproject.org> - 9.2.6-6
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_39_Mass_Rebuild
+
+* Thu Jul 06 2023 Sandro Mani <manisandro@gmail.com> - 9.2.6-5
+- Rebuild (cgnslib)
+
+* Fri Jun 16 2023 Python Maint <python-maint@redhat.com> - 9.2.6-4
+- Rebuilt for Python 3.12
+
+* Thu May 11 2023 Sandro Mani <manisandro@gmail.com> - 9.2.6-3
+- Rebuild (gdal)
+
+* Mon Feb 20 2023 Jonathan Wakely <jwakely@redhat.com> - 9.2.6-2
+- Rebuilt for Boost 1.81
+
+* Sun Feb 19 2023 Orion Poplawski <orion@nwra.com> - 9.2.6-1
+- Update to 9.2.6
+
 * Wed May 10 2023 Liu Yang <Yang.Liu.sn@gmail.com> - 9.2.5-2.rv64
 - Fix build on riscv64.
 
